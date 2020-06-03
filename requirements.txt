@@ -1,0 +1,4 @@
+google
+bs4
+requests
+pytest
