@@ -2,3 +2,5 @@ google
 bs4
 requests
 pytest
+newspaper3k
+html5lib

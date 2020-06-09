@@ -1,6 +1,6 @@
 import pytest
 
-from guardian import check_match
+from newspapers.guardian import check_match
 
 
 @pytest.mark.parametrize(
@@ -17,3 +17,18 @@ from guardian import check_match
 def test_remove_on_match(unwanted, url, expected):
     result = check_match(url, unwanted)
     assert result is expected
+
+
+from newspapers.guardian import check_guardian_url
+
+
+@pytest.mark.parametrize(
+    'url, expected',
+    (
+        ('https://www.theguardian.com/environment/2020/may/05/one-billion-people-will-live-in-insufferable-heat-within-50-years-study', True),
+        ('https://www.theguardian.com/environment/2019/may/18/climate-crisis-heat-is-on-global-heating-four-degrees-2100-change-way-we-live', True)
+    )
+)
+def test_guardian_check_url(url, expected):
+    check = check_guardian_url(url)
+    assert expected == check

@@ -9,10 +9,10 @@ def check_match(url, unwanted):
     return True
 
 
-def check_guardian_url(url):
+def check_guardian_url(url, logger):
     unwanted = ['live', 'gallery', 'audio', 'video', 'ng-interactive', 'interactive']
     if not check_match(url, unwanted):
-        print('rejecting {}'.format(url))
+        logger.info(f'guardian, {url}, check failed')
         return False
 
     parts = url.split('/')
@@ -25,19 +25,18 @@ def check_guardian_url(url):
         if cond1 or cond2:
             return True
         else:
-            print('rejecting {}'.format(url))
+            logger.info(f'guardian, {url}, check failed')
             return False
 
     #  short url
     except IndexError:
-        print('rejecting {}'.format(url))
+        logger.info(f'guardian, {url}, check failed')
         return False
 
 
-def parse_guardian_html(link):
-    cls = 'content__article-body from-content-api js-article__body'
+def parse_guardian_html(url):
     itemprop = 'articleBody'
-    req = requests.get(link)
+    req = requests.get(url)
     html = req.text
     soup = BeautifulSoup(html, features="html5lib")
     table = soup.findAll('div', attrs={"itemprop": itemprop})
@@ -49,9 +48,8 @@ def parse_guardian_html(link):
     article = ''.join(article)
     return {
         'body': article,
-        'url': link,
-        'author': "",
-        'date': "",
+        'url': url,
         'newspaper': 'guardian',
-        'html': html
+        'html': html,
+        'id': url.split('/')[-1]
     }
