@@ -39,17 +39,21 @@ def parse_guardian_html(url):
     req = requests.get(url)
     html = req.text
     soup = BeautifulSoup(html, features="html5lib")
-    table = soup.findAll('div', attrs={"itemprop": itemprop})
 
+    table = soup.findAll('div', attrs={"itemprop": itemprop})
     if len(table) != 1:
         return {}
+    article = ''.join([p.text for p in table[0].findAll('p')])
 
-    article = [p.text for p in table[0].findAll('p')]
-    article = ''.join(article)
+    published = soup.findAll('time', attrs={'itemprop': 'datePublished'})
+    assert len(published) == 1
+    published = published[0]['datetime']
+
     return {
+        'newspaper': 'guardian',
         'body': article,
         'url': url,
-        'newspaper': 'guardian',
         'html': html,
-        'id': url.split('/')[-1]
+        'id': url.split('/')[-1],
+        'published': published
     }

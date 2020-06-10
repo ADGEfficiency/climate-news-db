@@ -4,12 +4,26 @@ import argparse
 
 from newspapers.guardian import check_guardian_url, parse_guardian_html
 from newspapers.fox import check_fox_url, parse_fox_html
+from newspapers.skyau import check_sky_au_url, parse_sky_au_url
+from newspapers.nytimes import check_nytimes_url, parse_nytimes_html
 
 from pathlib import Path
 
 from make_logger import make_logger
 
 logger = make_logger('logger.log')
+
+
+def google_search(url, query='climate change', stop=10):
+    from googlesearch import search
+    query = f"{query} site:{url}"
+    return search(
+        query,
+        start=1,
+        stop=stop,
+        pause=2.0,
+        user_agent='climatecode'
+    )
 
 
 class TextFiles:
@@ -44,8 +58,20 @@ if __name__ == '__main__':
             "checker": check_fox_url,
             "parser": parse_fox_html
         },
-        # {"id": "nytimes", "name": "New York Times", "url": "nytimes.com"},
-        # {"id": "sky-au", "name": "Sky News Australia", "url": "skynews.com.au"}
+        {
+            "id": "nytimes",
+            "name": "New York Times",
+            "url": "nytimes.com",
+            "checker": check_nytimes_url,
+            "parser": parse_nytimes_html
+        },
+        {
+            "id": "skyau",
+            "name": "Sky News Australia",
+            "url": "skynews.com.au",
+            "checker": check_sky_au_url,
+            "parser": parse_sky_au_url
+        }
     ]
 
     newspapers = args.newspapers
@@ -62,26 +88,19 @@ if __name__ == '__main__':
     for newspaper in newspapers:
         print(f'scraping {args.num} from {newspaper["name"]}')
 
-        #  search url getter
-        #  return urls
-        query = "climate change site:" + newspaper['url']
-        from googlesearch import search
-        checker = newspaper['checker']
+        urls = google_search(newspaper['url'], stop=args.num)
 
+        checker = newspaper['checker']
         urls = [
-            url for url in search(
-                query,
-                start=1,
-                stop=args.num,
-                pause=2.0,
-                user_agent='climatecode'
-            )
+            url for url in urls
             if checker(url, logger)
         ]
-        # print(f'found {len(urls)} for {newspaper['name']}')
+
+        logger.info(f'search: found {len(urls)} for {newspaper["name"]}')
 
         parser = newspaper['parser']
         for url in urls:
+            # TODO check if the file exists -> don't parse
             parsed = parser(url)
 
             if parsed:

@@ -4,7 +4,7 @@ CLI to download climate change news articles.
 
 ## Setup
 
-Python 3.7+
+Python 3.7+ (we use f-strings)
 
 ```bash
 $ pip install -r requirements.txt
@@ -20,7 +20,7 @@ This will download files into `$HOME`:
 
 ```bash
 /Users/adam/climate-nlp
-├── interim
+├── final
 │   └── yellowstones-geysers-are-getting-more-active-and-nobody-knows-why.json
 └── raw
     └── yellowstones-geysers-are-getting-more-active-and-nobody-knows-why.html
@@ -29,8 +29,14 @@ This will download files into `$HOME`:
 The interim data has the schema:
 ```json
 {
-	"url": "http://",
-	"title": "article title"
+TODO
 }
 ```
 
+## Useful commands
+
+See how many articles you have:
+
+```bash
+$ ls ~/climate-nlp/final | wc -l
+```
