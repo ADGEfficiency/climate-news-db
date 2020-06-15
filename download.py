@@ -36,6 +36,7 @@ class TextFiles:
         with open(fi, 'w') as fp:
             fp.write(data)
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--newspapers', default=["all", ], nargs='*')

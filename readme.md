@@ -16,22 +16,18 @@ $ pip install -r requirements.txt
 $ python download.py --newspapers all --n 50
 ```
 
-This will download files into `$HOME`:
-
-```bash
-/Users/adam/climate-nlp
-├── final
-│   └── yellowstones-geysers-are-getting-more-active-and-nobody-knows-why.json
-└── raw
-    └── yellowstones-geysers-are-getting-more-active-and-nobody-knows-why.html
-```
-
-The interim data has the schema:
+This will download files into `$HOME`.  The final data has the schema:
 ```json
 {
-TODO
+	"newspaper": "",
+	"body": "",
+	"url": "",
+	"id': "",
+	"published": "",
 }
 ```
+
+The corresponding raw HTML is found at `raw/{id}.html'`.
 
 ## Useful commands
 
