@@ -33,6 +33,7 @@ def parse_fox_html(url):
     article = [p.text for p in table[0].findAll('p', attrs={"class": "speakable"})]
     article = ''.join(article)
     return {
+        'newspaper': 'fox',
         'body': article,
         'html': html,
         'url': url,
