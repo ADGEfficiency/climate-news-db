@@ -3,3 +3,4 @@ bs4
 requests
 pytest
 html5lib
+flask

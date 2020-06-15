@@ -36,7 +36,7 @@ def parse_fox_html(url):
         'body': article,
         'html': html,
         'url': url,
-        'id': url.split('/')[-1],
+        'id': url.split('/')[-1].strip('.html'),
         'published': article_metadata['datePublished'],
         'modified': article_metadata['dateModified']
     }

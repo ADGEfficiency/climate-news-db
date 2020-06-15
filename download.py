@@ -1,15 +1,13 @@
+import argparse
 import json
 
-import argparse
-
+from database import TextFiles
 from newspapers.guardian import check_guardian_url, parse_guardian_html
 from newspapers.fox import check_fox_url, parse_fox_html
 from newspapers.skyau import check_sky_au_url, parse_sky_au_url
 from newspapers.nytimes import check_nytimes_url, parse_nytimes_html
-
-from pathlib import Path
-
 from make_logger import make_logger
+
 
 logger = make_logger('logger.log')
 
@@ -26,15 +24,6 @@ def google_search(url, query='climate change', stop=10):
     )
 
 
-class TextFiles:
-    def __init__(self, root):
-        self.root = Path.home() / 'climate-nlp' / root
-        self.root.mkdir(parents=True, exist_ok=True)
-
-    def post(self, data, fi):
-        fi = self.root / fi
-        with open(fi, 'w') as fp:
-            fp.write(data)
 
 
 if __name__ == '__main__':
