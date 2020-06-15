@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block body %}
+  <div>
+      <table class="table">
+        <thead>
+          <th>Newspaper</th>
+          <th>Article ID</th>
+          <th>URL</th>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{article.newspaper}}</td>
+            <td>{{article.id}}</td>
+            <td>{{article.url}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="lead">Article Body</p>
+		<p>{{article.body}}</p>
+  </div>
+{% endblock %}
