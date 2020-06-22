@@ -91,6 +91,7 @@ if __name__ == '__main__':
         parser = newspaper['parser']
         for url in urls:
             # TODO check if the file exists -> don't parse
+            logger.debug(f'parsing {url}')
             parsed = parser(url)
 
             if parsed:

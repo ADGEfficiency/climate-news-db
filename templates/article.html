@@ -4,14 +4,16 @@
       <table class="table">
         <thead>
           <th>Newspaper</th>
+          <th>Published On</th>
           <th>Article ID</th>
           <th>URL</th>
         </thead>
         <tbody>
           <tr>
             <td>{{article.newspaper}}</td>
+            <td>{{article.published}}</td>
             <td>{{article.id}}</td>
-            <td>{{article.url}}</td>
+            <td><a href={{article.url}}>{{article.url}}</a></td>
           </tr>
         </tbody>
       </table>
