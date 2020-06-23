@@ -20,7 +20,7 @@ def google_search(url, query='climate change', stop=10):
         start=1,
         stop=stop,
         pause=2.0,
-        user_agent='climatecode'
+        user_agent='climatecode1'
     )
 
 
@@ -81,6 +81,7 @@ if __name__ == '__main__':
         urls = google_search(newspaper['url'], stop=args.num)
 
         checker = newspaper['checker']
+        #  unpacks the generator & performs url checking
         urls = [
             url for url in urls
             if checker(url, logger)

@@ -36,3 +36,9 @@ See how many articles you have:
 ```bash
 $ ls ~/climate-nlp/final | wc -l
 ```
+
+## Deploy
+
+```bash
+$ aws s3 sync ~/climate-nlp s3://climate-nlp
+```
