@@ -4,6 +4,7 @@ from pathlib import Path
 
 
 def make_logger(log_file):
+    """info to STDOUT, debug to file"""
     log_file = Path.home() / 'climate-nlp' / log_file
 
     # Create a custom logger

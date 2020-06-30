@@ -19,11 +19,6 @@ search for "climate crisis"
 
 429 Error from google search
 
-## schema update
-
-article_id, newspaper_id
-published -> published date
-
 ## don't download if file already exists
 
 Might help with 429 errors (?)

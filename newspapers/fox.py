@@ -3,7 +3,7 @@ import json
 import requests
 from bs4 import BeautifulSoup
 
-from newspapers.guardian import check_match
+from newspapers.utils import check_match, parser_decorator
 
 
 def check_fox_url(url, logger):
@@ -14,6 +14,7 @@ def check_fox_url(url, logger):
     return True
 
 
+@parser_decorator
 def parse_fox_html(url):
     html = requests.get(url).text
     soup = BeautifulSoup(html, features="html.parser")
@@ -39,13 +40,13 @@ def parse_fox_html(url):
     )
 
     return {
-        'newspaper': 'fox',
+        'newspaper-id': 'fox',
         'body': article,
         'html': html,
         'url': url,
-        'id': url.split('/')[-1],
-        'published': article_metadata['datePublished'],
-        'modified': article_metadata['dateModified']
+        'article-id': url.split('/')[-1],
+        'date-published': article_metadata['datePublished'],
+        'date-modified': article_metadata['dateModified']
     }
 
 

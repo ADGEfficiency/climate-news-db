@@ -2,28 +2,36 @@ import argparse
 import json
 
 from database import TextFiles
-from newspapers.guardian import check_guardian_url, parse_guardian_html
-from newspapers.fox import check_fox_url, parse_fox_html
-from newspapers.skyau import check_sky_au_url, parse_sky_au_url
-from newspapers.nytimes import check_nytimes_url, parse_nytimes_html
-from make_logger import make_logger
+from logger import make_logger
 
+from newspapers.registry import registry
 
+raw = TextFiles('raw')
+final = TextFiles('final')
 logger = make_logger('logger.log')
 
+import time
+import random
 
-def google_search(url, query='climate change', stop=10):
-    from googlesearch import search
-    query = f"{query} site:{url}"
-    return search(
-        query,
-        start=1,
-        stop=stop,
-        pause=2.0,
-        user_agent='climatecode1'
-    )
+def google_search(url, query='climate change', stop=10, backoff=1.0):
+        from urllib.error import HTTPError
+        try:
+            from googlesearch import search
+            query = f"{query} site:{url}"
 
+            time.sleep((2**backoff) + random.random())
 
+            urls = list(search(
+                query,
+                start=1,
+                stop=stop,
+                pause=4.0,
+                user_agent='climatecode'
+            ))
+            logger.info('google search successful {*args} {**kwargs}')
+        except HTTPError as e:
+            logger.info(f'{e} at backoff {backoff}')
+            return google_search(url, query, stop, backoff=backoff+1)
 
 
 if __name__ == '__main__':
@@ -33,61 +41,23 @@ if __name__ == '__main__':
     args = parser.parse_args()
     print(args)
 
-    registry = [
-        {
-            "id": "guardian",
-            "name": "The Guardian",
-            "url": "theguardian.com",
-            "checker": check_guardian_url,
-            "parser": parse_guardian_html
-        },
-        {
-            "id": "fox",
-            "name": "Fox News",
-            "url": "foxnews.com",
-            "checker": check_fox_url,
-            "parser": parse_fox_html
-        },
-        {
-            "id": "nytimes",
-            "name": "New York Times",
-            "url": "nytimes.com",
-            "checker": check_nytimes_url,
-            "parser": parse_nytimes_html
-        },
-        {
-            "id": "skyau",
-            "name": "Sky News Australia",
-            "url": "skynews.com.au",
-            "checker": check_sky_au_url,
-            "parser": parse_sky_au_url
-        }
-    ]
-
     newspapers = args.newspapers
     if newspapers == ['all', ]:
         newspapers = registry
     else:
         newspapers = [n for n in registry if n['id'] in newspapers]
 
-    raw = TextFiles('raw')
-    final = TextFiles('final')
 
     print(newspapers)
 
     for newspaper in newspapers:
-        print(f'scraping {args.num} from {newspaper["name"]}')
-
+        print(f'scraping {args.num} from {newspaper["newspaper"]}')
         urls = google_search(newspaper['url'], stop=args.num)
 
         checker = newspaper['checker']
-        #  unpacks the generator & performs url checking
-        urls = [
-            url for url in urls
-            if checker(url, logger)
-        ]
+        urls = [url for url in urls if checker(url, logger)]
 
-        logger.info(f'search: found {len(urls)} for {newspaper["name"]}')
+        logger.info(f'search: found {len(urls)} for {newspaper["newspaper"]}')
 
         parser = newspaper['parser']
         for url in urls:
@@ -96,7 +66,7 @@ if __name__ == '__main__':
             parsed = parser(url)
 
             if parsed:
-                fname = str(parsed['id'])
+                fname = str(parsed['article-id'])
                 logger.debug(f'saving {fname}')
                 raw.post(parsed['html'], fname+'.html')
                 del parsed['html']

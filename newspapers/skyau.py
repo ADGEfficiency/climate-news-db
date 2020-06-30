@@ -3,11 +3,14 @@ import requests
 from datetime import datetime as dt
 import re
 
+from newspapers.utils import parser_decorator
+
 
 def check_sky_au_url(url, logger=None):
     return True
 
 
+@parser_decorator
 def parse_sky_au_url(url):
     html = requests.get(url).text
     soup = BeautifulSoup(html, features="html.parser")
@@ -29,12 +32,12 @@ def parse_sky_au_url(url):
         assert len(stamp) == 1
 
     return {
-        'newspaper': 'skyau',
+        'newspaper-id': 'skyau',
         'body': article,
         'html': html,
         'url': url,
-        'id': url.split('/')[-1],
-        'published': stamp
+        'article-id': url.split('/')[-1],
+        'date-published': stamp
     }
 
 

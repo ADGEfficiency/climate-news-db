@@ -1,16 +1,12 @@
 from bs4 import BeautifulSoup
 import requests
 
-
-def check_match(url, unwanted):
-    for unw in unwanted:
-        if unw in url:
-            return False
-    return True
+from newspapers.utils import check_match, parser_decorator
 
 
 def check_guardian_url(url, logger):
     unwanted = ['live', 'gallery', 'audio', 'video', 'ng-interactive', 'interactive']
+
     if not check_match(url, unwanted):
         logger.info(f'guardian, {url}, check failed')
         return False
@@ -34,6 +30,7 @@ def check_guardian_url(url, logger):
         return False
 
 
+@parser_decorator
 def parse_guardian_html(url):
     itemprop = 'articleBody'
     req = requests.get(url)
@@ -50,10 +47,10 @@ def parse_guardian_html(url):
     published = published[0]['datetime']
 
     return {
-        'newspaper': 'guardian',
+        'newspaper-id': 'guardian',
         'body': article,
         'url': url,
         'html': html,
-        'id': url.split('/')[-1],
-        'published': published
+        'article-id': url.split('/')[-1],
+        'date-published': published
     }

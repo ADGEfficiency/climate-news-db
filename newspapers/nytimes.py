@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 
-from newspapers.guardian import check_match
+from newspapers.utils import check_match, parser_decorator
 
 
 def check_nytimes_url(url, logger):
@@ -12,7 +12,7 @@ def check_nytimes_url(url, logger):
     else:
         return True
 
-
+@parser_decorator
 def parse_nytimes_html(url):
     html = requests.get(url).text
     soup = BeautifulSoup(html, features="html5lib")
@@ -32,10 +32,10 @@ def parse_nytimes_html(url):
     published = dts[0]['datetime']
 
     return {
-        'newspaper': 'nytimes',
+        'newspaper-id': 'nytimes',
         'body': article,
         'url': url,
         'html': html,
-        'id': url.split('/')[-1],
-        'published': published,
+        'article-id': url.split('/')[-1],
+        'date-published': published,
     }
