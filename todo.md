@@ -19,9 +19,6 @@ search for "climate crisis"
 
 429 Error from google search
 
-## don't download if file already exists
-
-Might help with 429 errors (?)
 
 ## articles that are failing
 
@@ -35,3 +32,9 @@ guardian - https://www.theguardian.com/environment/2019/may/18/climate-crisis-he
 
 Mentions of 1.5 C, two degrees C etc
 - how this changes over time
+
+## downloading smarter
+
+ability to parse url from file
+
+don't download if file already exists

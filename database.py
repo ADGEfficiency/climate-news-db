@@ -3,8 +3,11 @@ import json
 
 
 class TextFiles:
-    def __init__(self, root):
-        self.root = Path.home() / 'climate-nlp' / root
+    def __init__(self, root=None):
+        if root:
+            self.root = Path.home() / 'climate-nlp' / root
+        else:
+            self.root = Path.home() / 'climate-nlp'
         self.root.mkdir(parents=True, exist_ok=True)
 
     def post(self, data, fi):
@@ -12,7 +15,21 @@ class TextFiles:
         with open(fi, 'w') as fp:
             fp.write(data)
 
-    # interface
+    def append(self, data, fi):
+
+        #  needs to be a list due to how we add the newline character /n
+        if isinstance(data, str):
+            data = (data, )
+        data = [d + '\n' for d in data]
+
+        #  default append, write if file doesn't exist
+        fi = self.root / fi
+        mode = 'a'
+        if not fi.is_file():
+            mode = 'w'
+
+        with open(fi, mode) as fp:
+            fp.writelines(data)
 
     def get_all_articles(self):
         articles = []
@@ -24,7 +41,5 @@ class TextFiles:
 
 
 if __name__ == '__main__':
-    #  dev
     db = TextFiles('final')
     art = db.get_all_articles()
-

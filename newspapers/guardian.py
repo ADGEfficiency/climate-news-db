@@ -3,31 +3,35 @@ import requests
 
 from newspapers.utils import check_match, parser_decorator
 
+import re
 
-def check_guardian_url(url, logger):
+def check_guardian_url(url, logger=None):
+    parts = url.split('/')
+    article_id = parts[-1]
+    article_id = article_id.replace('.html', '')
+
+    url = url.replace('https://www.theguardian.com/', '')
+    url = url.replace(article_id, '')
+
+    #  searching for a string like 2020/may/14
+    expr = '\d{4}\/[a-z]{3}\/\d{2}'
+    matches = re.findall(expr, url)
+    if not matches:
+        logger.info(f'guardian, {url}, check failed, no YYYY/month/DD in url')
+        return False
+
+    assert len(matches) == 1
+    date = matches[0]
+
+    category = url.replace(date, '')
     unwanted = ['live', 'gallery', 'audio', 'video', 'ng-interactive', 'interactive']
 
-    if not check_match(url, unwanted):
-        logger.info(f'guardian, {url}, check failed')
-        return False
-
-    parts = url.split('/')
-    try:
-        #  check if there is a year / str / day
-        #  can be in one of two positions
-        cond1 = parts[4].isdigit() and parts[6].isdigit()
-        cond2 = parts[5].isdigit() and parts[7].isdigit()
-
-        if cond1 or cond2:
-            return True
-        else:
-            logger.info(f'guardian, {url}, check failed')
+    for cat in unwanted:
+        if cat in category:
+            logger.info(f'guardian, {url}, check failed, in {cat} category')
             return False
 
-    #  short url
-    except IndexError:
-        logger.info(f'guardian, {url}, check failed')
-        return False
+    return True
 
 
 @parser_decorator
@@ -42,9 +46,19 @@ def parse_guardian_html(url):
         return {}
     article = ''.join([p.text for p in table[0].findAll('p')])
 
+    # TODO function
     published = soup.findAll('time', attrs={'itemprop': 'datePublished'})
     assert len(published) == 1
     published = published[0]['datetime']
+
+    updated = soup.findAll('time', attrs={'itemprop': 'dateModified'})
+    if not updated:
+        updated = soup.findAll('meta', attrs={'itemprop': 'dateModified'})
+        assert len(updated) == 1
+        updated = updated[0]['content']
+    else:
+        assert len(updated) == 1
+        updated = updated[0]['datetime']
 
     return {
         'newspaper-id': 'guardian',
@@ -52,5 +66,6 @@ def parse_guardian_html(url):
         'url': url,
         'html': html,
         'article-id': url.split('/')[-1],
-        'date-published': published
+        'date-published': published,
+        'date-modified': updated
     }

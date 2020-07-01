@@ -6,6 +6,7 @@ from logger import make_logger
 
 from newspapers.registry import registry
 
+home = TextFiles()
 raw = TextFiles('raw')
 final = TextFiles('final')
 logger = make_logger('logger.log')
@@ -29,6 +30,8 @@ def google_search(url, query='climate change', stop=10, backoff=1.0):
                 user_agent='climatecode'
             ))
             logger.info('google search successful {*args} {**kwargs}')
+            return urls
+
         except HTTPError as e:
             logger.info(f'{e} at backoff {backoff}')
             return google_search(url, query, stop, backoff=backoff+1)
@@ -45,8 +48,7 @@ if __name__ == '__main__':
     if newspapers == ['all', ]:
         newspapers = registry
     else:
-        newspapers = [n for n in registry if n['id'] in newspapers]
-
+        newspapers = [n for n in registry if n['newspaper-id'] in newspapers]
 
     print(newspapers)
 
@@ -56,8 +58,9 @@ if __name__ == '__main__':
 
         checker = newspaper['checker']
         urls = [url for url in urls if checker(url, logger)]
-
         logger.info(f'search: found {len(urls)} for {newspaper["newspaper"]}')
+
+        home.append(urls, 'urls.data')
 
         parser = newspaper['parser']
         for url in urls:
@@ -70,4 +73,7 @@ if __name__ == '__main__':
                 logger.debug(f'saving {fname}')
                 raw.post(parsed['html'], fname+'.html')
                 del parsed['html']
-                final.post(json.dumps(parsed), fname+'.json')
+                try:
+                    final.post(json.dumps(parsed), fname+'.json')
+                except TypeError:
+                    import pdb; pdb.set_trace()
