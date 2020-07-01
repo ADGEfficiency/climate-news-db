@@ -24,6 +24,8 @@ def parser_decorator(parser):
             'date-uploaded'
         ]
         for s in schema:
-            assert s in parsed.keys()
+            if s not in parsed.keys():
+                raise ValueError(f'{s} missing from parsed article')
+
         return parsed
     return wrapper

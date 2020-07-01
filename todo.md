@@ -38,3 +38,7 @@ Mentions of 1.5 C, two degrees C etc
 ability to parse url from file
 
 don't download if file already exists
+
+## papers
+
+NZ Herald, stuff, newshub
