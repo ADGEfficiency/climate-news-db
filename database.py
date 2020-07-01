@@ -10,26 +10,45 @@ class TextFiles:
             self.root = Path.home() / 'climate-nlp'
         self.root.mkdir(parents=True, exist_ok=True)
 
-    def post(self, data, fi):
+    def get(self, fi):
+        # single file
         fi = self.root / fi
-        with open(fi, 'w') as fp:
-            fp.write(data)
+        with open(fi, 'r') as fp:
+            data = fp.read()
+        return data
 
-    def append(self, data, fi):
+
+#     def append(self, data, fi):
+
+#         #  needs to be a list due to how we add the newline character /n
+#         if isinstance(data, str):
+#             data = (data, )
+#         data = [d + '\n' for d in data]
+
+#         #  default append, write if file doesn't exist
+#         fi = self.root / fi
+#         mode = 'a'
+#         if not fi.is_file():
+#             mode = 'w'
+
+#         with open(fi, mode) as fp:
+#             fp.writelines(data)
+
+    def write(self, data, file, mode):
 
         #  needs to be a list due to how we add the newline character /n
         if isinstance(data, str):
             data = (data, )
         data = [d + '\n' for d in data]
 
-        #  default append, write if file doesn't exist
-        fi = self.root / fi
-        mode = 'a'
-        if not fi.is_file():
-            mode = 'w'
-
+        fi = self.root / file
         with open(fi, mode) as fp:
             fp.writelines(data)
+
+    # def post(self, data, fi):
+    #     fi = self.root / fi
+    #     with open(fi, 'w') as fp:
+    #         fp.write(data)
 
     def get_all_articles(self):
         articles = []
