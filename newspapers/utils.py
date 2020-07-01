@@ -14,14 +14,16 @@ def parser_decorator(parser):
         parsed['date-uploaded'] = datetime.utcnow().isoformat()
 
         schema = [
-            'newspaper-id',
+            'newspaper',
+            'newspaper_id',
             'body',
+            'headline',
             'html',
             'url',
-            'article-id',
-            'date-published',
-            'date-modified',
-            'date-uploaded'
+            'article_id',
+            'date_published',
+            'date_modified',
+            'date_uploaded'
         ]
         for s in schema:
             if s not in parsed.keys():

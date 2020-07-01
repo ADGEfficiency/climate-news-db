@@ -42,3 +42,11 @@ don't download if file already exists
 ## papers
 
 NZ Herald, stuff, newshub
+
+
+## shortcut to downolad entire database as file
+
+
+## article quality
+
+pictures

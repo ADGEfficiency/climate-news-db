@@ -22,6 +22,8 @@ def home():
 
 @app.route('/random')
 def show_random_article():
+    #  this loads entire json
+    #  better to load single one by index
     articles = db.get_all_articles()
     from random import randint
     idx = randint(0, len(articles))

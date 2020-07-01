@@ -3,7 +3,7 @@ import pandas as pd
 
 def create_article_df(articles):
     df = pd.DataFrame(articles)
-    df.loc[:, 'published'] = pd.to_datetime(df.loc[:, 'published'], utc=True)  # hack!!!
+    df.loc[:, 'date_published'] = pd.to_datetime(df.loc[:, 'date_published'], utc=True)  # hack!!!
     return df
 
 

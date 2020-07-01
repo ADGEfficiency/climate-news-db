@@ -60,7 +60,7 @@ if __name__ == '__main__':
         urls = [url for url in urls if checker(url, logger)]
         logger.info(f'search: found {len(urls)} for {newspaper["newspaper"]}')
 
-        home.append(urls, 'urls.data')
+        home.write(urls, 'urls.data', 'a')
 
         parser = newspaper['parser']
         for url in urls:
@@ -69,11 +69,12 @@ if __name__ == '__main__':
             parsed = parser(url)
 
             if parsed:
-                fname = str(parsed['article-id'])
+                fname = str(parsed['article_id'])
                 logger.debug(f'saving {fname}')
-                raw.post(parsed['html'], fname+'.html')
+                raw.write(parsed['html'], fname+'.html', 'w')
                 del parsed['html']
                 try:
-                    final.post(json.dumps(parsed), fname+'.json')
+                    final.write(json.dumps(parsed), fname+'.json', 'w')
                 except TypeError:
+                    print('type')
                     import pdb; pdb.set_trace()
