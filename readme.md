@@ -37,8 +37,15 @@ See how many articles you have:
 $ ls ~/climate-nlp/final | wc -l
 ```
 
+How many urls
+```bash
+$ cat ~/climate-nlp/urls.data | wc -l
+```
+
 ## Deploy
 
 ```bash
 $ aws s3 sync ~/climate-nlp s3://climate-nlp
+
+$ make app
 ```

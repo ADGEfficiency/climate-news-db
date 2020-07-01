@@ -30,5 +30,5 @@ urls.remove('')
 
 print(urls)
 
-local_db.write(urls, 'urls.data', 'w')
+local_db.write(set(urls), 'urls.data', 'w')
 
