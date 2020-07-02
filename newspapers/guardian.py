@@ -1,6 +1,5 @@
 from bs4 import BeautifulSoup
 import requests
-from datetime import datetime
 
 from newspapers.utils import check_match, parser_decorator
 
@@ -61,16 +60,23 @@ def parse_guardian_html(url):
         assert len(updated) == 1
         updated = updated[0]['datetime']
 
-    headline = soup.findAll('h1', attrs={'itemprop': "headline", 'class':'content__headline'})[0]
+    # <script data-schema="Organization" type="application/ld+json">
+
+    headline = soup.findAll('h1', attrs={'itemprop': "headline", 'class':'content__headline'})
+    if not headline:
+        headline = soup.findAll('meta', attrs={'property': 'og:title'})
+        headline = headline[0]['content']
+    else:
+        headline = headline[0].getText()
+
     return {
         'newspaper': 'The Guardian',
         'newspaper_id': 'guardian',
         'body': article,
-        'headline': headline.getText(),
+        'headline': headline,
         'url': url,
         'html': html,
         'article_id': url.split('/')[-1],
         'date_published': published,
         'date_modified': updated,
-        'date_uploaded': datetime.utcnow().isoformat()
     }

@@ -11,7 +11,10 @@ def check_match(url, unwanted):
 def parser_decorator(parser):
     def wrapper(*args, **kwargs):
         parsed = parser(*args, **kwargs)
-        parsed['date-uploaded'] = datetime.utcnow().isoformat()
+        if not parsed:
+            return {}
+
+        parsed['date_uploaded'] = datetime.utcnow().isoformat()
 
         schema = [
             'newspaper',

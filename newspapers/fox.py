@@ -38,15 +38,20 @@ def parse_fox_html(url):
         'Get all the latest news on\xa0coronavirus\xa0and more delivered daily to your inbox.\xa0Sign up here.',
         ''
     )
+    headline = soup.findAll('h1', attrs={'class': 'headline'})
+    assert len(headline) == 1
+    headline = headline[0].get_text()
 
     return {
-        'newspaper-id': 'fox',
+        'newspaper': 'Fox News',
+        'newspaper_id': 'fox',
         'body': article,
+        'headline': headline,
         'html': html,
         'url': url,
-        'article-id': url.split('/')[-1],
-        'date-published': article_metadata['datePublished'],
-        'date-modified': article_metadata['dateModified']
+        'article_id': url.split('/')[-1],
+        'date_published': article_metadata['datePublished'],
+        'date_modified': article_metadata['dateModified']
     }
 
 

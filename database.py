@@ -14,25 +14,7 @@ class TextFiles:
         # single file
         fi = self.root / fi
         with open(fi, 'r') as fp:
-            data = fp.read()
-        return data
-
-
-#     def append(self, data, fi):
-
-#         #  needs to be a list due to how we add the newline character /n
-#         if isinstance(data, str):
-#             data = (data, )
-#         data = [d + '\n' for d in data]
-
-#         #  default append, write if file doesn't exist
-#         fi = self.root / fi
-#         mode = 'a'
-#         if not fi.is_file():
-#             mode = 'w'
-
-#         with open(fi, mode) as fp:
-#             fp.writelines(data)
+            return fp.read()
 
     def write(self, data, file, mode):
 
@@ -45,11 +27,6 @@ class TextFiles:
         with open(fi, mode) as fp:
             fp.writelines(data)
 
-    # def post(self, data, fi):
-    #     fi = self.root / fi
-    #     with open(fi, 'w') as fp:
-    #         fp.write(data)
-
     def get_all_articles(self):
         articles = []
         for f in self.root.iterdir():
@@ -57,6 +34,13 @@ class TextFiles:
                 with open(f, 'r') as fi:
                     articles.append(json.loads(fi.read()))
         return articles
+
+    def get_article(self, article_id):
+        fi = self.root / (article_id + '.json')
+        with open(fi, 'r') as fi:
+            article = json.loads(fi.read())
+
+        return article
 
 
 if __name__ == '__main__':

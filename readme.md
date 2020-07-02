@@ -1,6 +1,8 @@
-# Climate Newspaper Downloader
+# Climate News DB
 
-CLI to download climate change news articles.
+[This app is deployed here](http://www.climate-news-db.com/).
+
+Database of climate change news articles.
 
 ## Setup
 
@@ -16,18 +18,11 @@ $ pip install -r requirements.txt
 $ python download.py --newspapers all --n 50
 ```
 
-This will download files into `$HOME`.  The final data has the schema:
-```json
-{
-	"newspaper": "",
-	"body": "",
-	"url": "",
-	"id': "",
-	"published": "",
-}
-```
+This will download files into `$HOME`.  The final data is in `final/{article_id}.json`.
 
-The corresponding raw HTML is found at `raw/{id}.html'`.
+The corresponding raw HTML is found at `raw/{article_id}.html'`.
+
+`article_id` is the last part of the article url.
 
 ## Useful commands
 

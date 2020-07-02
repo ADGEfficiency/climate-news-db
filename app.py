@@ -26,7 +26,7 @@ def show_random_article():
     #  better to load single one by index
     articles = db.get_all_articles()
     from random import randint
-    idx = randint(0, len(articles))
+    idx = randint(0, len(articles) - 1)
     article = articles[idx]
     return render_template('article.html', article=article)
 
@@ -36,6 +36,10 @@ def show_one_article():
     article_id = request.args.get('article-id')
     article = db.get_article(article_id)
     return render_template('article.html', article=article)
+
+
+@app.route('/newspaper')
+def show_one_newspaper():
 
 
 
