@@ -42,6 +42,12 @@ class TextFiles:
 
         return article
 
+    def get_articles_from_newspaper(self, newspaper):
+        articles = self.get_all_articles()
+        articles = [a for a in articles if a['newspaper_id'] == newspaper]
+        return articles
+
+
 
 if __name__ == '__main__':
     db = TextFiles('final')

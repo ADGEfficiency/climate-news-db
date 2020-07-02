@@ -9,7 +9,7 @@ def create_article_df(articles):
 
 def groupby_newspaper(df):
     df.loc[:, 'article-length'] = df.loc[:, 'body'].apply(lambda x: len(x.split(' ')))
-    lens = df.groupby('newspaper').agg({'article-length': ['mean', 'count']})
+    lens = df.groupby('newspaper_id').agg({'article-length': ['mean', 'count']})
     lens.columns = ['average_article_length', 'article_count']
     lens = lens.sort_values('article_count', ascending=False)
     return lens.reset_index()

@@ -12,7 +12,7 @@
       <tbody>
         {% for paper in papers %}
         <tr>
-          <td>{{paper.newspaper}}</td>
+          <td><a href="/newspaper?newspaper_id={{paper.newspaper_id}}">{{paper.newspaper}}</a></td>
           <td>{{paper.article_count}}</td>
           <td>{{"%4.1f"|format(paper.average_article_length)}}</td>
         </tr>

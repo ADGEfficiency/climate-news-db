@@ -8,6 +8,12 @@ app = Flask('climate-article-downloader')
 db = TextFiles('final')
 from analytics import create_article_df, groupby_newspaper
 
+from newspapers.registry import registry
+
+import pandas as pd
+registry = pd.DataFrame(registry)
+registry = registry.set_index('newspaper_id')
+
 @app.route('/')
 def home():
     articles = db.get_all_articles()
@@ -15,7 +21,14 @@ def home():
 
     df = create_article_df(articles)
     group = groupby_newspaper(df)
+    group = group.set_index('newspaper_id')
     papers = group.to_dict(orient='records')
+
+    papers = pd.concat([group, registry], axis=1)
+    papers = papers.dropna(axis=0)
+    papers.loc[:, 'newspaper_id'] = papers.index
+    papers = papers.reset_index()
+    papers = papers.to_dict(orient='records')
 
     return render_template('home.html', data=data, papers=papers)
 
@@ -38,9 +51,19 @@ def show_one_article():
     return render_template('article.html', article=article)
 
 
+from newspapers.registry import get_newspaper
 @app.route('/newspaper')
 def show_one_newspaper():
+    newspaper = request.args.get('newspaper_id')
+    articles = db.get_articles_from_newspaper(newspaper)
 
+    newspaper = get_newspaper(newspaper)
+
+    return render_template(
+        'newspaper.html',
+        newspaper=newspaper,
+        articles=articles
+    )
 
 
 if __name__ == '__main__':

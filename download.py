@@ -48,7 +48,7 @@ if __name__ == '__main__':
     if newspapers == ['all', ]:
         newspapers = registry
     else:
-        newspapers = [n for n in registry if n['newspaper-id'] in newspapers]
+        newspapers = [n for n in registry if n['newspaper_id'] in newspapers]
 
     print(newspapers)
 

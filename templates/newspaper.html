@@ -1,0 +1,23 @@
+
+{% extends "layout.html" %}
+{% block body %}
+  <div>
+		<p>{{articles|length}} article from {{newspaper.newspaper}}.</p>
+
+    <table class="table table-condensed table-striped">
+      <thead>
+        <th>Article ID</th>
+        <th>Date Published</th>
+      </thead>
+      <tbody>
+        {% for article in articles %}
+        <tr>
+          <td>{{article.article_id}}</td>
+          <td>{{article.date_published}}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+  </div>
+{% endblock %}

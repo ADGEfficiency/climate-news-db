@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 {% block body %}
   <div>
+      <p class="lead">{{article.headline}}</p>
       <table class="table">
         <thead>
           <th>Newspaper</th>
@@ -17,7 +18,6 @@
           </tr>
         </tbody>
       </table>
-      <p class="lead">Article Body</p>
 		<p>{{article.body}}</p>
   </div>
 {% endblock %}

@@ -6,3 +6,6 @@ clean:
 
 app:
 	python app.py
+
+inspect:
+	./inspect.sh
