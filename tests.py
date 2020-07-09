@@ -1,5 +1,7 @@
 import pytest
 
+from newspapers.nzherald import check_nzherald_url
+from newspapers.guardian import check_guardian_url
 
 
 @pytest.mark.parametrize(
@@ -25,8 +27,17 @@ def test_guardian_check_url(url, expected):
     assert expected == check
 
 
-# nz herald
 
-('https://www.nzherald.co.nz/nz/news/video.cfm?c_id=1&gal_cid=1&gallery_id=214561', False),
-('https://www.nzherald.co.nz/world/news/article.cfm?c_id=2&objectid=11558468', True)
 
+
+@pytest.mark.parametrize(
+    'url, expected',
+    (
+        ('https://www.nzherald.co.nz/nz/news/video.cfm?c_id=1&gal_cid=1&gallery_id=214561', False),
+        ('https://www.nzherald.co.nz/world/news/article.cfm?c_id=2&objectid=11558468', True),
+        ('http://media.nzherald.co.nz/webcontent/document/pdf/201311/drought.pdf', False)
+    )
+)
+def test_check_nzherald_url(url, expected):
+    check = check_nzherald_url(url, logger=None)
+    assert expected == check

@@ -16,7 +16,8 @@ def check_guardian_url(url, logger=None):
     expr = '\d{4}\/[a-z]{3}\/\d{2}'
     matches = re.findall(expr, url)
     if not matches:
-        logger.info(f'guardian, {url}, check failed, no YYYY/month/DD in url')
+        if logger:
+            logger.info(f'guardian, {url}, check failed, no YYYY/month/DD in url')
         return False
 
     assert len(matches) == 1
@@ -27,7 +28,8 @@ def check_guardian_url(url, logger=None):
 
     for cat in unwanted:
         if cat in category:
-            logger.info(f'guardian, {url}, check failed, in {cat} category')
+            if logger:
+                logger.info(f'guardian, {url}, check failed, in {cat} category')
             return False
 
     return True
@@ -56,8 +58,6 @@ def parse_guardian_html(url):
     else:
         assert len(updated) == 1
         updated = updated[0]['datetime']
-
-    # <script data-schema="Organization" type="application/ld+json">
 
     headline = soup.findAll('h1', attrs={'itemprop': "headline", 'class':'content__headline'})
     if not headline:
