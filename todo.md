@@ -10,7 +10,6 @@ return error after passing {'error': 'parse error'} - check for error key in dow
 
 separate out the url collection from the parsing
 
-
 save all dates as UTC as well
 
 nytimes article ID has `.html`
@@ -24,6 +23,7 @@ search for "climate crisis"
 
 429 Error from google search
 
+download button
 
 ## articles that are failing
 
@@ -37,6 +37,8 @@ guardian - https://www.theguardian.com/environment/2019/may/18/climate-crisis-he
 
 Mentions of 1.5 C, two degrees C etc
 - how this changes over time
+
+1C Celsius, 49C, 1.5C
 
 ## downloading smarter
 
@@ -52,9 +54,12 @@ Cleaning
 
 Add logging to the database creation
 
+Sorting by date
+- or ability to sort by column on the tables
+
 ## papers
 
-stuff, newshub
+stuff, newshub, economist
 
 
 ## shortcut to downolad entire database as file
@@ -71,3 +76,9 @@ add number of urls onto homepage
 add ability to access log (last 50 entries)
 
 make the app work with no newspapers
+
+formatting of datetime
+
+most recent & oldest for each newspaper
+
+graph of articles per year / month for newspaper pages

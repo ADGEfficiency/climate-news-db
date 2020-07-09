@@ -94,7 +94,9 @@ if __name__ == '__main__':
 
             else:
                 parsed = check_parsed_article(parsed)
-                if parsed:
+                if not parsed:
+                    logger.info(f'{url}, failed check_parsed_article')
+                else: 
                     parsed = clean_parsed_article(parsed)
 
                     fname = str(parsed['article_id'])

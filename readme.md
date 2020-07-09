@@ -1,6 +1,6 @@
 # Climate News DB
 
-Database of climate change news articles.  [See the app deployed here](http://www.climate-news-db.com/).
+Database of climate change news articles.  [See the app deployed here](http://www.climate-news-db.com/) - [see the source code here](https://github.com/ADGEfficiency/climate-news-db).
 
 ## Setup
 

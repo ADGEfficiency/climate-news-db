@@ -48,7 +48,7 @@ def show_random_article():
     #articles = db.get_all_articles()
     from random import randint
     idx = randint(0, len(all_articles) - 1)
-    article = articles[idx]
+    article = all_articles[idx]
     return render_template('article.html', article=article)
 
 
