@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 
-from newspapers.utils import check_match, parser_decorator
+from newspapers.utils import check_match
 
 
 def check_nytimes_url(url, logger):
@@ -12,7 +12,7 @@ def check_nytimes_url(url, logger):
     else:
         return True
 
-@parser_decorator
+
 def parse_nytimes_html(url):
     html = requests.get(url).text
     soup = BeautifulSoup(html, features="html5lib")
@@ -27,15 +27,27 @@ def parse_nytimes_html(url):
         ''
     )
 
-    #  relying on published being the first date
-    dts = soup.findAll('time')
-    published = dts[0]['datetime']
+    import json
+    ld = soup.findAll('script', attrs={'type': 'application/ld+json'})
+    ld = json.loads(ld[0].getText())
 
     return {
-        'newspaper-id': 'nytimes',
+        'newspaper_id': 'nytimes',
         'body': article,
-        'url': url,
+        'headline': ld['headline'],
+        'article_url': url,
         'html': html,
-        'article-id': url.split('/')[-1],
-        'date-published': published,
+        'article_id': url.split('/')[-1],
+        'date_published': ld['datePublished'],
+        'date_modified': ld['dateModified']
     }
+
+
+if __name__ == '__main__':
+    url = 'https://www.nytimes.com/2019/12/04/climate/climate-change-acceleration.html'
+    html = requests.get(url).text
+    soup = BeautifulSoup(html, features="html5lib")
+
+    import json
+    ld = soup.findAll('script', attrs={'type': 'application/ld+json'})
+    ld = json.loads(ld[0].getText())

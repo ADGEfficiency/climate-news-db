@@ -24,3 +24,9 @@ def test_guardian_check_url(url, expected):
     check = check_guardian_url(url, logger=None)
     assert expected == check
 
+
+# nz herald
+
+('https://www.nzherald.co.nz/nz/news/video.cfm?c_id=1&gal_cid=1&gallery_id=214561', False),
+('https://www.nzherald.co.nz/world/news/article.cfm?c_id=2&objectid=11558468', True)
+

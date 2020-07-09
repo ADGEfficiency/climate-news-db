@@ -27,7 +27,7 @@ def home():
     papers = pd.concat([group, registry], axis=1)
     papers = papers.dropna(axis=0)
     papers.loc[:, 'newspaper_id'] = papers.index
-    papers = papers.reset_index()
+    papers = papers.reset_index(drop=True)
     papers = papers.to_dict(orient='records')
 
     return render_template('home.html', data=data, papers=papers)
@@ -46,7 +46,7 @@ def show_random_article():
 
 @app.route('/article')
 def show_one_article():
-    article_id = request.args.get('article-id')
+    article_id = request.args.get('article_id')
     article = db.get_article(article_id)
     return render_template('article.html', article=article)
 

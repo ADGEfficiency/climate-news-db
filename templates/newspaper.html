@@ -6,13 +6,13 @@
 
     <table class="table table-condensed table-striped">
       <thead>
-        <th>Article ID</th>
+        <th>Headline</th>
         <th>Date Published</th>
       </thead>
       <tbody>
         {% for article in articles %}
         <tr>
-          <td>{{article.article_id}}</td>
+          <td><a href=/article?article_id={{article.article_id}}>{{article.headline}}</a></td>
           <td>{{article.date_published}}</td>
         </tr>
         {% endfor %}

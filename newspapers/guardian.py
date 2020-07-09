@@ -1,9 +1,8 @@
 from bs4 import BeautifulSoup
 import requests
 
-from newspapers.utils import check_match, parser_decorator
-
 import re
+
 
 def check_guardian_url(url, logger=None):
     parts = url.split('/')
@@ -34,14 +33,12 @@ def check_guardian_url(url, logger=None):
     return True
 
 
-@parser_decorator
 def parse_guardian_html(url):
-    itemprop = 'articleBody'
     req = requests.get(url)
     html = req.text
     soup = BeautifulSoup(html, features="html5lib")
 
-    table = soup.findAll('div', attrs={"itemprop": itemprop})
+    table = soup.findAll('div', attrs={"itemprop": 'articleBody'})
     if len(table) != 1:
         return {}
     article = ''.join([p.text for p in table[0].findAll('p')])
@@ -69,12 +66,13 @@ def parse_guardian_html(url):
     else:
         headline = headline[0].getText()
 
+    headline = headline.split('|')[0]
+
     return {
-        'newspaper': 'The Guardian',
         'newspaper_id': 'guardian',
         'body': article,
         'headline': headline,
-        'url': url,
+        'article_url': url,
         'html': html,
         'article_id': url.split('/')[-1],
         'date_published': published,

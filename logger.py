@@ -3,13 +3,18 @@ import logging
 from pathlib import Path
 
 
-def make_logger(log_file):
+def make_logger(log_file, level='debug'):
     """info to STDOUT, debug to file"""
     log_file = Path.home() / 'climate-nlp' / log_file
 
+    if level == 'debug':
+        level = logging.DEBUG
+    else:
+        level = logging.INFO
+
     # Create a custom logger
     logger = logging.getLogger('logger')
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(level)
 
     # Create handlers
     c_handler = logging.StreamHandler()

@@ -6,6 +6,8 @@ ability to only get urls (to stdout)
 multiprocess the downloading
 control of logging from CLI
 
+return error after passing {'error': 'parse error'} - check for error key in download.py
+
 save all dates as UTC as well
 
 nytimes article ID has `.html`

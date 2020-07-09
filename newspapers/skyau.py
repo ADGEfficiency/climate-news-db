@@ -3,14 +3,11 @@ import requests
 from datetime import datetime as dt
 import re
 
-from newspapers.utils import parser_decorator
-
 
 def check_sky_au_url(url, logger=None):
     return True
 
 
-@parser_decorator
 def parse_sky_au_url(url):
     html = requests.get(url).text
     soup = BeautifulSoup(html, features="html.parser")
@@ -26,18 +23,26 @@ def parse_sky_au_url(url):
         from datetime import datetime as dt
         #  / 1000 as stamp is in milliseconds
         stamp = dt.utcfromtimestamp(unix_time / 1000).isoformat()
+
     except AttributeError:
         #  TODO
         stamp = soup.findAll('div', attrs={'class': 'article-byline'})
         assert len(stamp) == 1
+        stamp = stamp[0].getText()
+
+    headline = soup.findAll('title')
+    assert len(headline) == 1
+    headline = headline[0].getText()
+    headline = headline.split('|')[0]
 
     return {
-        'newspaper-id': 'skyau',
+        'newspaper_id': 'skyau',
         'body': article,
         'html': html,
-        'url': url,
-        'article-id': url.split('/')[-1],
-        'date-published': stamp
+        'headline': headline,
+        'article_url': url,
+        'article_id': url.split('/')[-1],
+        'date_published': stamp
     }
 
 
