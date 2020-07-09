@@ -14,5 +14,8 @@ inspect:
 regen:
 	python3 download.py --num -1 --newspapers all --url_source urls.data
 
-push_to_s3:
+push_s3:
 	aws s3 sync --delete ~/climate-nlp s3://climate-nlp
+
+pull_s3:
+	aws s3 sync s3://climate-nlp ~/climate-nlp
