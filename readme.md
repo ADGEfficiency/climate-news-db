@@ -1,12 +1,10 @@
 # Climate News DB
 
-[This app is deployed here](http://www.climate-news-db.com/).
-
-Database of climate change news articles.
+Database of climate change news articles.  [See the app deployed here](http://www.climate-news-db.com/).
 
 ## Setup
 
-Python 3.7+ (we use f-strings)
+Python 3.7+ (we use f-strings).
 
 ```bash
 $ pip install -r requirements.txt
@@ -18,11 +16,9 @@ $ pip install -r requirements.txt
 $ python download.py --newspapers all --n 50
 ```
 
-This will download files into `$HOME`.  The final data is in `final/{article_id}.json`.
+This will download files into `$HOME`.  The final data is in `final/{newspaper_id}/{article_id}.json`.
 
-The corresponding raw HTML is found at `raw/{article_id}.html'`.
-
-`article_id` is the last part of the article url.
+The corresponding raw HTML is found at `raw/{newspaper_id}/{article_id}.html'`.
 
 ## Useful commands
 
@@ -32,7 +28,7 @@ See how many articles you have:
 $ ls ~/climate-nlp/final | wc -l
 ```
 
-How many urls
+How many urls in `urls.data`:
 ```bash
 $ cat ~/climate-nlp/urls.data | wc -l
 ```

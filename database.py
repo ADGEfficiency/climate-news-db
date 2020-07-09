@@ -8,6 +8,7 @@ class TextFiles:
             self.root = Path.home() / 'climate-nlp' / root
         else:
             self.root = Path.home() / 'climate-nlp'
+
         self.root.mkdir(parents=True, exist_ok=True)
 
     def get(self, fi):
@@ -33,13 +34,14 @@ class TextFiles:
             if f.is_file():
                 with open(f, 'r') as fi:
                     articles.append(json.loads(fi.read()))
+
         return articles
 
     def get_article(self, article_id):
-        fi = self.root / (article_id + '.json')
-        with open(fi, 'r') as fi:
-            article = json.loads(fi.read())
-
+        for f in self.root.rglob('**/*.json'):
+            if f.is_file() and article_id in f.name:
+                with open(f, 'r') as fi:
+                    article = json.loads(fi.read())
         return article
 
     def get_articles_from_newspaper(self, newspaper):

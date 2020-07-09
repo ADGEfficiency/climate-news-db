@@ -1,6 +1,6 @@
 import pytest
 
-from newspapers.nzherald import check_nzherald_url
+from newspapers.nzherald import check_nzherald_url, get_nzherald_article_id
 from newspapers.guardian import check_guardian_url
 
 
@@ -41,3 +41,13 @@ def test_guardian_check_url(url, expected):
 def test_check_nzherald_url(url, expected):
     check = check_nzherald_url(url, logger=None)
     assert expected == check
+
+
+
+
+def test_nzherald_article_id():
+    url, expected = ('https://www.nzherald.co.nz/the-country/news/article.cfm?c_id=16&objectid=12255029', 12255029)
+
+    result = get_nzherald_article_id(url)
+    assert str(expected) == result
+

@@ -6,6 +6,14 @@ from database import TextFiles
 app = Flask('climate-article-downloader')
 
 db = TextFiles('final')
+
+papers = [folder.name for folder in db.root.iterdir() if folder.is_dir()]
+
+all_articles = []
+for paper in papers:
+    db = TextFiles(f'final/{paper}')
+    all_articles.extend(db.get_all_articles())
+
 from analytics import create_article_df, groupby_newspaper
 
 from newspapers.registry import registry
@@ -14,12 +22,12 @@ import pandas as pd
 registry = pd.DataFrame(registry)
 registry = registry.set_index('newspaper_id')
 
+
 @app.route('/')
 def home():
-    articles = db.get_all_articles()
-    data = {'n_articles': len(articles), 'articles': articles}
+    data = {'n_articles': len(all_articles), 'articles': all_articles}
 
-    df = create_article_df(articles)
+    df = create_article_df(all_articles)
     group = groupby_newspaper(df)
     group = group.set_index('newspaper_id')
     papers = group.to_dict(orient='records')
@@ -37,9 +45,9 @@ def home():
 def show_random_article():
     #  this loads entire json
     #  better to load single one by index
-    articles = db.get_all_articles()
+    #articles = db.get_all_articles()
     from random import randint
-    idx = randint(0, len(articles) - 1)
+    idx = randint(0, len(all_articles) - 1)
     article = articles[idx]
     return render_template('article.html', article=article)
 
@@ -47,6 +55,7 @@ def show_random_article():
 @app.route('/article')
 def show_one_article():
     article_id = request.args.get('article_id')
+    db = TextFiles('final')
     article = db.get_article(article_id)
     return render_template('article.html', article=article)
 
@@ -55,8 +64,9 @@ from newspapers.registry import get_newspaper
 @app.route('/newspaper')
 def show_one_newspaper():
     newspaper = request.args.get('newspaper_id')
-    articles = db.get_articles_from_newspaper(newspaper)
 
+    db = TextFiles(f'final/{newspaper}')
+    articles = db.get_all_articles()
     newspaper = get_newspaper(newspaper)
 
     return render_template(

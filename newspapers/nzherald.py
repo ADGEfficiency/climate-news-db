@@ -1,9 +1,16 @@
+import re
 import json
-
 from json.decoder import JSONDecodeError
+
 
 from bs4 import BeautifulSoup
 import requests
+
+
+def get_nzherald_article_id(url):
+    #  always the last integer
+    reg = re.compile(r'\d+')
+    return str(reg.findall(url)[-1])
 
 
 def check_nzherald_url(url, logger=None):
@@ -22,6 +29,7 @@ def parse_nzherald_url(url):
     try:
         table = soup.findAll('div', attrs={'id': 'article-body'})
         article = ''.join([p.text for p in table[0].findAll('p')])
+
         ld = soup.findAll('script', attrs={'type': 'application/ld+json'})
         ld = ld[0].getText()
         ld = ld.replace('\n', '')
@@ -39,9 +47,8 @@ def parse_nzherald_url(url):
         'body': article,
         'headline': ld['headline'],
         'article_url': url,
-        'article_id': url.split('/')[-1],
+        'article_id': get_nzherald_article_id(url),
         'html': html,
-        'article_id': url.split('/')[-1],
         'date_published': ld['datePublished'],
         'date_modified': ld['dateModified'],
     }

@@ -76,3 +76,12 @@ def check_parsed_article(parsed):
             raise ValueError(f'{s} missing from parsed article')
 
     return parsed
+
+
+def clean_parsed_article(parsed):
+    #  data cleaning - replacing escaped html characters
+    import html.parser
+    html_parser = html.parser.HTMLParser()
+    parsed['body'] = html_parser.unescape(parsed['body'])
+    parsed['headline'] = html_parser.unescape(parsed['headline'])
+    return parsed

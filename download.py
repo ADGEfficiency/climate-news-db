@@ -4,17 +4,19 @@ import json
 from database import TextFiles
 from logger import make_logger
 
-from newspapers.registry import check_parsed_article, registry
+from newspapers.registry import check_parsed_article, registry, clean_parsed_article
 
 home = TextFiles()
-raw = TextFiles('raw')
-final = TextFiles('final')
 
 import time
 import random
 
 
 def google_search(url, query='climate change', stop=10, backoff=1.0):
+    #  protects against a -1 example
+    if stop <= 0:
+        raise ValueError('stop of {stop} is invalid - change the --num argument')
+
     from urllib.error import HTTPError
     try:
         from googlesearch import search
@@ -76,7 +78,7 @@ if __name__ == '__main__':
             urls.remove('')
 
             #  filter by newspaper
-            urls = [u for u in urls if newspaper['newspaper_url'] in u]
+            urls = [u for u in urls if newspaper['newspaper_url'] in u if checker(u, logger)][:args.num]
             logger.info(f'loaded {len(urls)} urls from {url_source}')
 
         else:
@@ -93,8 +95,17 @@ if __name__ == '__main__':
             else:
                 parsed = check_parsed_article(parsed)
                 if parsed:
+                    parsed = clean_parsed_article(parsed)
+
                     fname = str(parsed['article_id'])
-                    logger.debug(f'saving {url}')
+                    newspaper = str(parsed['newspaper_id'])
+                    article_id = parsed['article_id']
+
+                    raw = TextFiles(f'raw/{newspaper}')
+                    final = TextFiles(f'final/{newspaper}')
+
+                    logger.debug(f'{url}, saving, article_id={article_id}')
+                    import os
                     raw.write(parsed['html'], fname+'.html', 'w')
                     del parsed['html']
                     try:
