@@ -33,10 +33,8 @@ How many urls in `urls.data`:
 $ cat ~/climate-nlp/urls.data | wc -l
 ```
 
-## Deploy
+## Use locally
 
 ```bash
-$ aws s3 sync ~/climate-nlp s3://climate-nlp
-
 $ make app
 ```
