@@ -2,6 +2,7 @@ import pytest
 
 from newspapers.nzherald import check_nzherald_url, get_nzherald_article_id
 from newspapers.guardian import check_guardian_url
+from newspapers.stuff import check_stuff_url
 
 
 @pytest.mark.parametrize(
@@ -43,11 +44,21 @@ def test_check_nzherald_url(url, expected):
     assert expected == check
 
 
-
-
 def test_nzherald_article_id():
     url, expected = ('https://www.nzherald.co.nz/the-country/news/article.cfm?c_id=16&objectid=12255029', 12255029)
 
     result = get_nzherald_article_id(url)
     assert str(expected) == result
 
+
+@pytest.mark.parametrize(
+    'url, expected',
+    (
+        ('https://www.stuff.co.nz/environment/climate-news/120171514/world-temperatures-on-the-rise--climate-change-report', True),
+        ('https://www.stuff.co.nz/environment/climate-news/climate-explained', False),
+        ('https://i.stuff.co.nz/environment/climate-news', False)
+    )
+)
+def test_stuff_url_check(url, expected):
+    check = check_stuff_url(url, logger=None)
+    assert expected == check

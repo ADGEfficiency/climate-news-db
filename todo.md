@@ -13,6 +13,13 @@ separate out the url collection from the parsing
 save all dates as UTC as well
 
 nytimes article ID has `.html`
+nytimes raw html is `.html.html`
+
+skyau - ` Image: Kym Smith / News Corp Australia ` at end of article
+
+check google trends for the best name (climane news db, database etc)
+
+https://blog.gdeltproject.org/a-new-contextual-dataset-for-exploring-climate-change-narratives-6-3m-english-news-urls-with-contextual-snippets-2015-2020/
 
 ability to parse from HTML stored in RAW
 - check first if raw html exsits!!
@@ -24,6 +31,7 @@ search for "climate crisis"
 429 Error from google search
 
 download button
+- as csv (most useful)
 
 ## articles that are failing
 
@@ -52,6 +60,10 @@ Cleaning
 - degree standardization?
 - not getting twitter stuff - https://www.nzherald.co.nz/sport/news/article.cfm?c_id=4&objectid=12301148
 
+Fox
+- 'Fox News Flash top headlines for May 20 are here. Check out what's clicking on Foxnews.com' - https://www.foxnews.com/science/octopuses-blind-climate-change-study
+- 'CLICK HERE FOR THE FOX NEWS APP'
+
 Add logging to the database creation
 
 Sorting by date
@@ -59,7 +71,7 @@ Sorting by date
 
 ## papers
 
-stuff, newshub, economist
+stuff, newshub, economist, aljazzera, cnn, washington post, dw.com/en
 
 
 ## shortcut to downolad entire database as file

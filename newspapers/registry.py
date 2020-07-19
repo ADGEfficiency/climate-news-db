@@ -6,10 +6,11 @@ from newspapers.skyau import check_sky_au_url, parse_sky_au_url
 from newspapers.nytimes import check_nytimes_url, parse_nytimes_html
 
 from newspapers.nzherald import nzherald
+from newspapers.stuff import stuff
 
 
 registry = [
-    nzherald,
+    nzherald, stuff,
     {
         "newspaper_id": "guardian",
         "newspaper": "The Guardian",
