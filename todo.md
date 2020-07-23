@@ -6,6 +6,8 @@ ability to only get urls (to stdout)
 multiprocess the downloading
 control of logging from CLI
 
+logging should all happen in main - functions should return messages
+
 return error after passing {'error': 'parse error'} - check for error key in download.py
 
 separate out the url collection from the parsing

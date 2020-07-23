@@ -7,10 +7,11 @@ from newspapers.nytimes import check_nytimes_url, parse_nytimes_html
 
 from newspapers.nzherald import nzherald
 from newspapers.stuff import stuff
+from newspapers.newshub import newshub
 
 
 registry = [
-    nzherald, stuff,
+    nzherald, stuff, newshub,
     {
         "newspaper_id": "guardian",
         "newspaper": "The Guardian",
@@ -69,12 +70,15 @@ def check_parsed_article(parsed):
         'article_url',
         'article_id',
         'date_published',
-        #'date_modified',
         'date_uploaded'
     ]
     for s in schema:
         if s not in parsed.keys():
             raise ValueError(f'{s} missing from parsed article')
+
+        val = parsed[s]
+        if len(val) < 2:
+            raise ValueError(f'{s} not long enough - {val}')
 
     return parsed
 

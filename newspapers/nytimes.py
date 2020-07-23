@@ -1,3 +1,5 @@
+import json
+
 from bs4 import BeautifulSoup
 import requests
 
@@ -22,12 +24,15 @@ def parse_nytimes_html(url):
         return {}
     article = ''.join([p.text for p in section[0].findAll('p')])
 
-    article = article.replace(
+    noise = [
         'The Times is committed to publishing a diversity of letters to the editor. We’d like to hear what you think about this or any of our articles. Here are some tips. And here’s our email: letters@nytimes.com.Follow The New York Times Opinion section on Facebook, Twitter (@NYTopinion) and Instagram.',
-        ''
-    )
+        'Want climate news in your inbox? Sign up here for Climate Fwd:, our email newsletter.',
+        'For more news on climate and the environment, follow @NYTClimate on Twitter.'
 
-    import json
+    ]
+    for n in noise:
+        article = article.replace(n, '')
+
     ld = soup.findAll('script', attrs={'type': 'application/ld+json'})
     ld = json.loads(ld[0].getText())
 

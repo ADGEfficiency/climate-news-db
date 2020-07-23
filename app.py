@@ -32,6 +32,7 @@ def home():
     papers = pd.concat([group, registry], axis=1)
     papers = papers.dropna(axis=0)
     papers.loc[:, "newspaper_id"] = papers.index
+    papers = papers.sort_index()
     papers = papers.reset_index(drop=True)
     papers = papers.to_dict(orient="records")
 
@@ -63,6 +64,11 @@ def show_one_newspaper():
 
     db = TextFiles(f"final/{newspaper}")
     articles = db.get_all_articles()
+    articles = pd.DataFrame(articles)
+    articles = articles.sort_values('date_published', ascending=False)
+    articles = articles.reset_index(drop=True)
+    articles = articles.to_dict(orient="records")
+
     newspaper = get_newspaper(newspaper)
 
     return render_template("newspaper.html", newspaper=newspaper, articles=articles)
