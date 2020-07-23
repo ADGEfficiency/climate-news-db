@@ -56,7 +56,9 @@ def test_nzherald_article_id():
     (
         ('https://www.stuff.co.nz/environment/climate-news/120171514/world-temperatures-on-the-rise--climate-change-report', True),
         ('https://www.stuff.co.nz/environment/climate-news/climate-explained', False),
-        ('https://i.stuff.co.nz/environment/climate-news', False)
+        ('https://i.stuff.co.nz/environment/climate-news', False),
+        ('https://interactives.stuff.co.nz/2019/07/407-and-rising/', False),
+        ('https://events.stuff.co.nz/nelson-mail/2019/sustainable-backyards-climate-change-presentation/hastings', False)
     )
 )
 def test_stuff_url_check(url, expected):

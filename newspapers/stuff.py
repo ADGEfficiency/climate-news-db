@@ -11,6 +11,12 @@ def check_stuff_url(url, logger=None):
             logger.info(f'stuff, {url}, check failed, not long enough')
         return False
 
+    for unw in ['events.stuff.co.nz', 'interactives.stuff.co.nz']:
+        if unw in url:
+            if logger:
+                logger.info(f'stuff, {url}, check failed, {unw} in url')
+            return False
+
     return True
 
 
