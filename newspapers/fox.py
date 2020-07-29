@@ -22,9 +22,11 @@ def parse_fox_html(url):
     if len(table) != 1:
         return {}
 
-    article = [p.text for p in table[0].findAll('p')]
-    article = ''.join(article)
+    article = []
+    for p in table[0].findAll('p'):
+        article.append(p.text)
 
+    article = ''.join(article)
     #  hack for coronavirus tag that appears in later articles
     article = article.replace(
         'Get all the latest news on\xa0coronavirus\xa0and more delivered daily to your inbox.\xa0Sign up here.',
