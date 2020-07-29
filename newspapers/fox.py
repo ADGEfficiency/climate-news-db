@@ -14,6 +14,16 @@ def check_fox_url(url, logger):
     return True
 
 
+def check_for_strong_link(p):
+    """Looking for a strong tag inside a link"""
+    for child in p.children:
+        if child.name == 'a':
+            for child in child.children:
+                if child.name == 'strong':
+                    print(f'not taking {child.text}')
+                    return True
+
+
 def parse_fox_html(url):
     html = requests.get(url).text
     soup = BeautifulSoup(html, features="html.parser")
@@ -24,7 +34,9 @@ def parse_fox_html(url):
 
     article = []
     for p in table[0].findAll('p'):
-        article.append(p.text)
+        flag = check_for_strong_link(p)
+        if not flag:
+            article.append(p.text)
 
     article = ''.join(article)
     #  hack for coronavirus tag that appears in later articles
@@ -59,8 +71,6 @@ def parse_fox_html(url):
 if __name__ == '__main__':
     import requests
 
-    url = 'https://www.foxnews.com/us/climate-change-tropical-cyclone-hurricane-typhoon-tropical-storm-noaa-study-weather-atlantic-pacific-indian-ocean'
-
     url = 'https://www.foxnews.com/opinion/joe-bastardi-climate-change-agenda-is-being-driven-by-hysteria-not-facts'
     out = parse_fox_html(url)
 
@@ -69,5 +79,7 @@ if __name__ == '__main__':
 
     table = soup.findAll('div', attrs={"class": "article-body"})
 
+
     for p in table[0].findAll('p'):
-        pass
+        flag = check_for_strong_link(p)
+
