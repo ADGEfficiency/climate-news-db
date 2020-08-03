@@ -2,8 +2,22 @@ from pathlib import Path
 import json
 
 
+class NewspaperTextFiles:
+    def __init__(self, root=None):
+        self.root = Path.home() / 'climate-nlp' / root
+
+    def get_all_articles(self):
+        articles = []
+        for f in self.root.iterdir():
+            if f.is_file():
+                with open(f, 'r') as fi:
+                    articles.append(json.loads(fi.read()))
+        return articles
+
+
 class TextFiles:
     def __init__(self, root=None):
+        #  root is either raw or final
         if root:
             self.root = Path.home() / 'climate-nlp' / root
         else:
@@ -11,14 +25,37 @@ class TextFiles:
 
         self.root.mkdir(parents=True, exist_ok=True)
 
+        self.newspapers = {
+            folder.name: NewspaperTextFiles(f"{root}/{folder.name}")
+            for folder in self.root.iterdir() if folder.is_dir()
+        }
+
+    def get_all_articles(self):
+        """searches all newspapers"""
+        self.articles = []
+        for paper in self.newspapers.keys():
+            self.articles.extend(self.newspapers[paper].get_all_articles())
+        return self.articles
+
+    def get_article(self, article_id):
+        """searches all newspapers"""
+        for f in self.root.rglob('**/*.json'):
+            if f.is_file() and article_id in f.name:
+                with open(f, 'r') as fi:
+                    article = json.loads(fi.read())
+        return article
+
+    def get_articles_from_newspaper(self, paper):
+        return self.newspapers[paper].get_all_articles()
+
     def get(self, fi):
-        # single file
+        """single file"""
         fi = self.root / fi
         with open(fi, 'r') as fp:
             return fp.read()
 
     def write(self, data, file, mode):
-
+        """single file"""
         #  needs to be a list due to how we add the newline character /n
         if isinstance(data, str):
             data = (data, )
@@ -27,30 +64,3 @@ class TextFiles:
         fi = self.root / file
         with open(fi, mode) as fp:
             fp.writelines(data)
-
-    def get_all_articles(self):
-        articles = []
-        for f in self.root.iterdir():
-            if f.is_file():
-                with open(f, 'r') as fi:
-                    articles.append(json.loads(fi.read()))
-
-        return articles
-
-    def get_article(self, article_id):
-        for f in self.root.rglob('**/*.json'):
-            if f.is_file() and article_id in f.name:
-                with open(f, 'r') as fi:
-                    article = json.loads(fi.read())
-        return article
-
-    def get_articles_from_newspaper(self, newspaper):
-        articles = self.get_all_articles()
-        articles = [a for a in articles if a['newspaper_id'] == newspaper]
-        return articles
-
-
-
-if __name__ == '__main__':
-    db = TextFiles('final')
-    art = db.get_all_articles()

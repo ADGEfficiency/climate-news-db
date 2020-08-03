@@ -8,6 +8,8 @@ control of logging from CLI
 
 logging should all happen in main - functions should return messages
 
+refactor out get_article_url from fox.py
+
 return error after passing {'error': 'parse error'} - check for error key in download.py
 
 separate out the url collection from the parsing
@@ -71,17 +73,23 @@ Add logging to the database creation
 Sorting by date
 - or ability to sort by column on the tables
 
+newshub article title has ` | Newshub`
+
 ## papers
 
-stuff, newshub, economist, aljazzera, cnn, washington post, dw.com/en
+economist, aljazzera, cnn, washington post, dw.com/en, bbc, atlantic
+
+https://www.theguardian.com/media/2020/jan/10/news-corp-employee-climate-misinformation-bushfire-coverage-email
+- the australian, daily telegraph, herald sun
+
+
+economist
+- ■Sign up to our fortnightly climate-change newsletter hereThis article appeared in the Briefing section of the print edition under the headline "Hotting up"
+- ■This article appeared in the Science & technology section of the print edition under the headline "Delayed cool"
+- ■This article appeared in the The World If section of the print edition under the headline "The elephant’s U-turn"
 
 
 ## shortcut to downolad entire database as file
-
-
-## article quality
-
-pictures
 
 ## app improvements
 

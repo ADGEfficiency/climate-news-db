@@ -3,6 +3,7 @@ import pytest
 from newspapers.nzherald import check_nzherald_url, get_nzherald_article_id
 from newspapers.guardian import check_guardian_url
 from newspapers.stuff import check_stuff_url
+from newspapers.economist import check_economist_url
 
 
 @pytest.mark.parametrize(
@@ -63,4 +64,19 @@ def test_nzherald_article_id():
 )
 def test_stuff_url_check(url, expected):
     check = check_stuff_url(url, logger=None)
+    assert expected == check
+
+
+
+@pytest.mark.parametrize(
+    'url, expected',
+    (
+        ('https://www.economist.com/topics/climate-change', False),
+        ('https://www.economist.com/schools-brief/2020/05/16/damage-from-climate-change-will-be-widespread-and-sometimes-surprising', True),
+        ('https://www.economist.com/schools-brief/2020/04/23/why-tackling-global-warming-is-a-challenge-without-precedent', True),
+        ('https://www.economist.com/1843/2018/10/29/worried-about-climate-change-hope-is-in-the-air', False)
+    )
+)
+def test_economist_url(url, expected):
+    check = check_economist_url(url, logger=None)
     assert expected == check

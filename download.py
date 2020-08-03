@@ -44,10 +44,9 @@ if __name__ == '__main__':
     parser.add_argument('--newspapers', default=["all", ], nargs='*')
     parser.add_argument('--num', default=10, nargs='?', type=int)
     parser.add_argument('--source', default='google', nargs='?', type=str)
-    parser.add_argument('--log', default='debug', nargs='?', type=str)
     args = parser.parse_args()
 
-    logger = make_logger('logger.log', level=args.log)
+    logger = make_logger('logger.log')
     logger.info(args)
 
     newspapers = args.newspapers
@@ -86,8 +85,10 @@ if __name__ == '__main__':
 
         for url in urls:
             logger.info(f'{url}, parsing')
-            parsed = parser(url)
+            raw = TextFiles(f'raw/{newspaper}')
+            final = TextFiles(f'final/{newspaper}')
 
+            parsed = parser(url)
             if 'error' in parsed.keys():
                 error = parsed['error']
                 logger.info(f'{url}, {error}')
@@ -96,22 +97,16 @@ if __name__ == '__main__':
                 parsed = check_parsed_article(parsed)
                 if not parsed:
                     logger.info(f'{url}, failed check_parsed_article')
-                else: 
+
+                else:
                     parsed = clean_parsed_article(parsed)
 
-                    fname = str(parsed['article_id'])
-                    newspaper = str(parsed['newspaper_id'])
                     article_id = parsed['article_id']
 
-                    raw = TextFiles(f'raw/{newspaper}')
-                    final = TextFiles(f'final/{newspaper}')
-
-                    logger.debug(f'{url}, saving, article_id={article_id}')
-                    import os
-                    raw.write(parsed['html'], fname+'.html', 'w')
+                    logger.info(f'{url}, saving, article_id={article_id}')
+                    raw.write(parsed['html'], article_id+'.html', 'w')
                     del parsed['html']
                     try:
-                        final.write(json.dumps(parsed), fname+'.json', 'w')
+                        final.write(json.dumps(parsed), article_id+'.json', 'w')
                     except TypeError:
                         logger.info(f'{url}, type error')
-                        import pdb; pdb.set_trace()

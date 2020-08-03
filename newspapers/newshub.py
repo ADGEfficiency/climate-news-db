@@ -1,10 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 
-def find_one_tag(soup, name, attrs={}):
-    data = soup.findAll(name, attrs)
-    assert len(data) == 1
-    return data[0]
+from newspapers.utils import find_one_tag
 
 
 def check_newshub_url(url, logger=None):

@@ -18,7 +18,7 @@ def parse_sky_au_url(url):
         scripts = soup.findAll('script')
         assert len(scripts) == 13
         script_tag = scripts[8]
-        match = re.search('"publishedDate":"\d+"', script_tag.contents[0])
+        match = re.search('"publishedDate":"/d+"', script_tag.contents[0])
         unix_time = int(re.findall(r'\d+', match.group(0))[0])
         from datetime import datetime as dt
         #  / 1000 as stamp is in milliseconds

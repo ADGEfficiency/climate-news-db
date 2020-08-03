@@ -23,4 +23,5 @@ pull_s3:
 scrape:
 	make pull_s3
 	python3 download.py --num 10 --newspapers all --source google
+	python3 backward.py
 	make push_s3

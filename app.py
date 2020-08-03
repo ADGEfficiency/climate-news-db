@@ -1,6 +1,6 @@
 from random import randint
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import pandas as pd
 
 from analytics import create_article_df, groupby_newspaper
@@ -10,20 +10,15 @@ from newspapers.registry import get_newspaper, registry
 
 app = Flask("climate-article-downloader")
 db = TextFiles("final")
-papers = [folder.name for folder in db.root.iterdir() if folder.is_dir()]
-all_articles = []
-for paper in papers:
-    db = TextFiles(f"final/{paper}")
-    all_articles.extend(db.get_all_articles())
+all_articles = db.get_all_articles()
 
 registry = pd.DataFrame(registry)
 registry = registry.set_index("newspaper_id")
 
 
-@app.route("/")
-def home():
-    data = {"n_articles": len(all_articles), "articles": all_articles}
-
+@app.route("/papers.json")
+def paper_json():
+    """groupby paper, calculate statistics"""
     df = create_article_df(all_articles)
     group = groupby_newspaper(df)
     group = group.set_index("newspaper_id")
@@ -34,8 +29,27 @@ def home():
     papers.loc[:, "newspaper_id"] = papers.index
     papers = papers.sort_index()
     papers = papers.reset_index(drop=True)
-    papers = papers.to_dict(orient="records")
+    return papers.to_dict(orient="records")
 
+
+@app.route("/years.json")
+def year_json():
+    """groupby paper and by year"""
+    return jsonify([
+      {'year': '2010', 'nytimes': '50', 'guardian': '20'},
+      {'year': '2011', 'nytimes': '30', 'guardian': '20'},
+    ])
+
+
+@app.route("/year-chart")
+def year_chart():
+    return render_template('year_chart.html')
+
+
+@app.route("/")
+def home():
+    data = {"n_articles": len(all_articles), "articles": all_articles}
+    papers = paper_json()
     return render_template("home.html", data=data, papers=papers)
 
 
@@ -62,8 +76,7 @@ def show_one_article():
 def show_one_newspaper():
     newspaper = request.args.get("newspaper_id")
 
-    db = TextFiles(f"final/{newspaper}")
-    articles = db.get_all_articles()
+    articles = db.get_articles_from_newspaper(newspaper)
     articles = pd.DataFrame(articles)
     articles = articles.sort_values('date_published', ascending=False)
     articles = articles.reset_index(drop=True)
