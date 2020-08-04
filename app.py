@@ -1,6 +1,11 @@
 from flask import Flask, render_template, request
+import pandas as pd
 
 from database import TextFiles
+from analytics import create_article_df, groupby_newspaper
+
+from newspapers.registry import registry, get_newspaper
+
 
 
 app = Flask('climate-article-downloader')
@@ -14,11 +19,6 @@ for paper in papers:
     db = TextFiles(f'final/{paper}')
     all_articles.extend(db.get_all_articles())
 
-from analytics import create_article_df, groupby_newspaper
-
-from newspapers.registry import registry
-
-import pandas as pd
 registry = pd.DataFrame(registry)
 registry = registry.set_index('newspaper_id')
 
@@ -60,7 +60,6 @@ def show_one_article():
     return render_template('article.html', article=article)
 
 
-from newspapers.registry import get_newspaper
 @app.route('/newspaper')
 def show_one_newspaper():
     newspaper = request.args.get('newspaper_id')
