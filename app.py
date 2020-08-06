@@ -3,7 +3,7 @@ from random import randint
 from flask import Flask, render_template, request, jsonify
 import pandas as pd
 
-from analytics import create_article_df, groupby_newspaper
+from analytics import create_article_df, groupby_newspaper, groupby_years_and_newspaper
 from database import TextFiles
 from newspapers.registry import get_newspaper, registry
 
@@ -24,6 +24,7 @@ def paper_json():
     group = group.set_index("newspaper_id")
     papers = group.to_dict(orient="records")
 
+    #  passing in the parse & check functions here!
     papers = pd.concat([group, registry], axis=1)
     papers = papers.dropna(axis=0)
     papers.loc[:, "newspaper_id"] = papers.index
@@ -35,10 +36,14 @@ def paper_json():
 @app.route("/years.json")
 def year_json():
     """groupby paper and by year"""
-    return jsonify([
-      {'year': '2010', 'nytimes': '50', 'guardian': '20'},
-      {'year': '2011', 'nytimes': '30', 'guardian': '20'},
-    ])
+    df = create_article_df(all_articles)
+    return groupby_years_and_newspaper(df)
+
+    return {
+        'years': [2011, 2012, 2013],
+        'nytimes': [11, 12, 13],
+        'guardian': [11, 12, 13],
+    }
 
 
 @app.route("/year-chart")

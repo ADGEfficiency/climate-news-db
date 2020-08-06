@@ -88,6 +88,17 @@ economist
 - ■This article appeared in the Science & technology section of the print edition under the headline "Delayed cool"
 - ■This article appeared in the The World If section of the print edition under the headline "The elephant’s U-turn"
 
+## viz
+
+https://www.chartjs.org/samples/latest/charts/bar/stacked-group.html
+
+
+## ml uses
+
+clustering
+
+question answering (?)
+
 
 ## shortcut to downolad entire database as file
 
