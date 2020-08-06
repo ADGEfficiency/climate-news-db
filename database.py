@@ -46,6 +46,7 @@ class TextFiles:
         return article
 
     def get_articles_from_newspaper(self, paper):
+        """all articles from one newspaper"""
         return self.newspapers[paper].get_all_articles()
 
     def get(self, fi):
