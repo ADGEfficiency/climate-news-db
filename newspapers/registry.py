@@ -10,10 +10,17 @@ from newspapers.economist import economist
 from newspapers.newshub import newshub
 from newspapers.nzherald import nzherald
 from newspapers.stuff import stuff
+from newspapers.aljazzera import aljazzera
+
+
+def find_newspaper_from_url(url):
+    for paper in registry:
+        if paper['newspaper_url'] in url:
+            return paper
 
 
 registry = [
-    nzherald, stuff, newshub, economist,
+    nzherald, stuff, newshub, economist, aljazzera,
     {
         "newspaper_id": "guardian",
         "newspaper": "The Guardian",
@@ -50,7 +57,6 @@ def get_newspaper(newspaper):
         if paper['newspaper_id'] == newspaper:
             return paper
     raise ValueError(f'{newspaper} not in registry')
-
 
 
 

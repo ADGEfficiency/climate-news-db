@@ -48,18 +48,18 @@ if __name__ == '__main__':
 
     logger = make_logger('logger.log')
     logger.info(args)
+    url_source = args.source
 
+    #  get newspaper info
     newspapers = args.newspapers
     if newspapers == ['all', ]:
         newspapers = registry
     else:
         newspapers = [n for n in registry if n['newspaper_id'] in newspapers]
-
     print(newspapers)
 
-    url_source = args.source
-
     for newspaper in newspapers:
+        #  collect_urls
         parser = newspaper['parser']
         checker = newspaper['checker']
 
@@ -83,6 +83,7 @@ if __name__ == '__main__':
         else:
             raise ValueError(f'{url_source} is not valid')
 
+        #  parse_urls
         for url in urls:
             logger.info(f'{url}, parsing')
             raw = TextFiles(f'raw/{newspaper}')

@@ -6,13 +6,13 @@ clean:
 	rm -rf ~/climate-nlp/raw
 
 app:
-	python app.py
+	python3 app.py
 
 inspect:
 	./inspect.sh
 
 regen:
-	python3 download.py --num -1 --newspapers all --source urls.data
+	parse --num -1 --newspapers all --source urls.data
 
 push_s3:
 	aws s3 sync ~/climate-nlp s3://climate-nlp --delete
@@ -22,6 +22,6 @@ pull_s3:
 
 scrape:
 	make pull_s3
-	python3 download.py --num 10 --newspapers all --source google
+	collect --num 10 --newspapers all --source google
 	python3 backward.py
 	make push_s3

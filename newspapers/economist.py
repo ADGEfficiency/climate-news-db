@@ -10,6 +10,10 @@ def check_economist_url(url, logger):
     if parts[3] == '1843':
         return False
 
+    #  page not found error
+    if url == 'https://www.economist.com/prospero/2020/01/09/how-to-save-culture-from-climate-change':
+        return False
+
     import re
     pattern = re.compile('\/\d{4}\/\d{2}\/\d{2}\/')
     match = pattern.findall(url)

@@ -2,17 +2,6 @@ from pathlib import Path
 import json
 
 
-class NewspaperTextFiles:
-    def __init__(self, root=None):
-        self.root = Path.home() / 'climate-nlp' / root
-
-    def get_all_articles(self):
-        articles = []
-        for f in self.root.iterdir():
-            if f.is_file():
-                with open(f, 'r') as fi:
-                    articles.append(json.loads(fi.read()))
-        return articles
 
 
 class TextFiles:
@@ -65,3 +54,24 @@ class TextFiles:
         fi = self.root / file
         with open(fi, mode) as fp:
             fp.writelines(data)
+
+
+class NewspaperTextFiles(TextFiles):
+    def __init__(self, root=None):
+        super().__init__(root=root)
+
+    def get_all_articles(self):
+        #  todo precompute this list on init
+        articles = []
+        for f in self.root.iterdir():
+            if f.is_file():
+                with open(f, 'r') as fi:
+                    articles.append(json.loads(fi.read()))
+        return articles
+
+    def check(self, article_id):
+        articles = self.get_all_articles()
+        article_ids = set([a['article_id'] for a in articles])
+        if article_id in article_ids:
+            return True
+        return False
