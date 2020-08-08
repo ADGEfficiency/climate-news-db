@@ -8,10 +8,9 @@ from newspapers.registry import find_newspaper_from_url
 from newspapers.registry import check_parsed_article, registry, clean_parsed_article
 
 
-def parse_url(url, rewrite):
+def parse_url(url, rewrite, logger):
     newspaper = find_newspaper_from_url(url)
 
-    logger = make_logger("logger.log")
     logger.info(f"{url}, parsing")
 
     newspaper_id = newspaper['newspaper_id']
@@ -56,10 +55,11 @@ def main(rewrite):
     #  reads from urls.data, writes to database
     #  check if html exists
 
+    logger = make_logger("logger.log")
     from collect_urls import main as collect_urls
 
     #  get all urls from urls.data
     urls = collect_urls(num=-1, newspapers=["all",], source="urls.data", parse=False)
 
     for url in urls:
-        parse_url(url, rewrite=rewrite)
+        parse_url(url, rewrite=rewrite, logger=logger)

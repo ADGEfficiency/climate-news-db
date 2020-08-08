@@ -1,14 +1,8 @@
 {% extends "layout.html" %}
 {% block body %}
   <div>
-	  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
-    <div style="style=position: relative; height:30vh; width:60vw">
-      <canvas id="canvas"></canvas>
-    </div>
-    <script src="static/app.js"></script>
-
+    <div style="style=position: relative; height:30vh; width:60vw"><canvas id="canvas"></canvas></div>
     <p>{{data.n_articles}} articles in the database.</p>
-
     <table class="table table-condensed table-striped">
       <thead>
         <th>Newspaper</th>
@@ -26,4 +20,5 @@
       </tbody>
     </table>
   </div>
+  <script src="static/app.js"></script>
 {% endblock %}

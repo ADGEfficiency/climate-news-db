@@ -87,6 +87,10 @@ clustering
 
 question answering (?)
 
+## data collection
+
+add description ? (can be in ld/json)
+
 ## papers
 
 aljazzera, cnn, washington post, dw.com/en, bbc, atlantic

@@ -100,10 +100,11 @@ def main(num, newspapers, source, parse):
 
         collection.extend(urls)
 
+    collection = set(collection)
     logger.info(f'collected {len(collection)} urls')
 
     if parse:
         for url in collection:
-            parse_url(url, rewrite=True)
+            parse_url(url, rewrite=True, logger=logger)
 
     return collection

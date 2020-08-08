@@ -10,7 +10,7 @@ from newspapers.economist import economist
 from newspapers.newshub import newshub
 from newspapers.nzherald import nzherald
 from newspapers.stuff import stuff
-from newspapers.aljazzera import aljazzera
+from newspapers.aljazeera import aljazeera
 
 
 def find_newspaper_from_url(url):
@@ -20,7 +20,7 @@ def find_newspaper_from_url(url):
 
 
 registry = [
-    nzherald, stuff, newshub, economist, aljazzera,
+    nzherald, stuff, newshub, economist, aljazeera,
     {
         "newspaper_id": "guardian",
         "newspaper": "The Guardian",

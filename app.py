@@ -22,11 +22,9 @@ def paper_json():
     df = create_article_df(all_articles)
     group = groupby_newspaper(df)
     group = group.set_index("newspaper_id")
-    papers = group.to_dict(orient="records")
 
-    #  passing in the parse & check functions here!
     papers = pd.concat([group, registry], axis=1)
-    papers = papers.dropna(axis=0)
+    #papers = papers.dropna(axis=0)
     papers.loc[:, "newspaper_id"] = papers.index
     papers = papers.sort_index()
     papers = papers.reset_index(drop=True)
@@ -38,12 +36,6 @@ def year_json():
     """groupby paper and by year"""
     df = create_article_df(all_articles)
     return groupby_years_and_newspaper(df)
-
-    return {
-        'years': [2011, 2012, 2013],
-        'nytimes': [11, 12, 13],
-        'guardian': [11, 12, 13],
-    }
 
 
 @app.route("/year-chart")
