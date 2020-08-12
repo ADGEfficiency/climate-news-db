@@ -7,6 +7,15 @@ import requests
 from newspapers.utils import find_one_tag, form_article_id
 
 
+def application_json_helper(soup):
+    app = soup.findAll('script', {'type': 'application/ld+json'})
+    for a in app:
+        try:
+            print(a['type'])
+        except KeyError:
+            pass
+
+
 def strip_aljazzera_dt(date_str):
     date = datetime.strptime(date_str, "%d %b %Y %H:%M GMT")
     return date.isoformat() + "Z"
@@ -15,7 +24,10 @@ def strip_aljazzera_dt(date_str):
 def check_aljazzera_url(url, logger=None):
     #  https://www.aljazeera.com/topics/issues/climate-sos.html
     #  http://america.aljazeera.com/topics/topic/issue/climate-change.html
-    if '.com/topics/' in url or '.com/programmes' in url or 'inpictures' in url:
+    if '.com/topics/' in url or '.com/programmes' in url or 'inpictures' in url or 'aljazeera.com/profile' in url or 'aljazeera.com/podcasts/' in url:
+        return False
+
+    if url == 'https://www.aljazeera.com/':
         return False
     return True
 
@@ -25,13 +37,28 @@ def parse_aljazzera_url(url, logger=None):
     html = response.text
     soup = BeautifulSoup(html, features="html5lib")
 
-    body = find_one_tag(soup, 'div', {'class': 'article-p-wrapper'})
-    body = body.findAll('p')
+    try:
+        body = find_one_tag(soup, 'div', {'class': 'main-article-body'})
+        body = body.findAll('p')
+    except AssertionError:
+        #  possible to have multiple 'text section' divs
+        body = soup.findAll('div', {'class': 'text section'})
+        p_tags = []
+        for b in body:
+            p_tags.extend(b.findAll('p'))
+        body = p_tags
+
     body = ''.join(p.text for p in body)
 
+    #  hoping it is the firstone
+    #  there are usually 2/3 ld/json
     app = soup.findAll('script', {'type': 'application/ld+json'})
-    assert len(app) <= 2
-    app = json.loads(app[0].text)
+    if len(app) == 0:
+        return {'error': 'no application/ld+json'}
+
+    assert len(app) >= 1
+    app = app[0].text.replace('\n', '')
+    app = json.loads(app)
 
     return {
         "newspaper_id": "aljazeera",
@@ -54,7 +81,8 @@ aljazeera = {
     'color': '#FA9000'
 }
 if __name__ == '__main__':
-    url = 'https://www.aljazeera.com/news/2020/03/climate-change-state-atmosphere-200311123221535.html'
+    url = 'https://www.aljazeera.com/ajimpact/davos-world-prepare-millions-climate-refugees-200121175217520.html'
+    url = 'http://america.aljazeera.com/articles/2015/4/2/UN-climate-change-emissions.html'
 
     response = requests.get(url)
     html = response.text

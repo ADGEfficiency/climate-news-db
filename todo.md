@@ -1,11 +1,12 @@
-setup.py
-
 logging should all happen in main - functions should return messages
 return error after passing {'error': 'parse error'} - check for error key in download.py
 handling of parse errors (currently these just return empty dict {})
 
 refactor out get_article_url from fox.py
 
+add most recent article on home page
+
+improve error handling & logging
 
 ## download refactor and optimization
 

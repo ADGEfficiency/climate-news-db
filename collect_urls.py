@@ -63,14 +63,18 @@ def google_search(url, query="climate change", stop=10, backoff=1.0, logger=None
 @click.option(
     "--source", default="google", help="Where to look for urls.", show_default=True
 )
-@click.option("--parse/--no-parse", default=True)
+@click.option(
+    "--parse/--no-parse",
+    default=True,
+    help="Whether to parse the urls after collecting them.",
+)
 def cli(num, newspapers, source, parse):
     return main(num, newspapers, source, parse)
 
 
 def main(num, newspapers, source, parse):
     logger = make_logger("logger.log")
-    logger.info(f'collecting {num} from {newspapers} from {source}')
+    logger.info(f"collecting {num} from {newspapers} from {source}")
 
     home = TextFiles()
 
@@ -90,7 +94,8 @@ def main(num, newspapers, source, parse):
             urls = urls.split("\n")
             urls.remove("")
             urls = [
-                u for u in urls
+                u
+                for u in urls
                 if paper["newspaper_url"] in u
                 if paper["checker"](u, logger)
             ][:num]
@@ -101,7 +106,7 @@ def main(num, newspapers, source, parse):
         collection.extend(urls)
 
     collection = set(collection)
-    logger.info(f'collected {len(collection)} urls')
+    logger.info(f"collected {len(collection)} urls")
 
     if parse:
         for url in collection:

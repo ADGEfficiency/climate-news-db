@@ -17,23 +17,25 @@ def parse_url(url, rewrite, logger):
     raw = NewspaperTextFiles(f"raw/{newspaper_id}")
     final = NewspaperTextFiles(f"final/{newspaper_id}")
 
-    #  database check
+    #  run the parsing
     parsed = newspaper["parser"](url)
+    #  check if already in database
+    #  bit silly as we have already parsed it!
+    #check = final.check(parsed['article_id'])
 
-    check = final.check(parsed['article_id'])
+    #  cant check if we get an error there!
 
-    if not rewrite and check:
-        logger.info(r'{url}, {article_id} already exists - not parsing')
-        import pdb; pdb.set_trace()
+    # if not rewrite and check:
+    #     logger.info(r'{url}, {article_id} already exists - not parsing')
 
     if "error" in parsed.keys():
         error = parsed["error"]
-        logger.info(f"{url}, {error}")
+        logger.info(f"{url}, error, {error}")
 
     else:
         parsed = check_parsed_article(parsed)
         if not parsed:
-            logger.info(f"{url}, failed check_parsed_article")
+            logger.info(f"{url}, error, failed check_parsed_article")
 
         else:
             parsed = clean_parsed_article(parsed)
@@ -49,8 +51,9 @@ def parse_url(url, rewrite, logger):
 
 
 @click.command()
+@click.argument("newspapers", nargs=-1)
 @click.option("--rewrite/--no-rewrite", default=True)
-def main(rewrite):
+def main(newspapers, rewrite):
 
     #  reads from urls.data, writes to database
     #  check if html exists
@@ -59,7 +62,7 @@ def main(rewrite):
     from collect_urls import main as collect_urls
 
     #  get all urls from urls.data
-    urls = collect_urls(num=-1, newspapers=["all",], source="urls.data", parse=False)
+    urls = collect_urls(num=-1, newspapers=newspapers, source="urls.data", parse=False)
 
     for url in urls:
         parse_url(url, rewrite=rewrite, logger=logger)

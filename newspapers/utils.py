@@ -9,7 +9,7 @@ def find_one_tag(soup, name, attrs={}):
     """find a single tag (and only one tag) in bs4"""
     data = soup.findAll(name, attrs)
     if len(data) != 1:
-        import pdb; pdb.set_trace()
+        print(name, attrs)
     assert len(data) == 1
     return data[0]
 

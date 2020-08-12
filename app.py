@@ -45,8 +45,12 @@ def year_chart():
 
 @app.route("/")
 def home():
-    data = {"n_articles": len(all_articles), "articles": all_articles}
     papers = paper_json()
+    data = {
+        "n_articles": len(all_articles),
+        "articles": all_articles,
+        "n_papers": len(papers)
+    }
     return render_template("home.html", data=data, papers=papers)
 
 

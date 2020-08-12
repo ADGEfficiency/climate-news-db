@@ -2,22 +2,22 @@ from pathlib import Path
 import json
 
 
-
-
 class TextFiles:
-    def __init__(self, root=None):
+    def __init__(self, root=None, logger=None):
         #  root is either raw or final
         if root:
             self.root = Path.home() / 'climate-nlp' / root
+            self.root.mkdir(parents=True, exist_ok=True)
+            self.newspapers = {
+                folder.name: NewspaperTextFiles(f"{root}/{folder.name}")
+                for folder in self.root.iterdir() if folder.is_dir()
+            }
         else:
             self.root = Path.home() / 'climate-nlp'
+            self.root.mkdir(parents=True, exist_ok=True)
 
-        self.root.mkdir(parents=True, exist_ok=True)
-
-        self.newspapers = {
-            folder.name: NewspaperTextFiles(f"{root}/{folder.name}")
-            for folder in self.root.iterdir() if folder.is_dir()
-        }
+        if logger:
+            logger.info(f'init db at {self.root}')
 
     def get_all_articles(self):
         """searches all newspapers"""
