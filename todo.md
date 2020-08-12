@@ -39,6 +39,10 @@ economist
 - ■This article appeared in the Science & technology section of the print edition under the headline "Delayed cool"
 - ■This article appeared in the The World If section of the print edition under the headline "The elephant’s U-turn"
 
+aljazzera
+- some articles missing ld/json
+- these also have a different html structure (text section)
+
 ## app upgrades
 
 Sorting by date
@@ -94,7 +98,7 @@ add description ? (can be in ld/json)
 
 ## papers
 
-aljazzera, cnn, washington post, dw.com/en, bbc, atlantic
+, cnn, washington post, dw.com/en, bbc, atlantic
 
 https://www.theguardian.com/media/2020/jan/10/news-corp-employee-climate-misinformation-bushfire-coverage-email
 - the australian, daily telegraph, herald sun
