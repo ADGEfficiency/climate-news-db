@@ -2,6 +2,8 @@ import pytest
 
 from newspapers.nzherald import check_nzherald_url, get_nzherald_article_id
 from newspapers.guardian import check_guardian_url
+from newspapers.stuff import check_stuff_url
+from newspapers.economist import check_economist_url
 
 
 @pytest.mark.parametrize(
@@ -43,11 +45,38 @@ def test_check_nzherald_url(url, expected):
     assert expected == check
 
 
-
-
 def test_nzherald_article_id():
     url, expected = ('https://www.nzherald.co.nz/the-country/news/article.cfm?c_id=16&objectid=12255029', 12255029)
 
     result = get_nzherald_article_id(url)
     assert str(expected) == result
 
+
+@pytest.mark.parametrize(
+    'url, expected',
+    (
+        ('https://www.stuff.co.nz/environment/climate-news/120171514/world-temperatures-on-the-rise--climate-change-report', True),
+        ('https://www.stuff.co.nz/environment/climate-news/climate-explained', False),
+        ('https://i.stuff.co.nz/environment/climate-news', False),
+        ('https://interactives.stuff.co.nz/2019/07/407-and-rising/', False),
+        ('https://events.stuff.co.nz/nelson-mail/2019/sustainable-backyards-climate-change-presentation/hastings', False)
+    )
+)
+def test_stuff_url_check(url, expected):
+    check = check_stuff_url(url, logger=None)
+    assert expected == check
+
+
+
+@pytest.mark.parametrize(
+    'url, expected',
+    (
+        ('https://www.economist.com/topics/climate-change', False),
+        ('https://www.economist.com/schools-brief/2020/05/16/damage-from-climate-change-will-be-widespread-and-sometimes-surprising', True),
+        ('https://www.economist.com/schools-brief/2020/04/23/why-tackling-global-warming-is-a-challenge-without-precedent', True),
+        ('https://www.economist.com/1843/2018/10/29/worried-about-climate-change-hope-is-in-the-air', False)
+    )
+)
+def test_economist_url(url, expected):
+    check = check_economist_url(url, logger=None)
+    assert expected == check

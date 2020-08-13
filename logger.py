@@ -3,14 +3,11 @@ import logging
 from pathlib import Path
 
 
-def make_logger(log_file, level='debug'):
+def make_logger(log_file):
     """info to STDOUT, debug to file"""
     log_file = Path.home() / 'climate-nlp' / log_file
 
-    if level == 'debug':
-        level = logging.DEBUG
-    else:
-        level = logging.INFO
+    level = logging.INFO
 
     # Create a custom logger
     logger = logging.getLogger('logger')
@@ -20,7 +17,7 @@ def make_logger(log_file, level='debug'):
     c_handler = logging.StreamHandler()
     f_handler = logging.FileHandler(log_file)
     c_handler.setLevel(logging.INFO)
-    f_handler.setLevel(logging.DEBUG)
+    f_handler.setLevel(logging.INFO)
 
     # Create formatters and add it to handlers
     c_format = logging.Formatter('%(name)s - %(levelname)s - %(message)s')

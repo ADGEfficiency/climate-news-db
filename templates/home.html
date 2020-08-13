@@ -1,13 +1,13 @@
 {% extends "layout.html" %}
 {% block body %}
   <div>
-    <p>{{data.n_articles}} articles in the database.</p>
-
+    <div style="style=position: relative; height:30vh; width:60vw"><canvas id="canvas"></canvas></div>
+    <p>{{data.n_articles}} articles from {{data.n_papers}} newspapers.</p>
     <table class="table table-condensed table-striped">
       <thead>
         <th>Newspaper</th>
         <th>Article Count</th>
-        <th>Average Article Word Count</th>
+        <th>Average Word Count</th>
       </thead>
       <tbody>
         {% for paper in papers %}
@@ -19,6 +19,6 @@
         {% endfor %}
       </tbody>
     </table>
-
   </div>
+  <script src="static/app.js"></script>
 {% endblock %}

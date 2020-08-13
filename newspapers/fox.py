@@ -14,6 +14,20 @@ def check_fox_url(url, logger):
     return True
 
 
+def check_for_strong_link(p):
+    """Looking for a strong tag inside a link"""
+    for child in p.children:
+        if child.name == 'strong':
+            print(f'not taking {child.text}')
+            return True
+
+        if child.name == 'a':
+            for child in child.children:
+                if child.name == 'strong':
+                    print(f'not taking {child.text}')
+                    return True
+
+
 def parse_fox_html(url):
     html = requests.get(url).text
     soup = BeautifulSoup(html, features="html.parser")
@@ -22,14 +36,20 @@ def parse_fox_html(url):
     if len(table) != 1:
         return {}
 
-    article = [p.text for p in table[0].findAll('p')]
-    article = ''.join(article)
+    article = []
+    for p in table[0].findAll('p'):
+        flag = check_for_strong_link(p)
+        if not flag:
+            article.append(p.text)
 
+    article = ''.join(article)
+    unwanted = [
+        "Fox News Flash top headlines are here. Check out what's clicking on Foxnews.com.",
+        "Get all the latest news on\xa0coronavirus\xa0and more delivered daily to your inbox.\xa0Sign up here.",
+    ]
     #  hack for coronavirus tag that appears in later articles
-    article = article.replace(
-        'Get all the latest news on\xa0coronavirus\xa0and more delivered daily to your inbox.\xa0Sign up here.',
-        ''
-    )
+    for unw in unwanted:
+        article = article.replace(unw, '')
 
     #  info about published date
     scripts = soup.findAll('script', attrs={'type': 'application/ld+json'})
@@ -48,24 +68,19 @@ def parse_fox_html(url):
         'headline': headline,
         'html': html,
         'article_url': url,
-        'article_id': url.split('/')[-1],
+        'article_id': get_article_id(url),
         'date_published': article_metadata['datePublished'],
         'date_modified': article_metadata['dateModified']
     }
 
+def get_article_id(url):
+    #  sometimes have a trailing / on the end
+    url = url.strip('/')
+    url = url.replace('.html', '')
+    return url.split('/')[-1]
 
 if __name__ == '__main__':
     import requests
 
-    url = 'https://www.foxnews.com/us/climate-change-tropical-cyclone-hurricane-typhoon-tropical-storm-noaa-study-weather-atlantic-pacific-indian-ocean'
-
-    url = 'https://www.foxnews.com/opinion/joe-bastardi-climate-change-agenda-is-being-driven-by-hysteria-not-facts'
+    url = 'http://green.foxnews.com/2009/06/05/un-nature-best-at-handling-climate-change/'
     out = parse_fox_html(url)
-
-    html = requests.get(url).text
-    soup = BeautifulSoup(html, features="html.parser")
-
-    table = soup.findAll('div', attrs={"class": "article-body"})
-
-    for p in table[0].findAll('p'):
-        pass

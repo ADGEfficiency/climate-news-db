@@ -1,79 +1,93 @@
-from flask import Flask, render_template, request
+from random import randint
+
+from flask import Flask, render_template, request, jsonify
 import pandas as pd
 
+
+from analytics import create_article_df, groupby_newspaper, groupby_years_and_newspaper
 from database import TextFiles
-from analytics import create_article_df, groupby_newspaper
-
-from newspapers.registry import registry, get_newspaper
+from newspapers.registry import get_newspaper, registry
 
 
-
-app = Flask('climate-article-downloader')
-
-db = TextFiles('final')
-
-papers = [folder.name for folder in db.root.iterdir() if folder.is_dir()]
-
-all_articles = []
-for paper in papers:
-    db = TextFiles(f'final/{paper}')
-    all_articles.extend(db.get_all_articles())
+app = Flask("climate-article-downloader")
+db = TextFiles("final")
+all_articles = db.get_all_articles()
 
 registry = pd.DataFrame(registry)
-registry = registry.set_index('newspaper_id')
+registry = registry.set_index("newspaper_id")
 
 
-@app.route('/')
-def home():
-    data = {'n_articles': len(all_articles), 'articles': all_articles}
-
+@app.route("/papers.json")
+def paper_json():
+    """groupby paper, calculate statistics"""
     df = create_article_df(all_articles)
     group = groupby_newspaper(df)
-    group = group.set_index('newspaper_id')
-    papers = group.to_dict(orient='records')
+    group = group.set_index("newspaper_id")
 
     papers = pd.concat([group, registry], axis=1)
-    papers = papers.dropna(axis=0)
-    papers.loc[:, 'newspaper_id'] = papers.index
+    #papers = papers.dropna(axis=0)
+    papers.loc[:, "newspaper_id"] = papers.index
+    papers = papers.sort_index()
     papers = papers.reset_index(drop=True)
-    papers = papers.to_dict(orient='records')
-
-    return render_template('home.html', data=data, papers=papers)
+    return papers.to_dict(orient="records")
 
 
-@app.route('/random')
+@app.route("/years.json")
+def year_json():
+    """groupby paper and by year"""
+    df = create_article_df(all_articles)
+    return groupby_years_and_newspaper(df)
+
+
+@app.route("/year-chart")
+def year_chart():
+    return render_template('year_chart.html')
+
+
+@app.route("/")
+def home():
+    papers = paper_json()
+    data = {
+        "n_articles": len(all_articles),
+        "articles": all_articles,
+        "n_papers": len(papers)
+    }
+    return render_template("home.html", data=data, papers=papers)
+
+
+@app.route("/random")
 def show_random_article():
     #  this loads entire json
     #  better to load single one by index
-    #articles = db.get_all_articles()
-    from random import randint
+    # articles = db.get_all_articles()
+
     idx = randint(0, len(all_articles) - 1)
     article = all_articles[idx]
-    return render_template('article.html', article=article)
+    return render_template("article.html", article=article)
 
 
-@app.route('/article')
+@app.route("/article")
 def show_one_article():
-    article_id = request.args.get('article_id')
-    db = TextFiles('final')
+    article_id = request.args.get("article_id")
+    db = TextFiles("final")
     article = db.get_article(article_id)
-    return render_template('article.html', article=article)
+    return render_template("article.html", article=article)
 
 
-@app.route('/newspaper')
+@app.route("/newspaper")
 def show_one_newspaper():
-    newspaper = request.args.get('newspaper_id')
+    newspaper = request.args.get("newspaper_id")
 
-    db = TextFiles(f'final/{newspaper}')
-    articles = db.get_all_articles()
+    articles = db.get_articles_from_newspaper(newspaper)
+    articles = pd.DataFrame(articles)
+    articles = articles.sort_values('date_published', ascending=False)
+    articles = articles.reset_index(drop=True)
+    articles = articles.to_dict(orient="records")
+
     newspaper = get_newspaper(newspaper)
 
-    return render_template(
-        'newspaper.html',
-        newspaper=newspaper,
-        articles=articles
-    )
+    return render_template("newspaper.html", newspaper=newspaper, articles=articles)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)

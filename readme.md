@@ -1,4 +1,4 @@
-# Climate News DB
+# climate-news-db
 
 Database of climate change news articles.  [See the app deployed here](http://www.climate-news-db.com/) - [see the source code here](https://github.com/ADGEfficiency/climate-news-db).
 
@@ -8,12 +8,21 @@ Python 3.7+ (we use f-strings).
 
 ```bash
 $ pip install -r requirements.txt
+$ python setup.py install
 ```
 
 ## Use
 
 ```bash
-$ python download.py --newspapers all --n 50
+$ collect [OPTIONS] [NEWSPAPERS]...
+  -n, --num INTEGER     Number of urls to attempt to collect.  [default: 5]
+  --source TEXT         Where to look for urls.  [default: google]
+  --parse / --no-parse
+  --help                Show this message and exit.
+
+parse [OPTIONS]
+  --rewrite / --no-rewrite
+  --help                    Show this message and exit.
 ```
 
 This will download files into `$HOME`.  The final data is in `final/{newspaper_id}/{article_id}.json`.
