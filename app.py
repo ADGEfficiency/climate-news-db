@@ -3,6 +3,7 @@ from random import randint
 from flask import Flask, render_template, request, jsonify
 import pandas as pd
 
+
 from analytics import create_article_df, groupby_newspaper, groupby_years_and_newspaper
 from database import TextFiles
 from newspapers.registry import get_newspaper, registry
