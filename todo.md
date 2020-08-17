@@ -105,3 +105,8 @@ https://www.theguardian.com/media/2020/jan/10/news-corp-employee-climate-misinfo
 
 
 collect analytics on the s3 syncs (num uploads, deletes etc)
+
+---
+
+things learnt
+- put sanity checks on cleaned data (body certain length, headline not missing etc)

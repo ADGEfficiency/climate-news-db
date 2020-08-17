@@ -3,16 +3,16 @@ import time
 from urllib.error import HTTPError
 
 import click
-
-from database import TextFiles
-from logger import make_logger
-from newspapers.registry import registry
 from googlesearch import search
-from parse_urls import parse_url
+
+from climatedb.database import TextFiles
+from climatedb.logger import make_logger
+from climatedb.newspapers.registry import registry
+from climatedb.parse_urls import parse_url
 
 
 def get_newspapers_from_registry(newspapers):
-    if (newspapers == ["all",]) or (newspapers == ()):
+    if (newspapers == ("all",)) or (newspapers == ()):
         return registry
     else:
         return [n for n in registry if n["newspaper_id"] in newspapers]
@@ -61,7 +61,10 @@ def google_search(url, query="climate change", stop=10, backoff=1.0, logger=None
     show_default=True,
 )
 @click.option(
-    "--source", default="google", help="Where to look for urls.", show_default=True
+    "--source",
+    default="google",
+    help="Where to look for urls.",
+    show_default=True
 )
 @click.option(
     "--parse/--no-parse",
@@ -94,8 +97,7 @@ def main(num, newspapers, source, parse):
             urls = urls.split("\n")
             urls.remove("")
             urls = [
-                u
-                for u in urls
+                u for u in urls
                 if paper["newspaper_url"] in u
                 if paper["checker"](u, logger)
             ][:num]

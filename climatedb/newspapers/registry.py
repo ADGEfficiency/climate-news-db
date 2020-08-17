@@ -1,17 +1,17 @@
 from datetime import datetime
 import html.parser
 
-from newspapers.guardian import check_guardian_url, parse_guardian_html
-from newspapers.fox import check_fox_url, parse_fox_html
-from newspapers.skyau import check_sky_au_url, parse_sky_au_url
-from newspapers.nytimes import check_nytimes_url, parse_nytimes_html
+from climatedb.newspapers.guardian import check_guardian_url, parse_guardian_html
+from climatedb.newspapers.fox import check_fox_url, parse_fox_html
+from climatedb.newspapers.skyau import check_sky_au_url, parse_sky_au_url
+from climatedb.newspapers.nytimes import check_nytimes_url, parse_nytimes_html
 
-from newspapers.economist import economist
-from newspapers.newshub import newshub
-from newspapers.nzherald import nzherald
-from newspapers.stuff import stuff
-from newspapers.aljazeera import aljazeera
-from newspapers.atlantic import atlantic
+from climatedb.newspapers.economist import economist
+from climatedb.newspapers.newshub import newshub
+from climatedb.newspapers.nzherald import nzherald
+from climatedb.newspapers.stuff import stuff
+from climatedb.newspapers.aljazeera import aljazeera
+from climatedb.newspapers.atlantic import atlantic
 
 
 def find_newspaper_from_url(url):

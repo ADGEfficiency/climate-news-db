@@ -1,7 +1,10 @@
 {% extends "layout.html" %}
 {% block body %}
+
   <div>
-    <div style="style=position: relative; height:30vh; width:60vw"><canvas id="canvas"></canvas></div>
+    <figure>
+      <canvas id="canvas" height="256px"></canvas>
+    </figure>
     <p>{{data.n_articles}} articles from {{data.n_papers}} newspapers.</p>
     <table class="table table-condensed table-striped">
       <thead>

@@ -2,10 +2,10 @@ import json
 
 import click
 
-from database import NewspaperTextFiles
-from logger import make_logger
-from newspapers.registry import find_newspaper_from_url
-from newspapers.registry import check_parsed_article, registry, clean_parsed_article
+from climatedb.database import NewspaperTextFiles
+from climatedb.logger import make_logger
+from climatedb.newspapers.registry import find_newspaper_from_url
+from climatedb.newspapers.registry import check_parsed_article, registry, clean_parsed_article
 
 
 def parse_url(url, rewrite, logger):

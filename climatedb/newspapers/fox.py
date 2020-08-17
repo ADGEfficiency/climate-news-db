@@ -3,7 +3,7 @@ import json
 import requests
 from bs4 import BeautifulSoup
 
-from newspapers.utils import check_match
+from climatedb.newspapers.utils import check_match
 
 
 def check_fox_url(url, logger):

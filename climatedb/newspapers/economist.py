@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import json
 
-from newspapers.utils import find_one_tag, form_article_id
+from climatedb.newspapers.utils import find_one_tag, form_article_id
 
 
 def check_economist_url(url, logger):

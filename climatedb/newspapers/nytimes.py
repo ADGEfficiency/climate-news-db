@@ -3,7 +3,7 @@ import json
 from bs4 import BeautifulSoup
 import requests
 
-from newspapers.utils import check_match
+from climatedb.newspapers.utils import check_match
 
 
 def check_nytimes_url(url, logger):

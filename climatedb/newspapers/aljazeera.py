@@ -4,7 +4,7 @@ import json
 from bs4 import BeautifulSoup
 import requests
 
-from newspapers.utils import find_one_tag, form_article_id
+from climatedb.newspapers.utils import find_one_tag, form_article_id
 
 
 def application_json_helper(soup):

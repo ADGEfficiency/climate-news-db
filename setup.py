@@ -8,8 +8,8 @@ setup(
     install_requires=['Click'],
     entry_points={
         'console_scripts': [
-            'collect=collect_urls:cli',
-            'parse=parse_urls:main'
+            'collect=climatedb.collect_urls:cli',
+            'parse=climatedb.parse_urls:main'
         ],
     }
 )
