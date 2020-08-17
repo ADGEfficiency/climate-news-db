@@ -52,7 +52,9 @@ Sorting by date
 
 ## app improvements
 
-add number of urls onto homepage
+want to see the
+
+add number of urls onto homepage (or onto an admin page?)
 
 add ability to access log (last 50 entries)
 

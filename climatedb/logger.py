@@ -10,7 +10,7 @@ def make_logger(log_file):
     level = logging.INFO
 
     # Create a custom logger
-    logger = logging.getLogger('logger')
+    logger = logging.getLogger('climatedb')
     logger.setLevel(level)
 
     # Create handlers

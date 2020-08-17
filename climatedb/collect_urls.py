@@ -1,3 +1,4 @@
+import logging
 import random
 import time
 from urllib.error import HTTPError
@@ -19,18 +20,18 @@ def get_newspapers_from_registry(newspapers):
 
 
 def collect_from_google(num, newspaper, logger=None):
-    if logger:
-        logger.info(f'searching for {num} from {newspaper["newspaper"]}')
+    logger = logging.getLogger('climatedb')
+    logger.info(f'searching for {num} from {newspaper["newspaper"]}')
 
     urls = google_search(newspaper["newspaper_url"], stop=num)
     urls = [url for url in urls if newspaper["checker"](url, logger)]
 
-    if logger:
-        logger.info(f'search: found {len(urls)} for {newspaper["newspaper"]}')
+    logger = logging.getLogger('climatedb')
+    logger.info(f'search: found {len(urls)} for {newspaper["newspaper"]}')
     return urls
 
 
-def google_search(url, query="climate change", stop=10, backoff=1.0, logger=None):
+def google_search(url, query="climate change", stop=10, backoff=1.0):
     #  protects against a -1 example
     if stop <= 0:
         raise ValueError("stop of {stop} is invalid - change the --num argument")
@@ -46,8 +47,8 @@ def google_search(url, query="climate change", stop=10, backoff=1.0, logger=None
         return urls
 
     except HTTPError as e:
-        if logger:
-            logger.info(f"{e} at backoff {backoff}")
+        logger = logging.getLogger('climatedb')
+        logger.info(f"{e} at backoff {backoff}")
         return google_search(url, query, stop, backoff=backoff + 1)
 
 
@@ -88,8 +89,7 @@ def main(num, newspapers, source, parse):
     for paper in newspapers:
         if source == "google":
             urls = collect_from_google(num, paper, logger)
-            if logger:
-                logger.info(f"saving {len(urls)} to file")
+            logger.info(f"saving {len(urls)} to file")
             home.write(urls, "urls.data", "a")
 
         elif source == "urls.data":
@@ -102,8 +102,7 @@ def main(num, newspapers, source, parse):
                 if paper["checker"](u, logger)
             ][:num]
 
-            if logger:
-                logger.info(f"loaded {len(urls)} urls from {source}")
+            logger.info(f"loaded {len(urls)} urls from {source}")
 
         collection.extend(urls)
 

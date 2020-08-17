@@ -80,3 +80,9 @@ def test_stuff_url_check(url, expected):
 def test_economist_url(url, expected):
     check = check_economist_url(url, logger=None)
     assert expected == check
+
+
+
+def test_integration():
+    from climatedb.collect_urls import main as collect
+    collect(1, 'all', 'google', False)
