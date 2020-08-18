@@ -14,15 +14,14 @@ $ python setup.py install
 ## Use
 
 ```bash
-$ collect [OPTIONS] [NEWSPAPERS]...
+$ collect economist -n 16 --parse
+
+$ collect --help
+collect [OPTIONS] [NEWSPAPERS]...
   -n, --num INTEGER     Number of urls to attempt to collect.  [default: 5]
   --source TEXT         Where to look for urls.  [default: google]
   --parse / --no-parse
   --help                Show this message and exit.
-
-parse [OPTIONS]
-  --rewrite / --no-rewrite
-  --help                    Show this message and exit.
 ```
 
 This will download files into `$HOME`.  The final data is in `final/{newspaper_id}/{article_id}.json`.

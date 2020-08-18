@@ -1,7 +1,6 @@
 import json
 
-import click
-
+from climatedb.collect_urls import main as collect_urls
 from climatedb.database import NewspaperTextFiles
 from climatedb.logger import make_logger
 from climatedb.newspapers.registry import find_newspaper_from_url
@@ -50,16 +49,10 @@ def parse_url(url, rewrite, logger):
                 logger.info(f"{url}, type error")
 
 
-@click.command()
-@click.argument("newspapers", nargs=-1)
-@click.option("--rewrite/--no-rewrite", default=True)
-def main(newspapers, rewrite):
-
+def main(newspapers, rewrite=True):
     #  reads from urls.data, writes to database
     #  check if html exists
-
     logger = make_logger("logger.log")
-    from collect_urls import main as collect_urls
 
     #  get all urls from urls.data
     urls = collect_urls(num=-1, newspapers=newspapers, source="urls.data", parse=False)

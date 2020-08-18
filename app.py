@@ -77,15 +77,12 @@ def show_one_article():
 @app.route("/newspaper")
 def show_one_newspaper():
     newspaper = request.args.get("newspaper_id")
-
     articles = db.get_articles_from_newspaper(newspaper)
     articles = pd.DataFrame(articles)
     articles = articles.sort_values('date_published', ascending=False)
     articles = articles.reset_index(drop=True)
     articles = articles.to_dict(orient="records")
-
     newspaper = get_newspaper(newspaper)
-
     return render_template("newspaper.html", newspaper=newspaper, articles=articles)
 
 
