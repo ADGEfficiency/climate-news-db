@@ -8,6 +8,8 @@ add most recent article on home page
 
 improve error handling & logging
 
+put a line at the bottom before the footer
+
 ## download refactor and optimization
 
 - ability to parse a url from commandline 

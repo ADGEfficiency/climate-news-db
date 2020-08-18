@@ -3,7 +3,7 @@ setup:
 	python3 setup.py install
 
 app:
-	python3 climatedb/app.py
+	python3 app.py
 
 inspect:
 	./inspect.sh
