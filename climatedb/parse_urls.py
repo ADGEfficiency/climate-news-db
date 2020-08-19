@@ -1,13 +1,14 @@
 import json
 
-from climatedb.collect_urls import main as collect_urls
+#from climatedb.collect_urls import main as collect_urls
 from climatedb.database import NewspaperTextFiles
 from climatedb.logger import make_logger
 from climatedb.newspapers.registry import find_newspaper_from_url
-from climatedb.newspapers.registry import check_parsed_article, registry, clean_parsed_article
+from climatedb.newspapers.registry import check_parsed_article, clean_parsed_article
 
 
 def parse_url(url, rewrite, logger):
+    logger = make_logger("logger.log")
     newspaper = find_newspaper_from_url(url)
 
     logger.info(f"{url}, parsing")
@@ -49,13 +50,12 @@ def parse_url(url, rewrite, logger):
                 logger.info(f"{url}, type error")
 
 
-def main(newspapers, rewrite=True):
-    #  reads from urls.data, writes to database
-    #  check if html exists
-    logger = make_logger("logger.log")
+# def main(newspapers, rewrite=True):
+#     #  reads from urls.data, writes to database
+#     #  check if html exists
 
-    #  get all urls from urls.data
-    urls = collect_urls(num=-1, newspapers=newspapers, source="urls.data", parse=False)
+#     #  get all urls from urls.data
+#     urls = collect_urls(num=-1, newspapers=newspapers, source="urls.data", parse=False)
 
-    for url in urls:
-        parse_url(url, rewrite=rewrite, logger=logger)
+#     for url in urls:
+#         parse_url(url, rewrite=rewrite, logger=logger)
