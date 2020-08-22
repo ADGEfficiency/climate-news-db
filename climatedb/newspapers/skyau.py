@@ -43,6 +43,7 @@ def parse_sky_au_url(url):
                 key = list(data.keys())[0]
                 pub = int(data[key]['content']['attributes']['publishedDate'])
                 pub = datetime.fromtimestamp(pub/1000).isoformat()
+                break
 
             else:
                 pub = datetime.fromtimestamp(0).isoformat()

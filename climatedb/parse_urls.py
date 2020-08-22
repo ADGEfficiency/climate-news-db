@@ -8,11 +8,9 @@ from climatedb.newspapers.registry import check_parsed_article, clean_parsed_art
 
 
 def parse_url(url, rewrite, logger):
-    logger = make_logger("logger.log")
     newspaper = find_newspaper_from_url(url)
 
     logger.info(f"{url}, parsing")
-
     newspaper_id = newspaper['newspaper_id']
     raw = NewspaperTextFiles(f"raw/{newspaper_id}")
     final = NewspaperTextFiles(f"final/{newspaper_id}")
@@ -21,6 +19,7 @@ def parse_url(url, rewrite, logger):
     parsed = newspaper["parser"](url)
     #  check if already in database
     #  bit silly as we have already parsed it!
+    #  means we need to get the article ID before parsing
     #check = final.check(parsed['article_id'])
 
     #  cant check if we get an error there!
