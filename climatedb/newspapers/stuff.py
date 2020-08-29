@@ -1,24 +1,21 @@
 import requests
 from bs4 import BeautifulSoup
 
-import pytest
-
 
 def check_stuff_url(url, logger=None):
-    parts = url.split('/')
+    parts = url.split("/")
     if len(parts) < 7:
         if logger:
-            logger.info(f'stuff, {url}, check failed, not long enough')
+            logger.info(f"stuff, {url}, check failed, only {len(parts)} url parts")
         return False
 
-    for unw in ['events.stuff.co.nz', 'interactives.stuff.co.nz']:
+    for unw in ["events.stuff.co.nz", "interactives.stuff.co.nz"]:
         if unw in url:
             if logger:
-                logger.info(f'stuff, {url}, check failed, {unw} in url')
+                logger.info(f"stuff, {url}, check failed, {unw} in url")
             return False
 
     return True
-
 
 
 def parse_stuff_url(url, logger=None):
@@ -26,9 +23,14 @@ def parse_stuff_url(url, logger=None):
     html = response.text
     soup = BeautifulSoup(html, features="html5lib")
 
-    body = soup.findAll("span", attrs={"class": "sics-component__story__body sics-component__story__body--nativform"})
+    body = soup.findAll(
+        "span",
+        attrs={
+            "class": "sics-component__story__body sics-component__story__body--nativform"
+        },
+    )
     assert len(body) == 1
-    body = ''.join([p.text for p in body[0].findAll('p')])
+    body = "".join([p.text for p in body[0].findAll("p")])
 
     modified = soup.findAll("span", attrs={"itemprop": "dateModified"})
     assert len(modified) == 1
@@ -38,19 +40,19 @@ def parse_stuff_url(url, logger=None):
     assert len(published) == 1
     published = published[0]["content"]
 
-    headline = soup.findAll('h1', attrs={"itemprop": "headline"})
+    headline = soup.findAll("h1", attrs={"itemprop": "headline"})
     assert len(headline) == 1
     headline = headline[0].text
 
     return {
-        'newspaper_id': 'stuff',
-        'body': body,
-        'headline': headline,
-        'article_url': url,
-        'html': html,
-        'article_id': url.split('/')[-1],
-        'date_published': published,
-        'date_modified': modified,
+        "newspaper_id": "stuff",
+        "body": body,
+        "headline": headline,
+        "article_url": url,
+        "html": html,
+        "article_id": url.split("/")[-1],
+        "date_published": published,
+        "date_modified": modified,
     }
 
 
@@ -59,5 +61,5 @@ stuff = {
     "newspaper": "Stuff.co.nz",
     "newspaper_url": "stuff.co.nz",
     "checker": check_stuff_url,
-    "parser": parse_stuff_url
+    "parser": parse_stuff_url,
 }

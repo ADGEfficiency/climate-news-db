@@ -6,93 +6,102 @@ from climatedb.newspapers.fox import check_fox_url, parse_fox_html
 from climatedb.newspapers.skyau import check_sky_au_url, parse_sky_au_url
 from climatedb.newspapers.nytimes import check_nytimes_url, parse_nytimes_html
 
+from climatedb.newspapers.cnn import cnn
 from climatedb.newspapers.economist import economist
 from climatedb.newspapers.newshub import newshub
 from climatedb.newspapers.nzherald import nzherald
 from climatedb.newspapers.stuff import stuff
 from climatedb.newspapers.aljazeera import aljazeera
 from climatedb.newspapers.atlantic import atlantic
+from climatedb.newspapers.washington_post import washington_post
 
 
 def find_newspaper_from_url(url):
     for paper in registry:
-        if paper['newspaper_url'] in url:
+        if paper["newspaper_url"] in url:
             return paper
 
 
 registry = [
-    nzherald, stuff, newshub, economist, aljazeera, atlantic,
+    nzherald,
+    stuff,
+    newshub,
+    economist,
+    aljazeera,
+    atlantic,
+    washington_post,
+    cnn,
     {
         "newspaper_id": "guardian",
         "newspaper": "The Guardian",
         "newspaper_url": "theguardian.com",
         "checker": check_guardian_url,
-        "parser": parse_guardian_html
+        "parser": parse_guardian_html,
     },
     {
         "newspaper_id": "fox",
         "newspaper": "Fox News",
         "newspaper_url": "foxnews.com",
         "checker": check_fox_url,
-        "parser": parse_fox_html
+        "parser": parse_fox_html,
     },
     {
         "newspaper_id": "nytimes",
         "newspaper": "The New York Times",
         "newspaper_url": "nytimes.com",
         "checker": check_nytimes_url,
-        "parser": parse_nytimes_html
+        "parser": parse_nytimes_html,
     },
     {
         "newspaper_id": "skyau",
         "newspaper": "Sky News Australia",
         "newspaper_url": "skynews.com.au",
         "checker": check_sky_au_url,
-        "parser": parse_sky_au_url
-    }
+        "parser": parse_sky_au_url,
+    },
 ]
 
 
 def get_newspaper(newspaper):
     for paper in registry:
-        if paper['newspaper_id'] == newspaper:
+        if paper["newspaper_id"] == newspaper:
             return paper
-    raise ValueError(f'{newspaper} not in registry')
-
+    raise ValueError(f"{newspaper} not in registry")
 
 
 def check_parsed_article(parsed):
     if not parsed:
         return {}
 
-    newspaper = get_newspaper(parsed['newspaper_id'])
-    parsed['date_uploaded'] = datetime.utcnow().isoformat()
+    newspaper = get_newspaper(parsed["newspaper_id"])
+    parsed["date_uploaded"] = datetime.utcnow().isoformat()
     parsed = {**parsed, **newspaper}
 
-    del parsed['checker']
-    del parsed['parser']
+    del parsed["checker"]
+    del parsed["parser"]
 
     schema = [
-        'newspaper',
-        'newspaper_id',
-        'newspaper_url',
-        'body',
-        'headline',
-        'html',
-        'article_url',
-        'article_id',
-        'date_published',
-        'date_uploaded'
+        "newspaper",
+        "newspaper_id",
+        "newspaper_url",
+        "body",
+        "headline",
+        "html",
+        "article_url",
+        "article_id",
+        "date_published",
+        "date_uploaded",
     ]
-    for s in schema:
+    for sc in schema:
         #  check key exists
-        if s not in parsed.keys():
-            raise ValueError(f'{s} missing from parsed article')
+        if sc not in parsed.keys():
+            raise ValueError(f"{sc} missing from parsed article")
 
         #  check value length
-        val = parsed[s]
+        val = parsed[sc]
         if len(val) < 2:
-            raise ValueError(f'{s} not long enough - {val}')
+            import pdb; pdb.set_trace()
+            raise ValueError(f"{sc} not long enough - {val}")
 
     return parsed
 
@@ -100,6 +109,6 @@ def check_parsed_article(parsed):
 def clean_parsed_article(parsed):
     #  data cleaning - replacing escaped html characters
     html_parser = html.parser.HTMLParser()
-    parsed['body'] = html_parser.unescape(parsed['body'])
-    parsed['headline'] = html_parser.unescape(parsed['headline'])
+    parsed["body"] = html_parser.unescape(parsed["body"])
+    parsed["headline"] = html_parser.unescape(parsed["headline"])
     return parsed

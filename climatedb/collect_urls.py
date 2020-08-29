@@ -16,40 +16,36 @@ def get_newspapers_from_registry(newspapers):
     if (newspapers == ("all",)) or (newspapers == ()):
         return registry
     else:
+        if isinstance(newspapers, str):
+            newspapers = [newspapers, ]
         return [n for n in registry if n["newspaper_id"] in newspapers]
 
 
 def collect_from_google(num, newspaper, logger=None):
-    logger = logging.getLogger('climatedb')
+    logger = logging.getLogger("climatedb")
     logger.info(f'searching for {num} from {newspaper["newspaper"]}')
 
-    urls = google_search(newspaper["newspaper_url"], stop=num)
+    urls = google_search(newspaper["newspaper_url"], "climate change", stop=num)
     urls = [url for url in urls if newspaper["checker"](url, logger)]
 
-    logger = logging.getLogger('climatedb')
     logger.info(f'search: found {len(urls)} for {newspaper["newspaper"]}')
     return urls
 
 
-def google_search(url, query="climate change", stop=10, backoff=1.0):
+def google_search(site, query, start=1, stop=10, backoff=1.0):
     #  protects against a -1 example
     if stop <= 0:
-        raise ValueError("stop of {stop} is invalid - change the --num argument")
+        raise ValueError("stop of {stop} is invalid")
 
     try:
-        query = f"{query} site:{url}"
-
+        qry = f"{query} site:{site}"
         time.sleep((2 ** backoff) + random.random())
-
-        urls = list(
-            search(query, start=1, stop=stop, pause=4.0, user_agent="climatecode")
-        )
-        return urls
+        return list(search(qry, start=start, stop=stop, pause=1.0, user_agent="climatecoder"))
 
     except HTTPError as e:
-        logger = logging.getLogger('climatedb')
-        logger.info(f"{e} at backoff {backoff}")
-        return google_search(url, query, stop, backoff=backoff + 1)
+        logger = logging.getLogger("climatedb")
+        logger.info(f"{qry}, {e}, backoff {backoff}")
+        return google_search(site, query, stop, backoff=backoff+1)
 
 
 @click.command()
@@ -62,10 +58,7 @@ def google_search(url, query="climate change", stop=10, backoff=1.0):
     show_default=True,
 )
 @click.option(
-    "--source",
-    default="google",
-    help="Where to look for urls.",
-    show_default=True
+    "--source", default="google", help="Where to look for urls.", show_default=True
 )
 @click.option(
     "--parse/--no-parse",
@@ -81,7 +74,6 @@ def main(num, newspapers, source, parse):
     logger.info(f"collecting {num} from {newspapers} from {source}")
 
     home = TextFiles()
-
     newspapers = get_newspapers_from_registry(newspapers)
     print(newspapers)
 
@@ -90,7 +82,7 @@ def main(num, newspapers, source, parse):
         if source == "google":
             urls = collect_from_google(num, paper, logger)
             urls = [url for url in urls if paper["checker"](url, logger)]
-            logger.info(f"saving {len(urls)} to file")
+            logger.info(f"saving {len(urls)} to urls.data")
             home.write(urls, "urls.data", "a")
 
         elif source == "urls.data":
@@ -98,13 +90,14 @@ def main(num, newspapers, source, parse):
             urls = urls.split("\n")
             urls.remove("")
             urls = [
-                u for u in urls
+                u
+                for u in urls
                 if paper["newspaper_url"] in u
                 if paper["checker"](u, logger)
             ][:num]
-
             logger.info(f"loaded {len(urls)} urls from {source}")
 
+        logger.info(f"adding {len(urls)} urls from {source}")
         collection.extend(urls)
 
     collection = set(collection)
@@ -113,5 +106,3 @@ def main(num, newspapers, source, parse):
     if parse:
         for url in collection:
             parse_url(url, rewrite=True, logger=logger)
-
-    return collection

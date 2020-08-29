@@ -1,6 +1,6 @@
 import json
 
-#from climatedb.collect_urls import main as collect_urls
+# from climatedb.collect_urls import main as collect_urls
 from climatedb.database import NewspaperTextFiles
 from climatedb.logger import make_logger
 from climatedb.newspapers.registry import find_newspaper_from_url
@@ -11,7 +11,7 @@ def parse_url(url, rewrite, logger):
     newspaper = find_newspaper_from_url(url)
 
     logger.info(f"{url}, parsing")
-    newspaper_id = newspaper['newspaper_id']
+    newspaper_id = newspaper["newspaper_id"]
     raw = NewspaperTextFiles(f"raw/{newspaper_id}")
     final = NewspaperTextFiles(f"final/{newspaper_id}")
 
@@ -20,7 +20,7 @@ def parse_url(url, rewrite, logger):
     #  check if already in database
     #  bit silly as we have already parsed it!
     #  means we need to get the article ID before parsing
-    #check = final.check(parsed['article_id'])
+    # check = final.check(parsed['article_id'])
 
     #  cant check if we get an error there!
 

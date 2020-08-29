@@ -17,6 +17,8 @@ put a line at the bottom before the footer
 save all dates as UTC as well
 
 
+https://towardsdatascience.com/current-google-search-packages-using-python-3-7-a-simple-tutorial-3606e459e0d4
+
 ## newspaper cleanuv
 
 nytimes article ID has `.html`
@@ -102,7 +104,7 @@ add description ? (can be in ld/json)
 
 ## papers
 
-, cnn, washington post, dw.com/en, bbc, atlantic
+cnn, dw.com/en, bbc
 
 https://www.theguardian.com/media/2020/jan/10/news-corp-employee-climate-misinformation-bushfire-coverage-email
 - the australian, daily telegraph, herald sun
