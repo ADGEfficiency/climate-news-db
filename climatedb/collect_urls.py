@@ -90,8 +90,7 @@ def main(num, newspapers, source, parse):
             urls = urls.split("\n")
             urls.remove("")
             urls = [
-                u
-                for u in urls
+                u for u in urls
                 if paper["newspaper_url"] in u
                 if paper["checker"](u, logger)
             ][:num]

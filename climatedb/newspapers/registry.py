@@ -14,6 +14,8 @@ from climatedb.newspapers.stuff import stuff
 from climatedb.newspapers.aljazeera import aljazeera
 from climatedb.newspapers.atlantic import atlantic
 from climatedb.newspapers.washington_post import washington_post
+from climatedb.newspapers.dw import dw
+from climatedb.newspapers.bbc import bbc
 
 
 def find_newspaper_from_url(url):
@@ -31,6 +33,8 @@ registry = [
     atlantic,
     washington_post,
     cnn,
+    dw,
+    bbc,
     {
         "newspaper_id": "guardian",
         "newspaper": "The Guardian",

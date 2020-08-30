@@ -39,13 +39,20 @@ Fox
 newshub article title has ` | Newshub`
 
 economist
+
 - ■Sign up to our fortnightly climate-change newsletter hereThis article appeared in the Briefing section of the print edition under the headline "Hotting up"
 - ■This article appeared in the Science & technology section of the print edition under the headline "Delayed cool"
 - ■This article appeared in the The World If section of the print edition under the headline "The elephant’s U-turn"
 
 aljazzera
+
 - some articles missing ld/json
 - these also have a different html structure (text section)
+
+cnn
+
+- p tags at the end with links to other articles (different styling)
+
 
 ## app upgrades
 
@@ -104,7 +111,7 @@ add description ? (can be in ld/json)
 
 ## papers
 
-cnn, dw.com/en, bbc
+bbc
 
 https://www.theguardian.com/media/2020/jan/10/news-corp-employee-climate-misinformation-bushfire-coverage-email
 - the australian, daily telegraph, herald sun
@@ -114,5 +121,12 @@ collect analytics on the s3 syncs (num uploads, deletes etc)
 
 ---
 
+add a num articles added in last 5 days column to home page
+- force me to update :)
+
+refactor registry & utils up a level
+
 things learnt
 - put sanity checks on cleaned data (body certain length, headline not missing etc)
+
+possibel to get non-unique article id's
