@@ -7,6 +7,8 @@ from climatedb.newspapers.utils import find_one_tag
 def check_newshub_url(url, logger=None):
     if "storytag.:storyTag=newshub:tag-library" in url:
         return False
+    if 'https://www.newshub.co.nz/home/world/environment.html' in url:
+        return False
     return True
 
 
