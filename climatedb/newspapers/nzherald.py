@@ -18,6 +18,9 @@ def check_nzherald_url(url, logger=None):
         return False
     if "video.cfm" in url:
         return False
+    #  should check for the Sorry, seems like this page doesn't exist.
+    if url == "https://www.nzherald.co.nz/climate-change/news/article.cfm?c_id=26&objectid=19970":
+        return False
     return True
 
 

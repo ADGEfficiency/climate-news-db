@@ -16,7 +16,7 @@ pull_s3:
 
 scrape:
 	make pull_s3
-	collect all --num 10 --source google
+	collect all --num 20 --source google --parse
 	python3 climatedb/heal.py
 	make push_s3
 	touch /var/www/www_climate-news-db_com_wsgi.py

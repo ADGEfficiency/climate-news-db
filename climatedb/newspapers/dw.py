@@ -8,18 +8,28 @@ from climatedb.newspapers.utils import find_one_tag, form_article_id
 
 
 def check_dw_metadata(url):
-    soup = BeautifulSoup(requests.get(url).text, features="html5lib")
-    col = soup.findAll('div', {'class': 'col1 dim'})[0]
-    lis = col.findAll('li')
+    """
+    Can't figure out if the url is for an article, video or pictures
 
-    for li in lis:
-        st = li.findAll('strong')
-        if st:
-            if st[0].text == 'Duration':
-                return False
-            if st[0].text == 'Number of pictures':
-                return False
-    return True
+    This solution involves parsing the HTML, which is slow
+
+    A faster soln may be to
+    """
+    soup = BeautifulSoup(requests.get(url).text, features="html5lib")
+    col = soup.findAll('div', {'class': 'col1 dim'})
+    if col:
+        lis = col[0].findAll('li')
+
+        for li in lis:
+            st = li.findAll('strong')
+            if st:
+                if st[0].text == 'Duration':
+                    return False
+                if st[0].text == 'Number of pictures':
+                    return False
+        return True
+    else:
+        return False
 
 
 def check_dw_url(url, logger=None):

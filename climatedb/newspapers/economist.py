@@ -17,6 +17,10 @@ def check_economist_url(url, logger):
     ):
         return False
 
+    #  not an article
+    if url == "https://www.economist.com/news/2020/04/24/the-economists-coverage-of-climate-change":
+        return False
+
     import re
 
     pattern = re.compile("\/\d{4}\/\d{2}\/\d{2}\/")

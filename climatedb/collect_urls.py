@@ -93,8 +93,9 @@ def main(num, newspapers, source, parse):
                 u for u in urls
                 if paper["newspaper_url"] in u
                 if paper["checker"](u, logger)
-            ][:num]
-            logger.info(f"loaded {len(urls)} urls from {source}")
+            ][-num:]
+            paper_name = paper["newspaper"]
+            logger.info(f"loaded {len(urls)} urls from {source} for {paper_name}")
 
         logger.info(f"adding {len(urls)} urls from {source}")
         collection.extend(urls)

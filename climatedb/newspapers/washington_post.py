@@ -30,6 +30,8 @@ def check_washington_post_url(url, logger=None):
         return False
     if url == "https://www.washingtonpost.com/wp-srv/inatl/longterm/climate/overview.htm":
         return False
+    if url == 'https://www.washingtonpost.com/energy-policy/':
+        return False
     return True
 
 

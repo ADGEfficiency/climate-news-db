@@ -26,7 +26,27 @@ def check_cnn_url(url, logger=None):
         return False
     if "rss.cnn.com" in url:
         return False
+    if "lite.cnn.com" in url:
+        return False
+    if "edition.cnn.com" in url:
+        return False
     if "/specials/" in url:
+        return False
+    if "e.newsletters.cnn.com" in url:
+        return False
+    if url == "https://www.cnn.com/2009/WORLD/europe/07/05/oxfam.climate.change.human.cost/index.html":
+        return False
+    if url == "https://www.cnn.com/2008/TECH/science/03/31/Intro.timeline/index.html":
+        return False
+    if url == "https://www.cnn.com/2009/WORLD/europe/05/29/annan.climate.change.human/index.html":
+        return False
+    if url == "https://www.cnn.com/world":
+        return False
+    if url == "https://www.cnn.com/audio":
+        return False
+    if "/2009/" in url:
+        return False
+    if "/2008/" in url:
         return False
     return True
 
