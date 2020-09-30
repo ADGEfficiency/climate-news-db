@@ -1,12 +1,13 @@
 from pathlib import Path
 import json
 
+db_folder = "climate-news-db-data"
 
 class TextFiles:
     def __init__(self, root=None, logger=None):
         #  root is either raw or final
         if root:
-            self.root = Path.home() / "climate-nlp" / root
+            self.root = Path.home() / db_folder / root
             self.root.mkdir(parents=True, exist_ok=True)
             self.newspapers = {
                 folder.name: NewspaperTextFiles(f"{root}/{folder.name}")
@@ -14,7 +15,7 @@ class TextFiles:
                 if folder.is_dir()
             }
         else:
-            self.root = Path.home() / "climate-nlp"
+            self.root = Path.home() / db_folder
             self.root.mkdir(parents=True, exist_ok=True)
 
         if logger:
