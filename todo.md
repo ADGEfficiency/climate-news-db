@@ -111,8 +111,6 @@ add description ? (can be in ld/json)
 
 ## papers
 
-bbc
-
 https://www.theguardian.com/media/2020/jan/10/news-corp-employee-climate-misinformation-bushfire-coverage-email
 - the australian, daily telegraph, herald sun
 

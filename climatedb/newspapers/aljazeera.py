@@ -1,10 +1,12 @@
 from datetime import datetime
 import json
+import logging
 
 from bs4 import BeautifulSoup
 import requests
 
 from climatedb.newspapers.utils import find_one_tag, form_article_id
+
 
 
 def application_json_helper(soup):
@@ -17,29 +19,40 @@ def application_json_helper(soup):
 
 
 def strip_aljazzera_dt(date_str):
-    date = datetime.strptime(date_str, "%d %b %Y %H:%M GMT")
+    try:
+        date = datetime.strptime(date_str, "%d %b %Y %H:%M GMT")
+    except ValueError:
+        date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S%z")
     return date.isoformat() + "Z"
 
 
 def check_aljazzera_url(url, logger=None):
-    #  https://www.aljazeera.com/topics/issues/climate-sos.html
-    #  http://america.aljazeera.com/topics/topic/issue/climate-change.html
+    res = requests.get(url, allow_redirects=True)
+    logger.info(f"newspaper=aljazeera, url={url}, redirect={res.url}")
+    url = res.url
+
     if (
-        ".com/topics/" in url
-        or ".com/programmes" in url
-        or "inpictures" in url
-        or "aljazeera.com/profile" in url
+        "aljazeera.com/programmes/" in url
+        or "aljazeera.com/inpictures/" in url
+        or "aljazeera.com/topics/" in url
+        or "aljazeera.com/profile/" in url
+        or "aljazeera.com/videos/" in url
         or "aljazeera.com/podcasts/" in url
+        or "aljazeera.com/program/" in url
+        or "aljazeera.com/features/" in url
     ):
         return False
 
     if url == "https://www.aljazeera.com/":
         return False
+    if url == "https://www.aljazeera.com/news/":
+        return False
     return True
 
 
 def parse_aljazzera_url(url, logger=None):
-    response = requests.get(url)
+    logger = logging.getLogger("climatedb")
+    response = requests.get(url, allow_redirects=True)
     html = response.text
     soup = BeautifulSoup(html, features="html5lib")
 
@@ -53,6 +66,10 @@ def parse_aljazzera_url(url, logger=None):
         for b in body:
             p_tags.extend(b.findAll("p"))
         body = p_tags
+
+    if len(body) == 0:
+        body = find_one_tag(soup, "div", {"class": "wysiwyg wysiwyg--all-content"})
+        body = body.findAll("p")
 
     body = "".join(p.text for p in body)
 
@@ -87,10 +104,7 @@ aljazeera = {
     "color": "#FA9000",
 }
 if __name__ == "__main__":
-    url = "https://www.aljazeera.com/ajimpact/davos-world-prepare-millions-climate-refugees-200121175217520.html"
-    url = "http://america.aljazeera.com/articles/2015/4/2/UN-climate-change-emissions.html"
+    url = "http://www.aljazeera.com/news/europe/2007/02/2008525144121633730.html"
+    response = requests.get(url, allow_redirects=False)
 
-    response = requests.get(url)
-    html = response.text
-    soup = BeautifulSoup(html, features="html5lib")
     par = parse_aljazzera_url(url)

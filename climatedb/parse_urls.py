@@ -17,6 +17,7 @@ def parse_url(url, rewrite, logger):
 
     #  run the parsing
     parsed = newspaper["parser"](url)
+
     #  check if already in database
     #  bit silly as we have already parsed it!
     #  means we need to get the article ID before parsing

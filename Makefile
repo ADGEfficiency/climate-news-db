@@ -16,7 +16,16 @@ pull_s3:
 
 scrape:
 	make pull_s3
-	collect all --num 20 --source google --parse
+	collect all --num 10 --source google --parse
 	python3 climatedb/heal.py
 	make push_s3
 	touch /var/www/www_climate-news-db_com_wsgi.py
+
+selenium-mac:
+	wget https://github.com/mozilla/geckodriver/releases/download/v0.27.0/geckodriver-v0.27.0-macos.tar.gz
+	tar -xf geckodriver-v0.27.0-macos.tar.gz
+	mv geckodriver /usr/local/bin
+
+selenium-mac-chrome:
+	wget https://chromedriver.storage.googleapis.com/86.0.4240.22/chromedriver_mac64.zip
+	unzip chromedriver_mac64.zip
