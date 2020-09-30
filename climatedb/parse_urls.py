@@ -48,14 +48,3 @@ def parse_url(url, rewrite, logger):
                 final.write(json.dumps(parsed), article_id + ".json", "w")
             except TypeError:
                 logger.info(f"{url}, type error")
-
-
-# def main(newspapers, rewrite=True):
-#     #  reads from urls.data, writes to database
-#     #  check if html exists
-
-#     #  get all urls from urls.data
-#     urls = collect_urls(num=-1, newspapers=newspapers, source="urls.data", parse=False)
-
-#     for url in urls:
-#         parse_url(url, rewrite=rewrite, logger=logger)

@@ -89,11 +89,14 @@ def main(num, newspapers, source, parse):
             urls = home.get("urls.data")
             urls = urls.split("\n")
             urls.remove("")
+            #  get the subset before checking
             urls = [
                 u for u in urls
                 if paper["newspaper_url"] in u
-                if paper["checker"](u, logger)
             ][-num:]
+            urls = [u for u in urls
+                if paper["checker"](u, logger)
+            ]
             paper_name = paper["newspaper"]
             logger.info(f"loaded {len(urls)} urls from {source} for {paper_name}")
 
