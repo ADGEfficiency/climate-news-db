@@ -1,6 +1,6 @@
 setup:
 	pip install -r requirements.txt
-	python3 setup.py install
+	pip install --editable .
 
 app:
 	python3 app.py
@@ -16,7 +16,7 @@ pull_s3:
 
 scrape:
 	make pull_s3
-	db-collect all --num 10 --source google --parse
+	dbcollect all --num 10 --source google --parse
 	python3 climatedb/heal.py
 	make push_s3
 	touch /var/www/www_climate-news-db_com_wsgi.py

@@ -8,7 +8,7 @@ setup(
     install_requires=['Click'],
     entry_points={
         'console_scripts': [
-            'db-collect=climatedb.collect_urls:cli'
+            'dbcollect=climatedb.collect_urls:cli'
         ],
     }
 )
