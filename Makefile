@@ -9,14 +9,14 @@ inspect:
 	./inspect.sh
 
 push_s3:
-	aws s3 sync ~/climate-nlp s3://climate-nlp
+	aws s3 sync ~/climate-news-db-data s3://climate-nlp
 
 pull_s3:
-	aws s3 sync s3://climate-nlp ~/climate-nlp --exclude 'raw/*'
+	aws s3 sync s3://climate-nlp ~/climate-news-db-data --exclude 'raw/*'
 
 scrape:
 	make pull_s3
-	collect all --num 10 --source google --parse
+	db-collect all --num 10 --source google --parse
 	python3 climatedb/heal.py
 	make push_s3
 	touch /var/www/www_climate-news-db_com_wsgi.py
