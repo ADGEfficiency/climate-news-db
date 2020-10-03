@@ -17,7 +17,7 @@ from climatedb.newspapers.washington_post import washington_post
 from climatedb.newspapers.dw import dw
 from climatedb.newspapers.bbc import bbc
 from climatedb.newspapers.independent import independent
-from climatedb.newspapers.the_times import the_times
+#from climatedb.newspapers.the_times import the_times
 from climatedb.newspapers.dailymail import dailymail
 
 
