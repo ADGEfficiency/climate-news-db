@@ -18,3 +18,12 @@ def form_article_id(url, idx=-1):
     url = url.strip("/")
     article_id = url.split("/")[idx]
     return article_id.replace(".html", "")
+
+
+def find_application_json(soup, find='headline'):
+    import json
+    apps = soup.findAll('script', {'type': 'application/ld+json'})
+    for app in apps:
+        app = json.loads(app.text)
+        if find in app:
+            return app

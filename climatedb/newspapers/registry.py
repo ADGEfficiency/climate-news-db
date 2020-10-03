@@ -16,6 +16,9 @@ from climatedb.newspapers.atlantic import atlantic
 from climatedb.newspapers.washington_post import washington_post
 from climatedb.newspapers.dw import dw
 from climatedb.newspapers.bbc import bbc
+from climatedb.newspapers.independent import independent
+from climatedb.newspapers.the_times import the_times
+from climatedb.newspapers.dailymail import dailymail
 
 
 def find_newspaper_from_url(url):
@@ -35,6 +38,9 @@ registry = [
     cnn,
     dw,
     bbc,
+    independent,
+    #the_times, paywall
+    dailymail,
     {
         "newspaper_id": "guardian",
         "newspaper": "The Guardian",
@@ -104,8 +110,11 @@ def check_parsed_article(parsed):
         #  check value length
         val = parsed[sc]
         if len(val) < 2:
+            url = parsed["article_url"]
+            msg = f"{url} - {sc} not long enough - {val}"
+            print(msg)
             import pdb; pdb.set_trace()
-            raise ValueError(f"{sc} not long enough - {val}")
+            raise ValueError(msg)
 
     return parsed
 

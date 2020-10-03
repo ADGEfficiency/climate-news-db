@@ -46,5 +46,5 @@ def parse_url(url, rewrite, logger):
             del parsed["html"]
             try:
                 final.write(json.dumps(parsed), article_id + ".json", "w")
-            except TypeError:
-                logger.info(f"{url}, type error")
+            except TypeError as e:
+                logger.info(f"{url}, {e}")

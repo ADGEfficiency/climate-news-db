@@ -15,7 +15,7 @@ def make_logger(log_file=None):
     # Create handlers
     c_handler = logging.StreamHandler()
     if log_file:
-        log_file = Path.home() / "climate-nlp" / log_file
+        log_file = Path.home() / "climate-news-db-data" / log_file
         f_handler = logging.FileHandler(log_file)
         f_format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
         f_handler.setFormatter(f_format)

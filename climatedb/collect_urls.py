@@ -14,12 +14,13 @@ from climatedb.parse_urls import parse_url
 
 def get_newspapers_from_registry(newspapers):
     if (newspapers == ("all",)) or (newspapers == ()):
-        return registry
+        papers = registry
     else:
         if isinstance(newspapers, str):
             newspapers = [newspapers, ]
-        return [n for n in registry if n["newspaper_id"] in newspapers]
-
+        papers = [n for n in registry if n["newspaper_id"] in newspapers]
+    random.shuffle(papers)
+    return papers
 
 def collect_from_google(num, newspaper, logger=None):
     logger = logging.getLogger("climatedb")

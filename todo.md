@@ -81,6 +81,8 @@ graph of articles per year / month for newspaper pages
 
 https://blog.gdeltproject.org/a-new-contextual-dataset-for-exploring-climate-change-narratives-6-3m-english-news-urls-with-contextual-snippets-2015-2020/
 
+https://climatefeedback.org/
+
 ## improving the search (where to get list of urls from)
 
 search for "climate crisis"
@@ -112,8 +114,14 @@ add description ? (can be in ld/json)
 ## papers
 
 https://www.theguardian.com/media/2020/jan/10/news-corp-employee-climate-misinformation-bushfire-coverage-email
-- the australian, daily telegraph, herald sun
 
+- the australian (hard - need selenium)
+- daily telegraph AUS (hard - need selenium)
+- herald sun (hard - need selenium)
+- telegraph uk (paywall)
+- the times uk (paywall)
+- the sun
+- Mail, Express, Sun and Telegraph
 
 collect analytics on the s3 syncs (num uploads, deletes etc)
 

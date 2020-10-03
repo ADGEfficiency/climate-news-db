@@ -8,17 +8,17 @@ app:
 inspect:
 	./inspect.sh
 
-push_s3:
+pushs3:
 	aws s3 sync ~/climate-news-db-data s3://climate-nlp
 
-pull_s3:
+pulls3:
 	aws s3 sync s3://climate-nlp ~/climate-news-db-data --exclude 'raw/*'
 
 scrape:
-	make pull_s3
+	make pulls3
 	dbcollect all --num 10 --source google --parse
 	python3 climatedb/heal.py
-	make push_s3
+	make pushs3
 	touch /var/www/www_climate-news-db_com_wsgi.py
 
 selenium-mac:
