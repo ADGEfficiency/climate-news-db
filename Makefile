@@ -19,6 +19,12 @@ scrape:
 	dbcollect all --num 5 --source google --parse
 	python3 climatedb/heal.py
 	make pushs3
+
+scrape-remote:
+	make pulls3
+	workon climatedb; dbcollect all --num 5 --source google --parse;
+	workon climatedb; python3 climatedb/heal.py;
+	make pushs3
 	touch /var/www/www_climate-news-db_com_wsgi.py
 
 selenium-mac:
