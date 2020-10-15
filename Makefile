@@ -16,7 +16,7 @@ pulls3:
 
 scrape:
 	make pulls3
-	dbcollect all --num 10 --source google --parse
+	dbcollect all --num 5 --source google --parse
 	python3 climatedb/heal.py
 	make pushs3
 	touch /var/www/www_climate-news-db_com_wsgi.py

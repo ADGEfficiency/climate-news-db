@@ -10,6 +10,8 @@ def check_independent_url(url, logger=None):
         return False
     if "independent.co.uk/topic/" in url:
         return False
+    if url == "https://www.independent.co.uk/environment/climate-change":
+        return False
     return True
 
 

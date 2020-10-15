@@ -27,6 +27,8 @@ def check_dw_metadata(url):
                     return False
                 if st[0].text == 'Number of pictures':
                     return False
+                if st[0].text == 'Life Links container':
+                    return False
         return True
     else:
         return False
@@ -46,6 +48,8 @@ def check_dw_url(url, logger=None):
     if 'https://www.dw.com/en/biodiversity/t-17359056' in url:
         return False
     if not check_dw_metadata(url):
+        return False
+    if url == "https://www.dw.com/en/climate-change/t-18614374":
         return False
     return True
 
