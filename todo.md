@@ -2,6 +2,10 @@ logging should all happen in main - functions should return messages
 return error after passing {'error': 'parse error'} - check for error key in download.py
 handling of parse errors (currently these just return empty dict {})
 
+move urls.data into the repo
+
+stripping of html from article id
+
 refactor out get_article_url from fox.py
 
 add most recent article on home page

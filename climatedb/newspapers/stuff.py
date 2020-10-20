@@ -63,3 +63,8 @@ stuff = {
     "checker": check_stuff_url,
     "parser": parse_stuff_url,
 }
+
+
+if __name__ == '__main__':
+    url = "https://www.stuff.co.nz/environment/climate-news/121491647/climate-explained-what-caused-major-climate-change-in-the-past"
+    parsed = parse_stuff_url(url)

@@ -5,7 +5,6 @@ from pathlib import Path
 
 def make_logger(log_file=None):
     """info to STDOUT, debug to file"""
-
     level = logging.INFO
 
     # Create a custom logger
