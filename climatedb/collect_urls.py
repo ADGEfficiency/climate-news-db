@@ -66,11 +66,16 @@ def google_search(site, query, start=1, stop=10, backoff=1.0):
     default=True,
     help="Whether to parse the urls after collecting them.",
 )
-def cli(num, newspapers, source, parse):
-    return main(num, newspapers, source, parse)
+@click.option(
+    "--check/--no-check",
+    default=True,
+    help="Whether to check the urls after collecting them.",
+)
+def cli(num, newspapers, source, parse, check):
+    return main(num, newspapers, source, parse, check)
 
 
-def main(num, newspapers, source, parse):
+def main(num, newspapers, source, parse, check):
     logger = make_logger("logger.log")
     logger.info(f"collecting {num} from {newspapers} from {source}")
 
@@ -95,9 +100,10 @@ def main(num, newspapers, source, parse):
                 u for u in urls
                 if paper["newspaper_url"] in u
             ][-num:]
-            urls = [u for u in urls
-                if paper["checker"](u, logger)
-            ]
+            if check:
+                urls = [u for u in urls
+                    if paper["checker"](u, logger)
+                ]
             paper_name = paper["newspaper"]
             logger.info(f"loaded {len(urls)} urls from {source} for {paper_name}")
 

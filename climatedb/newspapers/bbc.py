@@ -19,7 +19,13 @@ def check_bbc_url(url, logger=None):
     if not matcher.match(url):
         return False
 
+    if url == "http://www.bbc.com/mediaaction/":
+        return False
+    if "www.bbc.com/radio4" in url:
+        return False
     if '/pages.emails.bbc.com/' in url:
+        return False
+    if '/av/' in url:
         return False
     if '/localnews/' in url:
         return False

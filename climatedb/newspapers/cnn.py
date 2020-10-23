@@ -28,6 +28,8 @@ def check_cnn_url(url, logger=None):
         return False
     if "lite.cnn.com" in url:
         return False
+    if "/videos/" in url:
+        return False
     if "edition.cnn.com" in url:
         return False
     if "/specials/" in url:

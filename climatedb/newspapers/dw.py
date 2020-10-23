@@ -39,6 +39,8 @@ def check_dw_url(url, logger=None):
         return False
     if url == "https://www.dw.com/en/climate-change-are-we-trapped-in-a-vicious-circle/g-51944184":
         return False
+    if url == "https://www.dw.com/en/nature/t-19027552":
+        return False
     if url == "https://www.dw.com/en/antarctic/t-38775585":
         return False
     if 'https://www.dw.com/en/environment/t-18971817' in url:

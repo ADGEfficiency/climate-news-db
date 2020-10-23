@@ -23,7 +23,7 @@ def strip_aljazzera_dt(date_str):
         date = datetime.strptime(date_str, "%d %b %Y %H:%M GMT")
     except ValueError:
         date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S%z")
-    return date.isoformat()
+    return date.isoformat() 
 
 
 def check_aljazzera_url(url, logger=None):
@@ -41,6 +41,9 @@ def check_aljazzera_url(url, logger=None):
         or "aljazeera.com/program/" in url
         or "aljazeera.com/features/" in url
     ):
+        return False
+
+    if "/tag/" in url:
         return False
 
     if url == "https://www.aljazeera.com/":

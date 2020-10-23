@@ -14,14 +14,15 @@ pushs3:
 pulls3:
 	aws s3 sync s3://climate-nlp ~/climate-news-db-data --exclude 'raw/*'
 
+heal-db:
+	python3 climatedb/heal.py
+
 scrape:
 	make pulls3
 	dbcollect all --num 5 --source google --parse
-	python3 climatedb/heal.py
 	make pushs3
 
 collect-urls:
 	make pulls3
-	dbcollect all --num 5 --source google --noparse
-	python3 climatedb/heal.py
+	dbcollect all --num 5 --source google --no-parse
 	make pushs3
