@@ -6,11 +6,17 @@ from json.decoder import JSONDecodeError
 from bs4 import BeautifulSoup
 import requests
 
+# old = https://www.nzherald.co.nz/climate-change/news/article.cfm?c_id=26&objectid=19970
+# new = 'https://www.nzherald.co.nz/nz/climate-change-how-warming-world-has-already-transformed-new-zealand/3JAU2562PMQRLSBLKH3WW2CEFA/'
+
 
 def get_nzherald_article_id(url):
-    #  always the last integer
-    reg = re.compile(r"\d+")
-    return str(reg.findall(url)[-1])
+    if "article.cfm" in url:
+        #  always the last integer
+        reg = re.compile(r"\d+")
+        return str(reg.findall(url)[-1])
+    else:
+        return url.strip('/').split('/')[-1]
 
 
 def check_nzherald_url(url, logger=None):
@@ -29,8 +35,12 @@ def parse_nzherald_url(url):
     html = req.text
     soup = BeautifulSoup(html, features="html5lib")
 
+    # https://www.nzherald.co.nz/world/news/article.cfm?c_id=2&objectid=12314735 doesn't have article-body
     try:
         table = soup.findAll("div", attrs={"id": "article-body"})
+        if len(table) == 0:
+            table = soup.findAll("section", attrs={"class": "article__main"})
+
         article = "".join([p.text for p in table[0].findAll("p")])
 
         ld = soup.findAll("script", attrs={"type": "application/ld+json"})

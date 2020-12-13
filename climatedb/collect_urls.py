@@ -95,11 +95,13 @@ def main(num, newspapers, source, parse, check):
             urls = home.get("urls.data")
             urls = urls.split("\n")
             urls.remove("")
+
             #  get the subset before checking
             urls = [
                 u for u in urls
                 if paper["newspaper_url"] in u
             ][-num:]
+
             if check:
                 urls = [u for u in urls
                     if paper["checker"](u, logger)

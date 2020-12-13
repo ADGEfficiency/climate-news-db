@@ -16,6 +16,8 @@ def check_atlantic_url(url, logger=None):
         return False
     if "theatlantic.com/author" in url:
         return False
+    if "theatlantic.com/author" in url:
+        return False
     if "theatlantic.com/projects" in url:
         return False
     # https://www.theatlantic.com/notes/2016/04/climate-change-game-theory-models/479340/

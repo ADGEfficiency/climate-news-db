@@ -9,6 +9,8 @@ def check_newshub_url(url, logger=None):
         return False
     if 'https://www.newshub.co.nz/home/world/environment.html' in url:
         return False
+    if url == "https://www.newshub.co.nz/home/world/2020/09/climate-change-richest-1-percent-of-world-s-population-driving-heating-emissions-research.html":
+        return False
     return True
 
 

@@ -1,70 +1,19 @@
-logging should all happen in main - functions should return messages
-return error after passing {'error': 'parse error'} - check for error key in download.py
-handling of parse errors (currently these just return empty dict {})
-
-move urls.data into the repo
-
-stripping of html from article id
-
-refactor out get_article_url from fox.py
-
-add most recent article on home page
-
-improve error handling & logging
-
-put a line at the bottom before the footer
-
-what do i want from new system
-- use S3 only for backups, not for version control
-- stop storing 
-- use a proper database
-- regenerate from json (should only ever be one reason to regenerate the json)
-
-build proper tooling to inspect what is going on where
-
-order of urls.data is being corrupted by the set
-- maybe urls.data should have time stamps
-
-multiple copies of raw data, because of the use of delete
-
 rework
 - check parts of url to not get the section pages
-- something better to manage urls.data - want an additional level of raw data, that's always stored
 - ability to regenerate urls.data from this raw data by only checking
-- store all urls found
-- not redownloading if already there
-
-rework functionality
-- fail and keep going
-- ability to check urls.data only
-- store all raw data, to regenerate urls.data from raw
 
 newspaper metadata
 - owner, date founded etc
 
-
-
-## download refactor and optimization
-
-- ability to parse a url from commandline 
-- multiprocess the downloading
-save all dates as UTC as well
-
-
 https://towardsdatascience.com/current-google-search-packages-using-python-3-7-a-simple-tutorial-3606e459e0d4
 
-## newspaper cleanuv
+# newspapers 
 
 nytimes article ID has `.html`
 nytimes raw html is `.html.html`
 
 skyau - ` Image: Kym Smith / News Corp Australia ` at end of article
 'Image: Getty' occuring at the end of skyau (sometimes 'Image: Newscorp' etc)
-
-Cleaning
-- carbon dioxide, CO2
-- degree standardization?
-- not getting twitter stuff - https://www.nzherald.co.nz/sport/news/article.cfm?c_id=4&objectid=12301148
 
 Fox
 - 'Fox News Flash top headlines for May 20 are here. Check out what's clicking on Foxnews.com' - https://www.foxnews.com/science/octopuses-blind-climate-change-study
@@ -89,65 +38,7 @@ cnn
 
 - p tags at the end with links to other articles (different styling)
 
-
-## app upgrades
-
-Sorting by date
-- or ability to sort by column on the tables
-
-## shortcut to downolad entire database as file
-
-## app improvements
-
-want to see the
-
-add number of urls onto homepage (or onto an admin page?)
-
-add ability to access log (last 50 entries)
-
-make the app work with no newspapers
-
-formatting of datetime
-
-most recent & oldest for each newspaper
-
-graph of articles per year / month for newspaper pages
-
-## integrate other datasets
-
-https://blog.gdeltproject.org/a-new-contextual-dataset-for-exploring-climate-change-narratives-6-3m-english-news-urls-with-contextual-snippets-2015-2020/
-
-https://climatefeedback.org/
-
-## improving the search (where to get list of urls from)
-
-search for "climate crisis"
-
-429 Error from google search
-
-download button
-- as csv (most useful)
-
-## analytics
-
-Mentions of 1.5 C, two degrees C etc
-- how this changes over time
-
-1C Celsius, 49C, 1.5C
-
-Add logging to the database creation
-
-### ml uses
-
-clustering
-
-question answering (?)
-
-## data collection
-
-add description ? (can be in ld/json)
-
-## papers
+## new papers
 
 https://www.theguardian.com/media/2020/jan/10/news-corp-employee-climate-misinformation-bushfire-coverage-email
 
@@ -159,22 +50,6 @@ https://www.theguardian.com/media/2020/jan/10/news-corp-employee-climate-misinfo
 - the sun
 - Mail, Express, Sun and Telegraph
 
-collect analytics on the s3 syncs (num uploads, deletes etc)
-
----
-
-add a num articles added in last 5 days column to home page
-- force me to update :)
-
-refactor registry & utils up a level
-
-things learnt
-- put sanity checks on cleaned data (body certain length, headline not missing etc)
-
-possibel to get non-unique article id's
-
----
-
 bbc future
 
 https://www.bbc.com/future/article/20200618-climate-change-who-is-to-blame-and-why-does-it-matter
@@ -185,7 +60,7 @@ https://www.bbc.com/future/article/20200624-has-covid-19-brought-us-closer-to-st
 https://www.bbc.com/future/article/20200421-what-lockdown-loneliness-taught-me-about-climate-change
 https://www.bbc.com/future/smart-guide-to-climate-change
 
-bbc avA
+bbc av
 
 https://www.bbc.com/news/av/world-australia-51369140
 https://www.bbc.com/news/av/science-environment-34555220

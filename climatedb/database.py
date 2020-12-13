@@ -3,6 +3,7 @@ import json
 
 db_folder = "climate-news-db-data"
 
+
 class TextFiles:
     def __init__(self, root=None, logger=None):
         #  root is either raw or final
