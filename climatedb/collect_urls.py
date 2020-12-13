@@ -89,7 +89,7 @@ def main(num, newspapers, source, parse, check):
             urls = collect_from_google(num, paper, logger)
             urls = [url for url in urls if paper["checker"](url, logger)]
             logger.info(f"saving {len(urls)} to urls.data")
-            home.write(urls, "urls.data", "a")
+            home.write(urls, "urls", "a")
 
         elif source == "urls.data":
             urls = home.get("urls.data")
