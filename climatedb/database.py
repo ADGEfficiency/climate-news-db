@@ -2,6 +2,8 @@ import abc
 from pathlib import Path
 import json
 
+from collections import namedtuple
+import sqlite3
 
 DBHOME = Path.home() / "climate-news-db-data"
 
@@ -21,11 +23,11 @@ class File(AbstractDB):
     def __init__(self, name):
         self.data = DBHOME / name
 
-    def add(self, batch, mode='a'):
+    def add(self, batch):
         if isinstance(batch, str):
             batch = (batch,)
         batch = [d + "\n" for d in batch]
-
+        mode = 'a'
         if not self.data.is_file():
             mode = 'w'
 
@@ -154,3 +156,46 @@ class NewspaperTextFiles(TextFiles):
         if article_id in article_ids:
             return True
         return False
+
+
+def format_schema(schema):
+    names = ''
+    sql_schema = ''
+    for name, dtype in schema:
+        names += f'{name}, '
+        sql_schema += f'{name} {dtype}, '
+
+    names = names.strip(', ')
+    sql_schema = sql_schema.strip(', ')
+    print(names)
+    print(sql_schema)
+    return names, sql_schema
+
+
+class SQLiteDatabase(AbstractDB):
+    def __init__(self, table, schema, db='climatedb.sqlite'):
+        self.table = table
+        names, schema = format_schema(schema)
+        self.record = namedtuple(table, names)
+        self.schema = schema
+
+        self.c = sqlite3.connect(db)
+        qry = f"CREATE TABLE IF NOT EXISTS {self.table} ({schema});"
+        self.c.execute(qry)
+
+    def add(self, batch):
+        for data in batch:
+            data = tuple(self.record(**data))
+            rhs = '(' + ('?,' * (len(data)-1)) + '?)'
+            qry = f'INSERT INTO {self.table} VALUES ' + rhs
+            print(qry, data)
+            self.c.execute(qry, data)
+        self.c.commit()
+
+    def get(self, reference=None):
+        data = self.c.execute(f'SELECT * FROM {self.table}').fetchall()
+        out = []
+        for d in data:
+            d = self.record(*d)
+            out.append(d._asdict())
+        return out
