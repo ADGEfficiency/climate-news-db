@@ -1,10 +1,11 @@
 # goals
 
 - S3 only for backups, not for version control
-- use sqlite through ssh
-- regenerate from json (should only ever be one reason to regenerate the json)
 - log database & S3 use
 - fail and keep going
+
+functionality
+- regenerate from json (should only ever be one reason to regenerate the json)
 
 
 # tasks

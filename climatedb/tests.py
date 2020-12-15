@@ -6,6 +6,7 @@ from newspapers.stuff import check_stuff_url
 from newspapers.economist import check_economist_url
 
 
+
 @pytest.mark.parametrize(
     "url, expected",
     (
@@ -122,5 +123,7 @@ def test_economist_url(url, expected):
 
 def test_integration():
     from climatedb.collect_urls import main as collect
+    collect(1, "all", "google", False, False)
 
-    collect(1, "all", "google", False)
+
+

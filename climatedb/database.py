@@ -1,7 +1,83 @@
+import abc
 from pathlib import Path
 import json
 
-db_folder = "climate-news-db-data"
+
+DBHOME = Path.home() / "climate-news-db-data"
+
+
+class AbstractDB(abc.ABC):
+    @abc.abstractmethod
+    def add(self, batch):
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def get(self, reference):
+        raise NotImplementedError()
+
+
+class File(AbstractDB):
+    """Single File"""
+    def __init__(self, name):
+        self.data = DBHOME / name
+
+    def add(self, batch, mode='a'):
+        if isinstance(batch, str):
+            batch = (batch,)
+        batch = [d + "\n" for d in batch]
+
+        if not self.data.is_file():
+            mode = 'w'
+
+        with open(self.data, mode) as fp:
+            fp.writelines(batch)
+
+    def get(self, reference=None):
+        with open(self.data, "r") as fp:
+            data = fp.read()
+            data = data.split("\n")
+            data.remove("")
+            return data[-reference:]
+
+
+class Folder(AbstractDB):
+    """Folder of files"""
+    def __init__(
+        self,
+        name,
+        folder_key='newspaper_id',
+        file_key='article_id'
+    ):
+        self.name = DBHOME / name
+        self.folder_key = folder_key
+        self.file_key = file_key
+        self.data = {}
+
+    def add(self, batch):
+        for data in batch:
+            key = data[self.folder_key]
+
+            fldr = self.name / key
+            fldr.mkdir(exist_ok=True, parents=True)
+
+            fi = (fldr / str(data[self.file_key])).with_suffix('.json')
+            with open(fi, 'w') as fi:
+                fi.write(json.dumps(data))
+
+    def get(self, reference):
+        if reference is None:
+            fldr = self.name
+        else:
+            fldr = self.name / reference
+
+        articles = []
+        for f in fldr.iterdir():
+            if f.is_file():
+                with open(f, "r") as fi:
+                    articles.append(json.loads(fi.read()))
+        return articles
+
+
 
 
 class TextFiles:

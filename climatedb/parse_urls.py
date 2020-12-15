@@ -1,8 +1,7 @@
 import json
 
 # from climatedb.collect_urls import main as collect_urls
-from climatedb.database import NewspaperTextFiles
-from climatedb.logger import make_logger
+from climatedb.database import Folder
 from climatedb.newspapers.registry import find_newspaper_from_url
 from climatedb.newspapers.registry import check_parsed_article, clean_parsed_article
 
@@ -12,8 +11,8 @@ def parse_url(url, rewrite, logger):
 
     logger.info(f"{url}, parsing")
     newspaper_id = newspaper["newspaper_id"]
-    raw = NewspaperTextFiles(f"raw/{newspaper_id}")
-    final = NewspaperTextFiles(f"final/{newspaper_id}")
+    raw = Folder(f"raw/{newspaper_id}")
+    final = Folder(f"final/{newspaper_id}")
 
     #  run the parsing
     parsed = newspaper["parser"](url)

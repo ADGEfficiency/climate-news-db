@@ -6,7 +6,7 @@ from urllib.error import HTTPError
 import click
 from googlesearch import search
 
-from climatedb.database import TextFiles
+from climatedb.database import File
 from climatedb.logger import make_logger
 from climatedb.newspapers.registry import registry
 from climatedb.parse_urls import parse_url
@@ -79,41 +79,34 @@ def main(num, newspapers, source, parse, check):
     logger = make_logger("logger.log")
     logger.info(f"collecting {num} from {newspapers} from {source}")
 
-    home = TextFiles()
+    urls_db = File('urls.data')
     newspapers = get_newspapers_from_registry(newspapers)
-    print(newspapers)
 
     collection = []
     for paper in newspapers:
+
         if source == "google":
-            urls = collect_from_google(num, paper, logger)
-            urls = [url for url in urls if paper["checker"](url, logger)]
-            logger.info(f"saving {len(urls)} to urls.data")
-            home.write(urls, "urls", "a")
+            urls = collect_from_google(num, paper)
+            logger.info(f"searched {len(urls)}")
 
         elif source == "urls.data":
-            urls = home.get("urls.data")
-            urls = urls.split("\n")
-            urls.remove("")
+            urls = urls_db.get(num)
+            logger.info(f"loaded {len(urls)}")
 
-            #  get the subset before checking
-            urls = [
-                u for u in urls
-                if paper["newspaper_url"] in u
-            ][-num:]
+        urls = [
+            u for u in urls
+            if paper["newspaper_url"] in u
+        ]
 
-            if check:
-                urls = [u for u in urls
-                    if paper["checker"](u, logger)
-                ]
-            paper_name = paper["newspaper"]
-            logger.info(f"loaded {len(urls)} urls from {source} for {paper_name}")
+        if check or source == "google":
+            urls = [url for url in urls if paper["checker"](url, logger)]
 
-        logger.info(f"adding {len(urls)} urls from {source}")
+        logger.info(f"saving {len(urls)} to db")
+        urls_db.add(urls)
         collection.extend(urls)
 
-    collection = set(collection)
-    logger.info(f"collected {len(collection)} urls")
+    collection = list(set(collection))
+    logger.info(f"parsing {len(collection)}")
 
     if parse:
         for url in collection:
