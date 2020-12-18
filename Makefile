@@ -26,3 +26,6 @@ collect-urls:
 	make pulls3
 	dbcollect all --num 5 --source google --no-parse
 	make pushs3
+
+datasette:
+	datasette ~/climate-news-db-data/climatedb.sqlite

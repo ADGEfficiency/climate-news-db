@@ -22,9 +22,10 @@ class AbstractDB(abc.ABC):
 
 class JSONLinesFile(AbstractDB):
     """Single File, each row a JSON"""
-    def __init__(self, name):
+    def __init__(self, name, key=None, schema=None):
         self.data = DBHOME / name
         self.data.parent.mkdir(exist_ok=True, parents=True)
+        self.key = key
 
     def add(self, batch):
         if isinstance(batch, dict):
@@ -44,14 +45,17 @@ class JSONLinesFile(AbstractDB):
             data.remove("")
         return [json.loads(d) for d in data]
 
-    def exists(self, value, key):
+    def exists(self, value):
         if not self.data.is_file():
             return False
         else:
             data = self.get()
             for d in data:
-                if d[key] == value:
+                if d[self.key] == value:
                     return True
+
+    def __len__(self):
+        return len(self.get())
 
 
 class HTMLFolder(AbstractDB):
@@ -129,6 +133,8 @@ class JSONFolder(AbstractDB):
         if key in files:
             return True
 
+    def __len__(self):
+        return len([f for f in self.fldr.iterdir() if f.suffix == '.json'])
 
 from collections import namedtuple
 import sqlite3

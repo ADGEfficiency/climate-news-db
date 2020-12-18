@@ -25,7 +25,7 @@ def test_jsonlines(setup):
     ]
 
     """add data, get all data back"""
-    fi = JSONLinesFile("temp/test.data")
+    fi = JSONLinesFile("temp/test.data", key='url')
 
     #  test add
     fi.add(payload)
@@ -33,8 +33,8 @@ def test_jsonlines(setup):
     assert data == payload
 
     #  test exists & not exists
-    assert fi.exists(payload[0]['url'], 'url')
-    assert not fi.exists(non_payload[0]['url'], 'url')
+    assert fi.exists(payload[0]['url'])
+    assert not fi.exists(non_payload[0]['url'])
 
     #  do add duplicates
     fi.add(payload)

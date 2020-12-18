@@ -13,7 +13,7 @@ def setup():
 
 
 def test_urls_db(setup):
-    db = URLs(name='temp/test.jsonl', engine='jsonl')
+    db = URLs(name='temp/test.jsonl', engine='jsonl', key='url')
 
     payload = [
         {'url': 'http://1.html', 'time': '2020-01-01'},

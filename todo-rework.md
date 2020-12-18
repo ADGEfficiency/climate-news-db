@@ -13,13 +13,18 @@
 - S3 only for backups, not for version control
 - log database & S3 use
 
-functionality
-- regenerate urls.data from file -> sql
-- regenerate articles from raw json -> final json OR final db
+# scripts
+
 - fix all article id's to be correct
 - fix all html files to have only one html on the end
 
-- regenerate from json (should only ever be one reason to regenerate the json)
+## migration
+
+- regenerate urls.data from file -> sql
+- regenerate articles from raw json -> final json OR final db
+
+todo
+- check urls when setting up sqltie from file
 
 
 # component stuff
