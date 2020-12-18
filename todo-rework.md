@@ -1,11 +1,33 @@
-# goals
+# rules
+- everything in JSON
+
+
+# goals for this rework
+
+- fail safely!
+- sql database for urls & articles
+
+
+# features of the v2
 
 - S3 only for backups, not for version control
 - log database & S3 use
-- fail and keep going
 
 functionality
+- regenerate urls.data from file -> sql
+- regenerate articles from raw json -> final json OR final db
+- fix all article id's to be correct
+- fix all html files to have only one html on the end
+
 - regenerate from json (should only ever be one reason to regenerate the json)
+
+
+# component stuff
+
+## databases / engines
+
+- should I protect .html in the database layer RawArticles
+- should I remove html Articles
 
 
 # tasks

@@ -71,11 +71,21 @@ def google_search(site, query, start=1, stop=10, backoff=1.0):
     default=True,
     help="Whether to check the urls after collecting them.",
 )
-def cli(num, newspapers, source, parse, check):
-    return main(num, newspapers, source, parse, check)
+@click.option(
+    "--db", default="files", help="Which database to use.", show_default=True
+)
+def cli(num, newspapers, source, parse, check, db):
+    return main(num, newspapers, source, parse, check, db)
 
 
-def main(num, newspapers, source, parse, check):
+def main(
+    num,
+    newspapers,
+    source,
+    parse,
+    check,
+    db
+):
     logger = make_logger("logger.log")
     logger.info(f"collecting {num} from {newspapers} from {source}")
 
@@ -90,7 +100,7 @@ def main(num, newspapers, source, parse, check):
             logger.info(f"searched {len(urls)}")
 
         elif source == "urls.data":
-            urls = urls_db.get(num)
+            urls = urls_db.get(num=num)
             logger.info(f"loaded {len(urls)}")
 
         urls = [
