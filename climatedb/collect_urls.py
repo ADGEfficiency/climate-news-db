@@ -1,3 +1,4 @@
+from datetime import datetime as dt
 import logging
 import random
 import time
@@ -6,31 +7,22 @@ from urllib.error import HTTPError
 import click
 from googlesearch import search
 
-from climatedb.database import File
+from climatedb.databases import URLs
 from climatedb.logger import make_logger
-from climatedb.newspapers.registry import registry
-from climatedb.parse_urls import parse_url
+from climatedb.registry import get_newspapers_from_registry
+from climatedb.parse_urls import main as parse_url
 
 
-def get_newspapers_from_registry(newspapers):
-    if (newspapers == ("all",)) or (newspapers == ()):
-        papers = registry
-    else:
-        if isinstance(newspapers, str):
-            newspapers = [newspapers, ]
-        papers = [n for n in registry if n["newspaper_id"] in newspapers]
-    random.shuffle(papers)
-    return papers
+def now():
+    return dt.utcnow().isoformat()
+
 
 def collect_from_google(num, newspaper, logger=None):
-    logger = logging.getLogger("climatedb")
-    logger.info(f'searching for {num} from {newspaper["newspaper"]}')
-
-    urls = google_search(newspaper["newspaper_url"], "climate change", stop=num)
-    urls = [url for url in urls if newspaper["checker"](url, logger)]
-
-    logger.info(f'search: found {len(urls)} for {newspaper["newspaper"]}')
-    return urls
+    return google_search(
+        newspaper["newspaper_url"],
+        "climate change",
+        stop=num
+    )
 
 
 def google_search(site, query, start=1, stop=10, backoff=1.0):
@@ -72,10 +64,15 @@ def google_search(site, query, start=1, stop=10, backoff=1.0):
     help="Whether to check the urls after collecting them.",
 )
 @click.option(
+    "--replace/--no-replace",
+    default=True,
+    help="Whether to replace in the final database",
+)
+@click.option(
     "--db", default="files", help="Which database to use.", show_default=True
 )
-def cli(num, newspapers, source, parse, check, db):
-    return main(num, newspapers, source, parse, check, db)
+def cli(num, newspapers, source, parse, check, replace, db):
+    return main(num, newspapers, source, parse, check, replace, db)
 
 
 def main(
@@ -84,40 +81,45 @@ def main(
     source,
     parse,
     check,
+    replace,
     db
 ):
     logger = make_logger("logger.log")
     logger.info(f"collecting {num} from {newspapers} from {source}")
 
-    urls_db = File('urls.data')
+    db = URLs('urls.jsonl', engine='jsonl')
     newspapers = get_newspapers_from_registry(newspapers)
 
     collection = []
     for paper in newspapers:
 
         if source == "google":
+            logger.info(f'searching google for {num} for {paper["newspaper_id"]}')
             urls = collect_from_google(num, paper)
-            logger.info(f"searched {len(urls)}")
+            urls = [{'url': u, 'search_time_UTC': now()} for u in urls]
+            logger.info(f'found {len(urls)} for {paper["newspaper_id"]}')
 
         elif source == "urls.data":
-            urls = urls_db.get(num=num)
-            logger.info(f"loaded {len(urls)}")
+            # TODO here we want a db.filter(paper=newspaper_id)
+            #  maybe a key to get latest?
 
-        urls = [
-            u for u in urls
-            if paper["newspaper_url"] in u
-        ]
+            urls = db.get(num=len(db))
+            logger.info(f'loaded {len(urls)}')
+            urls = [u for u in urls if paper["newspaper_url"] in u['url']]
+            logger.info(f'loaded {len(urls)} for {paper["newspaper_id"]} from {db.name}')
+            urls = urls[-num:]
+            logger.info(f'filtered to {len(urls)} for {paper["newspaper_id"]} from {db.name}')
 
         if check or source == "google":
-            urls = [url for url in urls if paper["checker"](url, logger)]
+            urls = [u for u in urls if paper["checker"](u['url'], logger)]
 
-        logger.info(f"saving {len(urls)} to db")
-        urls_db.add(urls)
+        logger.info(f"saving to {db.name}")
+        logger.info(f"  {len(db)} before")
+        db.add(urls)
+        logger.info(f"  {len(db)} after")
         collection.extend(urls)
 
-    collection = list(set(collection))
-    logger.info(f"parsing {len(collection)}")
-
     if parse:
+        logger.info(f"parsing {len(collection)}")
         for url in collection:
-            parse_url(url, rewrite=True, logger=logger)
+            parse_url(url['url'], replace=replace, logger=logger)

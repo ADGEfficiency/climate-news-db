@@ -5,7 +5,7 @@ import logging
 from bs4 import BeautifulSoup
 import requests
 
-from climatedb.newspapers.utils import find_one_tag, form_article_id
+from climatedb.utils import find_one_tag, form_article_id
 
 
 

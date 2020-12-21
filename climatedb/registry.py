@@ -1,5 +1,6 @@
 from datetime import datetime
 import html.parser
+import random
 
 from climatedb.newspapers.guardian import check_guardian_url, parse_guardian_html
 from climatedb.newspapers.fox import check_fox_url, parse_fox_html
@@ -125,3 +126,14 @@ def clean_parsed_article(parsed):
     parsed["body"] = html_parser.unescape(parsed["body"])
     parsed["headline"] = html_parser.unescape(parsed["headline"])
     return parsed
+
+
+def get_newspapers_from_registry(newspapers=None):
+    if (newspapers == ("all",)) or (newspapers is None):
+        papers = registry
+    else:
+        if isinstance(newspapers, str):
+            newspapers = [newspapers, ]
+        papers = [n for n in registry if n["newspaper_id"] in newspapers]
+    random.shuffle(papers)
+    return papers

@@ -9,10 +9,11 @@ class URLs():
     def __init__(
         self,
         name,
-        key,
+        key='url',
         schema=None,
         engine='jsonl'
     ):
+        self.name = name
         Engine = engines[engine]
         self.engine = Engine(name, key, schema)
 
@@ -65,8 +66,10 @@ class Articles():
         self.key = key
 
     def add(self, batch):
+        if isinstance(batch, dict):
+            batch = (batch,)
         for data in batch:
-            if not self.engine.exists(data[self.key]):
+            if not self.exists(data[self.key]):
                 self.engine.add(batch)
 
     def get(self, value=None):
@@ -80,3 +83,6 @@ class Articles():
 
     def __len__(self):
         return len(self.engine)
+
+    def exists(self, key):
+        return self.engine.exists(key)

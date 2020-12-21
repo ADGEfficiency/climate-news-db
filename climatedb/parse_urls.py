@@ -1,49 +1,84 @@
 import json
 
-# from climatedb.collect_urls import main as collect_urls
-from climatedb.database import Folder
-from climatedb.newspapers.registry import find_newspaper_from_url
-from climatedb.newspapers.registry import check_parsed_article, clean_parsed_article
+from climatedb.databases import RawArticles, Articles
+from climatedb.registry import find_newspaper_from_url
+from climatedb.registry import check_parsed_article, clean_parsed_article
+from climatedb.utils import form_article_id
 
 
-def parse_url(url, rewrite, logger):
-    newspaper = find_newspaper_from_url(url)
+def get_article_id(url, paper):
+    if "get_article_id" in paper.keys():
+        return paper["get_article_id"](url)
+    else:
+        return form_article_id(url, idx=-1)
 
-    logger.info(f"{url}, parsing")
-    newspaper_id = newspaper["newspaper_id"]
-    raw = Folder(f"raw/{newspaper_id}")
-    final = Folder(f"final/{newspaper_id}")
 
-    #  run the parsing
-    parsed = newspaper["parser"](url)
+def main(
+    url,
+    logger,
+    replace=True,
+    raw=None,
+    final=None
+):
+    paper = find_newspaper_from_url(url)
+    newspaper_id = paper["newspaper_id"]
 
-    #  check if already in database
-    #  bit silly as we have already parsed it!
-    #  means we need to get the article ID before parsing
-    # check = final.check(parsed['article_id'])
+    if not raw:
+        raw = RawArticles(f"raw/{newspaper_id}")
+    if not final:
+        final = Articles(
+            f"final/{newspaper_id}",
+            engine="json-folder",
+            key='article_id'
+        )
+    article_id = get_article_id(url, paper)
+    exists = final.exists(article_id)
+    if exists and not replace:
+        logger.info(f"{url}, already exists in final and not replacing")
 
-    #  cant check if we get an error there!
+    if exists and replace:
+        logger.info(f"{url}, already exists in final and replacing")
+        parsed = parse_url(url, paper, logger)
 
-    # if not rewrite and check:
-    #     logger.info(r'{url}, {article_id} already exists - not parsing')
+    if not exists:
+        logger.info(f"{url}, not in final")
+        parsed = parse_url(url, paper, logger)
+
+    else:
+        parsed = None
+
+    if parsed:
+        save_parsed(parsed, logger, raw, final)
+
+
+def parse_url(url, paper, logger):
+    newspaper_id = paper["newspaper_id"]
+    logger.info(f"{url}, {newspaper_id}, parsing")
+    parsed = paper['parser'](url, logger)
 
     if "error" in parsed.keys():
         error = parsed["error"]
-        logger.info(f"{url}, error, {error}")
+        logger.info(f"{url}, parsing error, {error}")
+        return None
 
-    else:
-        parsed = check_parsed_article(parsed)
-        if not parsed:
-            logger.info(f"{url}, error, failed check_parsed_article")
+    parsed = check_parsed_article(parsed)
+    if "error" in parsed.keys():
+        error = parsed["error"]
+        logger.info(f"{url}, parsing check error, {error}")
+        return None
 
-        else:
-            parsed = clean_parsed_article(parsed)
+    return parsed
 
-            article_id = parsed["article_id"]
-            logger.info(f"{url}, saving, article_id={article_id}")
-            raw.write(parsed["html"], article_id + ".html", "w")
-            del parsed["html"]
-            try:
-                final.write(json.dumps(parsed), article_id + ".json", "w")
-            except TypeError as e:
-                logger.info(f"{url}, {e}")
+
+def save_parsed(parsed, logger, raw, final):
+    article_id = parsed["article_id"]
+    url = parsed['article_url']
+    parsed = clean_parsed_article(parsed)
+    logger.info(f"{url}, {article_id}, cleaned")
+
+    raw.add(parsed)
+    del parsed["html"]
+    logger.info(f"{url}, {article_id}, raw saved")
+
+    final.add(parsed)
+    logger.info(f"{url}, {article_id}, final saved")

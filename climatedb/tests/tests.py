@@ -124,6 +124,3 @@ def test_economist_url(url, expected):
 def test_integration():
     from climatedb.collect_urls import main as collect
     collect(1, "all", "google", False, False)
-
-
-

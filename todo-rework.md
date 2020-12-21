@@ -1,22 +1,21 @@
 # rules
-- everything in JSON
+- everything in JSON/dicts in Python
+- all Db times should be UTC other times as in doc- created on
 
 
 # goals for this rework
 
 - fail safely!
 - sql database for urls & articles
+- see when the last added article was
+- logging analysis tools
 
+Clean all 16 newspapers
 
-# features of the v2
+Refactor registry & utils up a level
 
-- S3 only for backups, not for version control
-- log database & S3 use
+Ability to index the db like a list
 
-# scripts
-
-- fix all article id's to be correct
-- fix all html files to have only one html on the end
 
 ## migration
 
@@ -26,6 +25,9 @@
 todo
 - check urls when setting up sqltie from file
 
+- fix all article id's to be correct
+- fix all html files to have only one html on the end
+
 
 # component stuff
 
@@ -34,20 +36,10 @@ todo
 - should I protect .html in the database layer RawArticles
 - should I remove html Articles
 
+## logging
 
-# tasks
-
-Create a dataclass for the primitives
-- so can write data as row
-- is the dataclass same schema as the db?
-- first goal = generate a urls table with all urls loaded from urls.data
-
-Clean all 16 newspapers
-
-Refactor registry & utils up a level
-
-All Db times should be UTC
-- created on
+- tools to analyze the logs to see how many failed
+- log s3 stuff, db stuff
 
 
 # code quality

@@ -1,3 +1,7 @@
+from bs4 import BeautifulSoup
+import requests
+
+
 def check_match(url, unwanted):
     for unw in unwanted:
         if unw in url:
@@ -9,7 +13,7 @@ def find_one_tag(soup, name, attrs={}):
     """find a single tag (and only one tag) in bs4"""
     data = soup.findAll(name, attrs)
     if len(data) != 1:
-        print(name, attrs, len(data))
+        print(soup.url, name, attrs, len(data))
     assert len(data) == 1
     return data[0]
 
@@ -27,3 +31,31 @@ def find_application_json(soup, find='headline'):
         app = json.loads(app.text)
         if find in app:
             return app
+
+    return {
+        'error': 'no application JSON'
+    }
+
+#  from bbc
+# import json#
+# def find_application_json(soup):
+#     app = find_one_tag(soup, 'script', {'type': 'application/ld+json'}).text
+#     app = app.replace('\n', '')
+#     return json.loads(app)
+
+
+def request(url):
+    response = requests.get(url)
+    html = response.text
+    soup = BeautifulSoup(html, features="html5lib")
+    if response.status_code == 200:
+        return {
+            'response': response,
+            'html': html,
+            'soup': soup,
+            'url': response.url
+        }
+
+    return {
+        'error': response.status_code
+    }

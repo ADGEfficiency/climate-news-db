@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 
-from climatedb.newspapers.utils import find_one_tag, form_article_id, find_application_json
+from climatedb.utils import find_one_tag, form_article_id, find_application_json
 
 
 

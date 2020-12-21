@@ -27,10 +27,20 @@ class JSONLinesFile(AbstractDB):
         self.data.parent.mkdir(exist_ok=True, parents=True)
         self.key = key
 
+        self.unique_keys = set()
+        if self.data.is_file():
+            for d in self.get():
+                self.unique_keys.add(d[self.key])
+
     def add(self, batch):
         if isinstance(batch, dict):
             batch = (batch,)
-        batch = [json.dumps(d) + "\n" for d in batch]
+
+        new_batch = []
+        for d in batch:
+            self.unique_keys.add(d[self.key])
+            new_batch.append(json.dumps(d) + "\n")
+        batch = new_batch
 
         mode = 'a'
         if not self.data.is_file():
@@ -39,6 +49,9 @@ class JSONLinesFile(AbstractDB):
             fp.writelines(batch)
 
     def get(self):
+        if not self.data.is_file():
+            return []
+
         with open(self.data, "r") as fp:
             data = fp.read()
             data = data.split("\n")
@@ -48,11 +61,9 @@ class JSONLinesFile(AbstractDB):
     def exists(self, value):
         if not self.data.is_file():
             return False
-        else:
-            data = self.get()
-            for d in data:
-                if d[self.key] == value:
-                    return True
+        if value in self.unique_keys:
+            return True
+        return False
 
     def __len__(self):
         return len(self.get())
@@ -72,6 +83,8 @@ class HTMLFolder(AbstractDB):
         self.value = value
 
     def add(self, batch):
+        if isinstance(batch, dict):
+            batch = (batch,)
         for data in batch:
             key = data[self.key]
             value = data[self.value]
@@ -111,6 +124,9 @@ class JSONFolder(AbstractDB):
         self.key = key
 
     def add(self, batch):
+        if isinstance(batch, dict):
+            batch = (batch,)
+
         for data in batch:
             key = data[self.key]
 

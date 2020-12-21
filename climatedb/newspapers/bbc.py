@@ -1,115 +1,63 @@
-from bs4 import BeautifulSoup
-import requests
+import re
+from urllib.parse import urlparse
 
-from climatedb.newspapers.utils import find_one_tag, form_article_id
-
-
-def check_bbc_url(url, logger=None):
-    #  should look for bbc.com/news ?
-    #  could also look for the integer on the end
-
-    # if url == 'https://www.bbc.com/food':
-    #     return False
-    # if url == 'https://www.bbc.com/weather':
-        # return False
-
-    #  check to see if url ends with an integer
-    import re
-    matcher = re.compile('.*-\d*')
-    if not matcher.match(url):
-        return False
-
-    if url == "http://www.bbc.com/mediaaction/":
-        return False
-    if "www.bbc.com/radio4" in url:
-        return False
-    if '/pages.emails.bbc.com/' in url:
-        return False
-    if '/av/' in url:
-        return False
-    if '/localnews/' in url:
-        return False
-    if '/indonesia/' in url:
-        return False
-    if '/av/' in url:
-        return False
-    if '/iplayer/' in url:
-        return False
-    if '/weather/' in url:
-        return False
-    if '/newsround/home' in url:
-        return False
-    if '/learningenglish/' in url:
-        return False
-    if '/topics/' in url:
-        return False
-    if '/tags/' in url:
-        return False
-    if '/programmes/' in url:
-        return False
-
-    #  TODO
-    if '/future/' in url:
-        return False
-    if 'magazine' in url:
-        return False
-    if '/culture/' in url:
-        return False
-
-    #  maybe
-    if '/travel/' in url:
-        return False
-
-    if '/bitesize/' in url:
-        return False
-    if '/video/' in url:
-        return False
-    if '/mediaaction/' in url:
-        return False
-    if '/comments' in url:
-        return False
-    if '/live/' in url:
-        return False
+from climatedb.utils import find_one_tag, form_article_id, request, find_application_json
 
 
+def check_url(url, logger=None):
     #  wierd redirect to /av/
     if url == 'https://www.bbc.com/news/science-environment-52926683':
         return False
-    #  `The papers` - just a list of images
-    #  not sure how to check without parsing
+    #  `The papers` - just a list of images - not sure how to check without parsing
     if url == 'https://www.bbc.com/news/uk-scotland-53961637':
         return False
     if url == 'https://www.bbc.com/news/science_and_environment':
         return False
-    return True
+
+    #  check to see if it is news section
+    u = urlparse(url)
+    if u.path and u.path.split('/')[1] != "news":
+        return False
+
+    if len(u.path.split('/')) > 3:
+        return False
+
+    #  check to see if it redirects
+    r = request(url)
+    if r['url'] != url:
+        return check_url(r['url'])
+
+    #  check to see if url ends with an integer
+    matcher = re.compile('.*-\d*')
+    if matcher.match(url):
+        return True
 
 
-def parse_bbc_url(url, logger=None):
-    response = requests.get(url)
-    html = response.text
-    soup = BeautifulSoup(html, features="html5lib")
+def parse_url(url, logger=None):
+    r = request(url)
+    if 'error' in r.keys():
+        return {
+            'error': r['error']
+        }
+    html = r['html']
+    soup = r['soup']
 
-    try:
-        body = find_one_tag(soup, 'div', {'property': 'articleBody'})
-        body = body.findAll("p")
-    except AssertionError:
-        #  TODO there must be a better way
-        try:
-            body = find_one_tag(soup, 'article')
-            body = body.findAll("div")
-        except AssertionError:
-            #  https://www.bbc.com/news/uk-scotland-47746289
-            body = find_one_tag(soup, 'div', {'class':'story-body'})
-            body = body.findAll("div")
+    body = find_one_tag(soup, 'article')
+    body = body.findAll("p", attrs={'class': None})
 
-    body = "".join(p.text for p in body)
-    import json
-    def find_app_json(soup):
-        app = find_one_tag(soup, 'script', {'type': 'application/ld+json'}).text
-        app = app.replace('\n', '')
-        return json.loads(app)
+    #  sometimes first tag has a `b` element in it
+    deep_body = []
+    for p_tag in body:
+        if p_tag.find('b'):
+            deep_body.append(p_tag.find('b').text)
+        else:
+            deep_body.append(p_tag.text)
 
-    app = find_app_json(soup)
+    body = "".join(deep_body)
+
+    app = find_application_json(soup)
+    if 'error' in app.keys():
+        import pdb; pdb.set_trace()
 
     return {
         "newspaper_id": "bbc",
@@ -127,17 +75,15 @@ bbc = {
     "newspaper_id": "bbc",
     "newspaper": "The BBC",
     "newspaper_url": "bbc.com",
-    "checker": check_bbc_url,
-    "parser": parse_bbc_url,
+    "checker": check_url,
+    "parser": parse_url,
     "color": "#0098FF"
 }
 
 
-if __name__ == "__main__":
-    url = 'https://www.bbc.com/news/science-environment-51134254'
-    url = 'https://www.bbc.com/news/science-environment-53726487'
-    url = 'https://www.bbc.com/news/world-australia-50341210'
-    response = requests.get(url)
-    html = response.text
-    soup = BeautifulSoup(html, features="html5lib")
-    out = parse_bbc_url(url)
+if __name__ == '__main__':
+    url = 'https://www.bbc.com/news/election-us-2020-53785985'
+    r = request(url)
+
+
+    # parsed = parse_url(url)
