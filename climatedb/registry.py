@@ -2,7 +2,7 @@ from datetime import datetime
 import html.parser
 import random
 
-from climatedb.newspapers.guardian import check_guardian_url, parse_guardian_html
+from climatedb.newspapers.guardian import guardian
 from climatedb.newspapers.fox import check_fox_url, parse_fox_html
 from climatedb.newspapers.skyau import check_sky_au_url, parse_sky_au_url
 from climatedb.newspapers.nytimes import check_nytimes_url, parse_nytimes_html
@@ -18,7 +18,6 @@ from climatedb.newspapers.washington_post import washington_post
 from climatedb.newspapers.dw import dw
 from climatedb.newspapers.bbc import bbc
 from climatedb.newspapers.independent import independent
-#from climatedb.newspapers.the_times import the_times
 from climatedb.newspapers.dailymail import dailymail
 
 
@@ -29,6 +28,8 @@ def find_newspaper_from_url(url):
 
 
 registry = [
+    guardian,
+    bbc,
     nzherald,
     stuff,
     newshub,
@@ -38,17 +39,8 @@ registry = [
     washington_post,
     cnn,
     dw,
-    bbc,
     independent,
-    #the_times, paywall
     dailymail,
-    {
-        "newspaper_id": "guardian",
-        "newspaper": "The Guardian",
-        "newspaper_url": "theguardian.com",
-        "checker": check_guardian_url,
-        "parser": parse_guardian_html,
-    },
     {
         "newspaper_id": "fox",
         "newspaper": "Fox News",
@@ -90,6 +82,7 @@ def check_parsed_article(parsed):
 
     del parsed["checker"]
     del parsed["parser"]
+    del parsed["get_article_id"]
 
     schema = [
         "newspaper",

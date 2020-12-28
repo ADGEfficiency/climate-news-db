@@ -69,7 +69,7 @@ def google_search(site, query, start=1, stop=10, backoff=1.0):
     help="Whether to replace in the final database",
 )
 @click.option(
-    "--db", default="files", help="Which database to use.", show_default=True
+    "--db", default="urls.jsonl", help="Which database to use.", show_default=True
 )
 def cli(num, newspapers, source, parse, check, replace, db):
     return main(num, newspapers, source, parse, check, replace, db)
@@ -87,9 +87,7 @@ def main(
     logger = make_logger("logger.log")
     logger.info(f"collecting {num} from {newspapers} from {source}")
 
-    db = URLs('urls.jsonl', engine='jsonl')
     newspapers = get_newspapers_from_registry(newspapers)
-
     collection = []
     for paper in newspapers:
 
@@ -99,20 +97,19 @@ def main(
             urls = [{'url': u, 'search_time_UTC': now()} for u in urls]
             logger.info(f'found {len(urls)} for {paper["newspaper_id"]}')
 
-        elif source == "urls.data":
-            # TODO here we want a db.filter(paper=newspaper_id)
-            #  maybe a key to get latest?
-
-            urls = db.get(num=len(db))
+        else:
+            sourcedb = URLs(source, engine='jsonl')
+            urls = sourcedb.get()
             logger.info(f'loaded {len(urls)}')
             urls = [u for u in urls if paper["newspaper_url"] in u['url']]
-            logger.info(f'loaded {len(urls)} for {paper["newspaper_id"]} from {db.name}')
+            logger.info(f'loaded {len(urls)} for {paper["newspaper_id"]} from {sourcedb.name}')
             urls = urls[-num:]
-            logger.info(f'filtered to {len(urls)} for {paper["newspaper_id"]} from {db.name}')
+            logger.info(f'filtered to {len(urls)} for {paper["newspaper_id"]} from {sourcedb.name}')
 
         if check or source == "google":
-            urls = [u for u in urls if paper["checker"](u['url'], logger)]
+            urls = [u for u in urls if paper["checker"](u['url'])]
 
+        db = URLs(db, engine='jsonl')
         logger.info(f"saving to {db.name}")
         logger.info(f"  {len(db)} before")
         db.add(urls)

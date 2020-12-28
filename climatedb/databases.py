@@ -2,8 +2,6 @@ from pathlib import Path
 
 from climatedb.engines import engines
 
-DBHOME = Path.home() / "climate-news-db-data"
-
 
 class URLs():
     def __init__(

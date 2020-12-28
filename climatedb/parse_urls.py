@@ -1,5 +1,3 @@
-import json
-
 from climatedb.databases import RawArticles, Articles
 from climatedb.registry import find_newspaper_from_url
 from climatedb.registry import check_parsed_article, clean_parsed_article
@@ -54,7 +52,7 @@ def main(
 def parse_url(url, paper, logger):
     newspaper_id = paper["newspaper_id"]
     logger.info(f"{url}, {newspaper_id}, parsing")
-    parsed = paper['parser'](url, logger)
+    parsed = paper['parser'](url)
 
     if "error" in parsed.keys():
         error = parsed["error"]

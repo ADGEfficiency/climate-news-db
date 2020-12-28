@@ -4,7 +4,7 @@ from urllib.parse import urlparse
 from climatedb.utils import find_one_tag, form_article_id, request, find_application_json
 
 
-def check_url(url, logger=None):
+def check_url(url):
     #  wierd redirect to /av/
     if url == 'https://www.bbc.com/news/science-environment-52926683':
         return False
@@ -23,17 +23,19 @@ def check_url(url, logger=None):
         return False
 
     #  check to see if it redirects
-    r = request(url)
-    if r['url'] != url:
-        return check_url(r['url'])
+    res = request(url)
+    if res['response'].status_code == 404:
+        return False
+    elif res['url'] != url:
+        return check_url(res['url'])
 
     #  check to see if url ends with an integer
     matcher = re.compile('.*-\d*')
     if matcher.match(url):
-        return True
+        return url
 
 
-def parse_url(url, logger=None):
+def parse_url(url):
     r = request(url)
     if 'error' in r.keys():
         return {
@@ -43,15 +45,24 @@ def parse_url(url, logger=None):
     soup = r['soup']
 
     body = find_one_tag(soup, 'article')
-    body = body.findAll("p", attrs={'class': None})
+    text_blocks = body.findAll("div", attrs={'data-component': 'text-block'})
 
-    #  sometimes first tag has a `b` element in it
+    body = []
+    for block in text_blocks:
+        body.extend(block.findAll("p", attrs={'class': None}))
+
     deep_body = []
     for p_tag in body:
-        if p_tag.find('b'):
-            deep_body.append(p_tag.find('b').text)
+        #  style tags were slipping into the p tag
+        for s in p_tag('style'):
+            s.decompose()
+
+        text = p_tag.get_text()
+        #  last link tag, often a link to Twitter or Read more here
+        if p_tag.find('a') and p_tag is body[-1]:
+            pass
         else:
-            deep_body.append(p_tag.text)
+            deep_body.append(text)
 
     body = "".join(deep_body)
 
@@ -62,13 +73,16 @@ def parse_url(url, logger=None):
     return {
         "newspaper_id": "bbc",
         "body": body,
-        "article_id": form_article_id(url, idx=-1),
+        "article_id": get_bbc_article_id(url),
         "headline": app['headline'],
         "article_url": url,
         "html": html,
         "date_published": app["datePublished"],
-        "date_modified": app["dateModified"],
     }
+
+
+def get_bbc_article_id(url):
+    return form_article_id(url, idx=-1)
 
 
 bbc = {
@@ -77,13 +91,11 @@ bbc = {
     "newspaper_url": "bbc.com",
     "checker": check_url,
     "parser": parse_url,
+    "get_article_id": get_bbc_article_id,
     "color": "#0098FF"
 }
 
 
 if __name__ == '__main__':
-    url = 'https://www.bbc.com/news/election-us-2020-53785985'
-    r = request(url)
 
-
-    # parsed = parse_url(url)
+    parsed = parse_url('https://www.bbc.com/news/world-europe-48221080')

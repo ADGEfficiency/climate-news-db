@@ -1,21 +1,28 @@
-setup:
+PROJECT_NAME = climate-news-db
+PROJECT_HOME = $(HOME)/$(PROJECT_NAME)/data
+
+init:
 	pip install -r requirements.txt
 	pip install --editable .
+	make init-data
+
+init-data:
+	mkdir -p "$(PROJECT_HOME)/raw"
+	mkdir -p "$(PROJECT_HOME)/final"
+
+clean:
+	rm -rf "$(PROJECT_HOME)"
+	make init-data
 
 app:
 	python3 app.py
 
-inspect:
-	./inspect.sh
-
 pushs3:
-	aws s3 sync ~/climate-news-db-data s3://climate-nlp
+	aws s3 sync $(PROJECT_HOME)/s3 s3://climate-nlp
 
 pulls3:
-	aws s3 sync s3://climate-nlp ~/climate-news-db-data --exclude 'raw/*'
-
-heal-db:
-	python3 climatedb/heal.py
+	mkdir -p "$(PROJECT_HOME)/s3"
+	aws s3 sync s3://climate-nlp $(PROJECT_HOME)/s3 --exclude 'raw/*'
 
 scrape:
 	make pulls3
@@ -28,4 +35,7 @@ collect-urls:
 	make pushs3
 
 datasette:
-	datasette ~/climate-news-db-data/climatedb.sqlite
+	datasette $(PROJECT_HOME)/climatedb.sqlite
+
+test:
+	pytest climatedb/tests

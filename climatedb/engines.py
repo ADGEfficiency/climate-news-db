@@ -1,9 +1,8 @@
 import abc
-from pathlib import Path
 import json
 
+from climatedb.config import DBHOME
 
-DBHOME = Path.home() / "climate-news-db-data"
 
 
 class AbstractDB(abc.ABC):
@@ -50,6 +49,7 @@ class JSONLinesFile(AbstractDB):
 
     def get(self):
         if not self.data.is_file():
+            print('empty')
             return []
 
         with open(self.data, "r") as fp:
