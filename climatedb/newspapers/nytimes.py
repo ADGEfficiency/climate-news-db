@@ -1,13 +1,13 @@
-import json
+import re
+from urllib.parse import urlparse
 
-from bs4 import BeautifulSoup
-import requests
-
-from climatedb.utils import check_match
+from climatedb import utils
 
 
-def check_nytimes_url(url, logger):
-    unwanted = [
+def check_url(url):
+    #  TODO TEST
+    u = urlparse(url)
+    unwanted = set([
         "interactive",
         "topic",
         "spotlight",
@@ -15,53 +15,54 @@ def check_nytimes_url(url, logger):
         "freakonomics.blogs.nytimes.com",
         "newsletters",
         "ask",
-        "video",
-    ]
-    if not check_match(url, unwanted):
-        logger.info(f"nytimes, {url}, check failed")
+        "video"
+    ])
+
+    if u.path and u.path.split('/')[1] in unwanted:
         return False
-    else:
-        return True
+    return url
 
 
-def parse_nytimes_html(url):
-    html = requests.get(url).text
-    soup = BeautifulSoup(html, features="html5lib")
+def get_article_id(url):
+    return utils.form_article_id(url, -1)
 
-    section = soup.findAll("section", attrs={"name": "articleBody"})
-    if len(section) != 1:
-        return {}
-    article = "".join([p.text for p in section[0].findAll("p")])
 
+def parse_url(url):
+    response = utils.request(url)
+    soup = response['soup']
+    html = response['html']
+
+    body = utils.find_one_tag(soup, "section", {"name": "articleBody"})
+    body = "".join([p.text for p in body.findAll("p")])
     noise = [
         "The Times is committed to publishing a diversity of letters to the editor. We’d like to hear what you think about this or any of our articles. Here are some tips. And here’s our email: letters@nytimes.com.Follow The New York Times Opinion section on Facebook, Twitter (@NYTopinion) and Instagram.",
         "Want climate news in your inbox? Sign up here for Climate Fwd:, our email newsletter.",
         "For more news on climate and the environment, follow @NYTClimate on Twitter.",
     ]
-    for n in noise:
-        article = article.replace(n, "")
+    for n in body:
+        body.replace(n, "")
 
-    ld = soup.findAll("script", attrs={"type": "application/ld+json"})
-    ld = json.loads(ld[0].getText())
+    app = utils.find_application_json(soup, 'headline')
+    headline = app['headline']
+    published = app['datePublished']
 
     return {
-        "newspaper_id": "nytimes",
-        "body": article,
-        "headline": ld["headline"],
+        **nytimes,
+        "body": body,
+        "headline": headline,
         "article_url": url,
         "html": html,
-        "article_id": url.split("/")[-1],
-        "date_published": ld["datePublished"],
-        "date_modified": ld["dateModified"],
+        "article_id": get_article_id(url),
+        "date_published": published,
     }
 
 
-if __name__ == "__main__":
-    url = "https://www.nytimes.com/2019/12/04/climate/climate-change-acceleration.html"
-    html = requests.get(url).text
-    soup = BeautifulSoup(html, features="html5lib")
-
-    import json
-
-    ld = soup.findAll("script", attrs={"type": "application/ld+json"})
-    ld = json.loads(ld[0].getText())
+nytimes = {
+    "newspaper_id": "nytimes",
+    "newspaper": "The New York Times",
+    "newspaper_url": "nytimes.com",
+    "checker": check_url,
+    "parser": parse_url,
+    "get_article_id": get_article_id,
+    "color": "#FFFFFF"
+}

@@ -1,9 +1,9 @@
 import random
 
 from climatedb.newspapers.guardian import guardian
-from climatedb.newspapers.fox import check_fox_url, parse_fox_html
+from climatedb.newspapers.fox import fox
 from climatedb.newspapers.skyau import check_sky_au_url, parse_sky_au_url
-from climatedb.newspapers.nytimes import check_nytimes_url, parse_nytimes_html
+from climatedb.newspapers.nytimes import nytimes
 
 from climatedb.newspapers.cnn import cnn
 from climatedb.newspapers.economist import economist
@@ -39,20 +39,8 @@ registry = [
     dw,
     independent,
     dailymail,
-    {
-        "newspaper_id": "fox",
-        "newspaper": "Fox News",
-        "newspaper_url": "foxnews.com",
-        "checker": check_fox_url,
-        "parser": parse_fox_html,
-    },
-    {
-        "newspaper_id": "nytimes",
-        "newspaper": "The New York Times",
-        "newspaper_url": "nytimes.com",
-        "checker": check_nytimes_url,
-        "parser": parse_nytimes_html,
-    },
+    fox,
+    nytimes,
     {
         "newspaper_id": "skyau",
         "newspaper": "Sky News Australia",

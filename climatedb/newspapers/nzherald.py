@@ -23,7 +23,6 @@ def get_article_id(url):
         return url.strip('/').split('/')[-1]
 
 
-from climatedb import utils
 def parse_url(url):
     response = utils.request(url)
     soup = response['soup']
@@ -36,10 +35,7 @@ def parse_url(url):
 
     body = "".join([p.text for p in body.findAll("p")])
 
-    app = utils.find_single_application_json(soup)
-
-    if 'headline' not in app.keys():
-        raise utils.ParserError(f'{url}, headline not in application json')
+    app = utils.find_application_json(soup, find='headline')
     headline = app['headline']
     published = app['datePublished']
 

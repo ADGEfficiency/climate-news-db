@@ -1,6 +1,8 @@
 from bs4 import BeautifulSoup
 import requests
 import json
+import time
+import random
 
 
 def check_match(url, unwanted):
@@ -49,8 +51,6 @@ def find_application_json(soup=None, find='headline'):
             return app
     raise ParserError(f'no application JSON with {find} in {len(apps)}')
 
-import time
-import random
 def request(url):
     time.sleep(random.randint(0, 2))
     response = requests.get(url)
