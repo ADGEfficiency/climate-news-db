@@ -51,9 +51,15 @@ def find_application_json(soup=None, find='headline'):
             return app
     raise ParserError(f'no application JSON with {find} in {len(apps)}')
 
-def request(url):
+
+def request(url, headers=None):
     time.sleep(random.randint(0, 2))
-    response = requests.get(url)
+
+    if headers:
+        response = requests.get(url, headers=headers)
+    else:
+        response = requests.get(url)
+
     html = response.text
     soup = BeautifulSoup(html, features="html5lib")
     if response.status_code == 200:

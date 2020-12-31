@@ -1,45 +1,39 @@
-from bs4 import BeautifulSoup
-import requests
+import re
 
-from climatedb.utils import find_one_tag, form_article_id, find_application_json
-
+from climatedb import utils
 
 
-def check_dailymail_url(url, logger=None):
+def check_url(url):
     if len(url.split('/')) != 6:
         return False
-    return True
+    return url
 
 
-def parse_dailymail_url(url, logger=None):
+def get_article_id(url):
+    return utils.form_article_id(url, -1)
+
+
+def parse_url(url):
     headers = {'User-Agent': 'Mozilla/5.0'}
-    response = requests.get(url, headers=headers)
-    html = response.text
-    soup = BeautifulSoup(html, features="html5lib")
+    response = utils.request(url, headers=headers)
+    soup = response['soup']
+    html = response['html']
 
-    body = find_one_tag(soup, 'div', {'itemprop': 'articleBody'})
-    body = [p.text for p in body.findAll('p')]
-    body = ''.join(body)
+    body = utils.find_one_tag(soup, "div", {"itemprop": "articleBody"})
+    body = "".join([p.text for p in body.findAll("p")[:-1]])
 
-    app = find_application_json(soup)
+    headline = utils.find_one_tag(soup, 'title').text.split('|')[0]
 
-    date_published = app["datePublished"]
-    date_modified = app["dateModified"]
-
-    #  one article has "" date_published
-    #  https://www.dailymail.co.uk/news/article-1232412/Director-climate-change-centre-accused-manipulating-data-stands-dismisses-claims-complete-rubbish.html
-    if date_published == "":
-        date_published = date_modified
+    published = utils.find_one_tag(soup, 'meta', {'property': 'article:published_time'})['content']
 
     return {
-        "newspaper_id": "dailymail",
+        **dailymail,
         "body": body,
-        "article_id": form_article_id(url, idx=-1),
-        "headline": app['headline'],
+        "headline": headline,
         "article_url": url,
         "html": html,
-        "date_published": date_published,
-        "date_modified": date_modified
+        "article_id": get_article_id(url),
+        "date_published": published,
     }
 
 
@@ -47,12 +41,9 @@ dailymail = {
     "newspaper_id": "dailymail",
     "newspaper": "The Daily Mail",
     "newspaper_url": "https://www.dailymail.co.uk",
-    "checker": check_dailymail_url,
-    "parser": parse_dailymail_url,
+
+    "checker": check_url,
+    "parser": parse_url,
+    "get_article_id": get_article_id,
     "color": "#004DB3"
 }
-
-
-if __name__ == "__main__":
-    url = "https://www.dailymail.co.uk/news/article-1232412/Director-climate-change-centre-accused-manipulating-data-stands-dismisses-claims-complete-rubbish.html"
-    parsed = parse_dailymail_url(url)
