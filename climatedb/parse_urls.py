@@ -45,24 +45,31 @@ def main(
     else:
         parsed = None
 
-    if parsed:
+    if 'error' in parsed.keys():
+        logger.info(parsed['error'])
+
+    if parsed and 'error' not in parsed.keys():
         save_parsed(parsed, logger, raw, final)
 
 
+from climatedb.utils import ParserError
+from requests.exceptions import TooManyRedirects
+
 def parse_url(url, paper, logger):
     newspaper_id = paper["newspaper_id"]
-    logger.info(f"{url}, {newspaper_id}, parsing")
+    msg = f"{url}, {newspaper_id}, parsing\n"
 
     try:
         parsed = paper['parser'](url)
-    except AssertionError as error:
-        logger.info(f"{url}, parsing error")
-        return None
+    except (ParserError, TooManyRedirects) as error:
+        msg += f"{url}, parsing error, {error}\n"
+        return {'error': msg}
+
     try:
         parsed = check_parsed_article(parsed)
     except AssertionError as error:
-        logger.info(f"{url}, check error")
-        return None
+        msg += f"{url}, check error, {error}\n"
+        return {'error': msg}
 
     return parsed
 

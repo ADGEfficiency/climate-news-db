@@ -1,14 +1,16 @@
 import re
 from urllib.parse import urlparse
+from climatedb.utils import ParserError
 
-from climatedb.utils import find_one_tag, form_article_id, request, find_application_json
+from climatedb.utils import find_one_tag, form_article_id, request, find_single_application_json
+
+from climatedb import utils
 
 
 def check_guardian_url(url):
     #  many redirects
     if 'covid-19-what-kind-of-face-mask-gives-the-best-protection-against-coronavirus' in url:
         return False
-
 
     #  searching for a string like 2020/may/14
     expr = "\d{4}\/[a-z]{3}\/\d{2}"
@@ -37,11 +39,16 @@ def parse_guardian_html(url):
     html = r['html']
     soup = r['soup']
 
-    body = find_one_tag(soup, 'div', {"itemprop": "articleBody"})
+    try:
+        body = find_one_tag(soup, 'div', {'class': 'article-body-commercial-selector css-79elbk article-body-viewer-selector'})
+
+    except ParserError as error:
+        body = find_one_tag(soup, 'div', {'itemprop': 'articleBody'})
+
     body = "".join([p.text for p in body.findAll("p")])
 
-    published = find_one_tag(soup, 'time', {"itemprop": "datePublished"})['datetime']
-    headline = find_one_tag(soup, 'title').text.split('|')[0]
+    headline = find_one_tag(soup, 'meta', {'property': 'og:title'})['content']
+    published = find_one_tag(soup, 'meta', {'property': 'article:published_time'})['content']
 
     return {
         "newspaper_id": "guardian",

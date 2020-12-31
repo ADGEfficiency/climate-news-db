@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
+import json
 
 
 def check_match(url, unwanted):
@@ -9,12 +10,15 @@ def check_match(url, unwanted):
     return True
 
 
+class ParserError(Exception):
+    pass
+
+
 def find_one_tag(soup, name, attrs={}):
     """find a single tag (and only one tag) in bs4"""
     data = soup.findAll(name, attrs)
     if len(data) != 1:
-        print(soup.url, name, attrs, len(data))
-    assert len(data) == 1
+        raise ParserError(name, attrs, len(data))
     return data[0]
 
 
@@ -25,24 +29,34 @@ def form_article_id(url, idx=-1):
     return article_id.replace(".html", "")
 
 
-def find_application_json(soup, find='headline'):
-    import json
+def find_single_application_json(soup):
+    app = soup.findAll('script', {'type': 'application/ld+json'})
+
+    if len(app) != 1:
+        raise ParserError(f'app-json {len(app)}')
+    app = json.loads(app[0].text)
+
+    if isinstance(app, list):
+        return app[0]
+    return app
+
+
+def find_application_json(soup=None, find='headline'):
     apps = soup.findAll('script', {'type': 'application/ld+json'})
     for app in apps:
         app = json.loads(app.text)
-        if find in app:
+        if find in app.keys():
             return app
 
-    return {
-        'error': 'no application JSON'
-    }
+    import pdb; pdb.set_trace()
+    raise ParserError(f'no application JSON with {find} in {len(apps)}')
 
 #  from bbc
 # import json#
 # def find_application_json(soup):
-#     app = find_one_tag(soup, 'script', {'type': 'application/ld+json'}).text
-#     app = app.replace('\n', '')
-#     return json.loads(app)
+    app = find_one_tag(soup, 'script', {'type': 'application/ld+json'}).text
+    app = app.replace('\n', '')
+    return json.loads(app)
 
 import time
 import random

@@ -1,7 +1,7 @@
 import re
 from urllib.parse import urlparse
 
-from climatedb.utils import find_one_tag, form_article_id, request, find_application_json
+from climatedb.utils import find_one_tag, form_article_id, request, find_single_application_json
 
 
 def check_url(url):
@@ -66,7 +66,7 @@ def parse_url(url):
 
     body = "".join(deep_body)
 
-    app = find_application_json(soup)
+    app = find_single_application_json(soup)
     if 'error' in app.keys():
         import pdb; pdb.set_trace()
 
