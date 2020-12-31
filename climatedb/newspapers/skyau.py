@@ -1,11 +1,10 @@
 from datetime import datetime
 import json
 
-from bs4 import BeautifulSoup
-import requests
+from climatedb import utils
 
 
-def check_sky_au_url(url, logger=None):
+def check_url(url):
     if "https://2600.skynews.com.au" in url:
         return False
     if "skynews.com.au/page/" in url:
@@ -15,19 +14,21 @@ def check_sky_au_url(url, logger=None):
     return True
 
 
-def parse_sky_au_url(url):
-    html = requests.get(url).text
-    soup = BeautifulSoup(html, features="html.parser")
-    try:
-        body = soup.findAll("p", attrs={"class": "description-text"})
-        assert len(body) == 1
-        body = body[0].text
-    except AssertionError:
-        body = soup.findAll("div", attrs={"class": "article-text row"})
-        assert len(body) == 1
-        body = "".join(p.text for p in body[0].findAll("p"))
+def get_article_id(url):
+    return utils.form_article_id(url, -1)
 
-    from json.decoder import JSONDecodeError
+
+def parse_url(url):
+    response = utils.request(url)
+    soup = response['soup']
+    html = response['html']
+
+    try:
+        body = utils.find_one_tag(soup, "p", {"class": "description-text"})
+        body = body.text
+    except utils.ParserError:
+        body = utils.find_one_tag(soup, "p", {"class": "article-text row"})
+        body = "".join([p.text for p in body.findAll("p")])
 
     scripts = soup.findAll("script")
     for script in scripts:
@@ -42,31 +43,34 @@ def parse_sky_au_url(url):
                 data = json.loads(data)
                 data = data["items"]
                 key = list(data.keys())[0]
-                pub = int(data[key]["content"]["attributes"]["publishedDate"])
-                pub = datetime.fromtimestamp(pub / 1000).isoformat()
+                published = int(data[key]["content"]["attributes"]["publishedDate"])
+                published = datetime.fromtimestamp(published / 1000).isoformat()
                 break
 
             else:
-                pub = datetime.fromtimestamp(0).isoformat()
+                published = datetime.fromtimestamp(0).isoformat()
 
-    headline = soup.findAll("title")
-    assert len(headline) == 1
-    headline = headline[0].getText()
+    headline = utils.find_one_tag(soup, 'title').text
     headline = headline.split("|")[0]
 
     return {
-        "newspaper_id": "skyau",
+        **skyau,
         "body": body,
-        "html": html,
         "headline": headline,
         "article_url": url,
-        "article_id": url.split("/")[-1],
-        "date_published": pub,
+        "html": html,
+        "article_id": get_article_id(url),
+        "date_published": published,
     }
 
 
-if __name__ == "__main__":
-    url = "https://www.skynews.com.au/details/_6173853418001"
-    html = requests.get(url).text
-    soup = BeautifulSoup(html, features="html.parser")
-    par = parse_sky_au_url(url)
+skyau = {
+    "newspaper_id": "skyau",
+    "newspaper": "Sky News Australia",
+    "newspaper_url": "skynews.com.au",
+
+    "checker": check_url,
+    "parser": parse_url,
+    "get_article_id": get_article_id,
+    "color": "#93A681"
+}

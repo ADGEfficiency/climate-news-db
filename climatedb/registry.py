@@ -2,7 +2,7 @@ import random
 
 from climatedb.newspapers.guardian import guardian
 from climatedb.newspapers.fox import fox
-from climatedb.newspapers.skyau import check_sky_au_url, parse_sky_au_url
+from climatedb.newspapers.skyau import skyau
 from climatedb.newspapers.nytimes import nytimes
 
 from climatedb.newspapers.cnn import cnn
@@ -41,13 +41,7 @@ registry = [
     dailymail,
     fox,
     nytimes,
-    {
-        "newspaper_id": "skyau",
-        "newspaper": "Sky News Australia",
-        "newspaper_url": "skynews.com.au",
-        "checker": check_sky_au_url,
-        "parser": parse_sky_au_url,
-    },
+    skyau,
 ]
 
 

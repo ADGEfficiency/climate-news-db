@@ -1,13 +1,9 @@
+import re
 
-import json
-
-from bs4 import BeautifulSoup
-import requests
-
-from climatedb.utils import find_one_tag, form_article_id
+from climatedb import utils
 
 
-def check_cnn_url(url, logger=None):
+def check_url(url):
     if "/gallery/" in url:
         return False
     if "/videos/" in url:
@@ -50,36 +46,39 @@ def check_cnn_url(url, logger=None):
         return False
     if "/2008/" in url:
         return False
-    return True
+    return url
 
 
-def parse_cnn_url(url, logger=None):
-    response = requests.get(url)
-    html = response.text
-    soup = BeautifulSoup(html, features="html5lib")
+def get_article_id(url):
+    return utils.form_article_id(url, -2)
 
-    body = find_one_tag(soup, "div", {"itemprop": "articleBody"})
-    body = body.findAll("p")
-    body = "".join(p.text for p in body)
+
+def parse_url(url):
+    response = utils.request(url)
+    soup = response['soup']
+    html = response['html']
+
+    body = utils.find_one_tag(soup, "div", {"itemprop": "articleBody"})
+    body = "".join([p.text for p in body.findAll("p")])
+    import pdb; pdb.set_trace()
 
     if len(body) == 0:
-        body = find_one_tag(soup, "div", {"itemprop": "articleBody"})
-        body = body.findAll("div")
-        body = "".join(p.text for p in body)
+        body = utils.find_one_tag(soup, "div", {"itemprop": "articleBody"})
+        body = body.findAll("div")[0]
+        body = "".join([p.text for p in body.findAll("p")])
 
-    headline = find_one_tag(soup, 'title', {"id": None}).text.strip(" - CNN")
-
-    date_published = find_one_tag(soup, 'meta', {'itemprop': 'datePublished'})
-    date_published = date_published['content']
+    headline = utils.find_one_tag(soup, 'title', {"id": None}).text.replace(" - CNN", "")
+    published = utils.find_one_tag(soup, 'meta', {'itemprop': 'datePublished'})
+    published = published['content']
 
     return {
-        "newspaper_id": "cnn",
+        **cnn,
         "body": body,
-        "article_id": form_article_id(url, idx=-2),
         "headline": headline,
         "article_url": url,
         "html": html,
-        "date_published": date_published,
+        "article_id": get_article_id(url),
+        "date_published": published
     }
 
 
@@ -87,15 +86,9 @@ cnn = {
     "newspaper_id": "cnn",
     "newspaper": "CNN",
     "newspaper_url": "cnn.com",
-    "checker": check_cnn_url,
-    "parser": parse_cnn_url,
+
+    "checker": check_url,
+    "parser": parse_url,
+    "get_article_id": get_article_id,
     "color": "#CC0000"
 }
-
-
-if __name__ == "__main__":
-    url = "https://edition.cnn.com/2020/08/13/world/state-of-climate-report-2019-intl-hnk-scn/index.html"
-    response = requests.get(url)
-    html = response.text
-    soup = BeautifulSoup(html, features="html5lib")
-    out = parse_cnn_url(url)

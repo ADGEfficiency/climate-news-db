@@ -99,8 +99,7 @@ def check_parsed_article(parsed):
         "html",
         "article_url",
         "article_id",
-        "date_published",
-        "date_uploaded",
+        "date_published"
     ]
     for sc in schema:
         #  check key exists

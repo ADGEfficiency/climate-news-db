@@ -8,7 +8,7 @@ def check_url(url):
 
 
 def get_article_id(url):
-    return article_id
+    return utils.form_article_id(url, -1)
 
 
 def parse_url(url):
@@ -16,7 +16,12 @@ def parse_url(url):
     soup = response['soup']
     html = response['html']
 
-    body = utils.find_one_tag(soup, "", {"name": ""})
+    try:
+        body = utils.find_one_tag(soup, "p", {"class": "description-text"})
+
+    except utils.ParserError:
+        body = utils.find_one_tag(soup, "p", {"class": "article-text row"})
+
     body = "".join([p.text for p in body.findAll("p")])
 
     app = utils.find_application_json(soup, 'headline')
@@ -29,7 +34,7 @@ def parse_url(url):
         "headline": headline,
         "article_url": url,
         "html": html,
-        "article_id": get_article_id(url)
+        "article_id": get_article_id(url),
         "date_published": published,
         "date_modified": updated,
     }
