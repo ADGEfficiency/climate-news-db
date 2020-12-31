@@ -16,8 +16,7 @@ def parse_url(url):
     soup = response['soup']
     html = response['html']
 
-
-    body = utils.find_one_tag(soup, "section", {"name": "articleBody"})
+    body = utils.find_one_tag(soup, "", {"name": ""})
     body = "".join([p.text for p in body.findAll("p")])
 
     app = utils.find_application_json(soup, 'headline')
@@ -25,7 +24,7 @@ def parse_url(url):
     published = app['datePublished']
 
     return {
-        **fox,
+        **paper,
         "body": body,
         "headline": headline,
         "article_url": url,
@@ -36,10 +35,10 @@ def parse_url(url):
     }
 
 
-fox = {
-    "newspaper_id": "fox",
-    "newspaper": "Fox News",
-    "newspaper_url": "foxnews.com",
+paper = {
+    "newspaper_id": "",
+    "newspaper": "",
+    "newspaper_url": "",
 
     "checker": check_url,
     "parser": parse_url,
