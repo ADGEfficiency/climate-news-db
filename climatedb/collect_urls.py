@@ -124,8 +124,12 @@ def main(
         if check or source == "google":
             checked_urls = []
             for u in urls:
+
+                #  try check, catch a urlcheckerror?
                 if paper["checker"](u['url']):
+                    logger.info(f"{u['url']}, check OK")
                     checked_urls.append(u)
+
                 else:
                     logger.info(f"{u['url']}, check error")
 

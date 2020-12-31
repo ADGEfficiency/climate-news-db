@@ -3,6 +3,7 @@ import random
 from climatedb.newspapers.aljazeera import aljazeera
 from climatedb.newspapers.bbc import bbc
 from climatedb.newspapers.cnn import cnn
+from climatedb.newspapers.dw import dw
 from climatedb.newspapers.economist import economist
 from climatedb.newspapers.fox import fox
 from climatedb.newspapers.guardian import guardian
@@ -14,7 +15,6 @@ from climatedb.newspapers.washington_post import washington_post
 
 from climatedb.newspapers.newshub import newshub
 from climatedb.newspapers.atlantic import atlantic
-from climatedb.newspapers.dw import dw
 from climatedb.newspapers.independent import independent
 from climatedb.newspapers.dailymail import dailymail
 
