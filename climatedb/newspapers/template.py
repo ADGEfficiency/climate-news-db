@@ -36,7 +36,6 @@ def parse_url(url):
         "html": html,
         "article_id": get_article_id(url),
         "date_published": published,
-        "date_modified": updated,
     }
 
 

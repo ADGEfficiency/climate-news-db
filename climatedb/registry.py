@@ -1,11 +1,11 @@
 import random
 
+from climatedb.newspapers.cnn import cnn
 from climatedb.newspapers.guardian import guardian
 from climatedb.newspapers.fox import fox
 from climatedb.newspapers.skyau import skyau
 from climatedb.newspapers.nytimes import nytimes
 
-from climatedb.newspapers.cnn import cnn
 from climatedb.newspapers.economist import economist
 from climatedb.newspapers.newshub import newshub
 from climatedb.newspapers.nzherald import nzherald
