@@ -58,14 +58,24 @@ def parse_url(url):
     soup = response['soup']
     html = response['html']
 
-    body = utils.find_one_tag(soup, "div", {"itemprop": "articleBody"})
-    body = "".join([p.text for p in body.findAll("p")])
-    import pdb; pdb.set_trace()
 
-    if len(body) == 0:
-        body = utils.find_one_tag(soup, "div", {"itemprop": "articleBody"})
-        body = body.findAll("div")[0]
-        body = "".join([p.text for p in body.findAll("p")])
+    body = utils.find_one_tag(soup, "div", {"itemprop": "articleBody"})
+    new_body = []
+    for pt in body.findAll("div"):
+        flag = False
+
+        if 'class' in pt.attrs.keys():
+            class_ = pt.attrs['class']
+
+            for thing in class_:
+                if 'zn-body__paragraph' in thing:
+                    flag = True
+
+        if flag:
+            new_body.append(pt.text)
+
+    body = new_body
+    body = "".join(body)
 
     headline = utils.find_one_tag(soup, 'title', {"id": None}).text.replace(" - CNN", "")
     published = utils.find_one_tag(soup, 'meta', {'itemprop': 'datePublished'})
@@ -92,3 +102,8 @@ cnn = {
     "get_article_id": get_article_id,
     "color": "#CC0000"
 }
+
+
+if __name__ == '__main__':
+    url = 'https://edition.cnn.com/2020/12/18/opinions/biden-nominees-bold-climate-action-reid/index.html'
+    parse_url(url)

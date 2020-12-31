@@ -112,7 +112,6 @@ def check_parsed_article(parsed):
             url = parsed["article_url"]
             msg = f"{url} - {sc} not long enough - {val}"
             print(msg)
-            import pdb; pdb.set_trace()
             raise ValueError(msg)
 
     return parsed
