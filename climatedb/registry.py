@@ -4,6 +4,7 @@ from climatedb.newspapers.aljazeera import aljazeera
 from climatedb.newspapers.atlantic import atlantic
 from climatedb.newspapers.bbc import bbc
 from climatedb.newspapers.cnn import cnn
+from climatedb.newspapers.dailymail import dailymail
 from climatedb.newspapers.dw import dw
 from climatedb.newspapers.economist import economist
 from climatedb.newspapers.fox import fox
@@ -17,7 +18,6 @@ from climatedb.newspapers.washington_post import washington_post
 
 
 from climatedb.newspapers.independent import independent
-from climatedb.newspapers.dailymail import dailymail
 
 
 def find_newspaper_from_url(url):
