@@ -1,10 +1,10 @@
 from datetime import datetime
+import re
 
 from bs4 import BeautifulSoup
 import requests
 
-from climatedb.utils import find_one_tag, form_article_id
-
+from climatedb import utils
 
 
 def check_dw_metadata(url):
@@ -29,12 +29,12 @@ def check_dw_metadata(url):
                     return False
                 if st[0].text == 'Life Links container':
                     return False
-        return True
+        return url
     else:
         return False
 
 
-def check_dw_url(url, logger=None):
+def check_url(url):
     if "/top-stories/" in url:
         return False
     if url == "https://www.dw.com/en/climate-change-are-we-trapped-in-a-vicious-circle/g-51944184":
@@ -53,25 +53,25 @@ def check_dw_url(url, logger=None):
         return False
     if url == "https://www.dw.com/en/climate-change/t-18614374":
         return False
-    return True
+    return url
 
 
-def parse_dw_url(url, logger=None):
-    response = requests.get(url)
-    html = response.text
-    soup = BeautifulSoup(html, features="html5lib")
+def get_article_id(url):
+    return utils.form_article_id(url, -2)
+
+
+def parse_url(url):
+    response = utils.request(url)
+    soup = response['soup']
+    html = response['html']
 
     #  hope it's going to be the first one :)
     body = soup.findAll("div", {"class": "longText"})[0]
-    body = body.findAll("p")
-    body = "".join(p.text for p in body)
+    body = "".join([p.text for p in body.findAll("p", recursive=False) if not p.attrs])
 
-    headline = find_one_tag(soup, 'title', {"id": None}).text.split('|')[0].strip(' ')
-    #  description is there as meta
+    headline = utils.find_one_tag(soup, 'title', {"id": None}).text.split('|')[0].strip(' ')
 
-    #  hoping the right table is first
     date = soup.findAll('div', {'class': 'col1 dim'})[0].findAll('li')
-
     for li in date:
         st = li.findAll('strong')
         if st[0].text == 'Date':
@@ -79,16 +79,16 @@ def parse_dw_url(url, logger=None):
             break
 
     date = date.split('\n')[1]
-    date = datetime.strptime(date, '%d.%m.%Y').isoformat()
+    published = datetime.strptime(date, '%d.%m.%Y').isoformat()
 
     return {
-        "newspaper_id": "dw",
+        **dw,
         "body": body,
-        "article_id": form_article_id(url, idx=-2),
         "headline": headline,
         "article_url": url,
         "html": html,
-        "date_published": date
+        "article_id": get_article_id(url),
+        "date_published": published,
     }
 
 
@@ -96,15 +96,9 @@ dw = {
     "newspaper_id": "dw",
     "newspaper": "Deutsche Welle",
     "newspaper_url": "dw.com/en",
-    "checker": check_dw_url,
-    "parser": parse_dw_url,
+
+    "checker": check_url,
+    "parser": parse_url,
+    "get_article_id": get_article_id,
     "color": "#0098FF"
 }
-
-
-if __name__ == "__main__":
-    url = 'https://www.dw.com/en/2019-the-year-of-climate-consciousness-wildfires-fridays-for-future-climate-emergency-a-51719968/a-51719968'
-    response = requests.get(url)
-    html = response.text
-    soup = BeautifulSoup(html, features="html5lib")
-    out = parse_dw_url(url)

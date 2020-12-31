@@ -10,10 +10,10 @@ from climatedb.newspapers.nzherald import nzherald
 from climatedb.newspapers.nytimes import nytimes
 from climatedb.newspapers.skyau import skyau
 from climatedb.newspapers.stuff import stuff
+from climatedb.newspapers.washington_post import washington_post
 
 from climatedb.newspapers.newshub import newshub
 from climatedb.newspapers.atlantic import atlantic
-from climatedb.newspapers.washington_post import washington_post
 from climatedb.newspapers.dw import dw
 from climatedb.newspapers.independent import independent
 from climatedb.newspapers.dailymail import dailymail

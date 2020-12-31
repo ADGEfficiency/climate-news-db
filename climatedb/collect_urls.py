@@ -120,6 +120,7 @@ def main(
             urls = [u for u in urls if not final.exists(paper['get_article_id'](u['url']))]
             logger.info(f'filtered to {len(urls)} after exists check')
 
+        logger.info(f'checking {len(urls)}')
         if check or source == "google":
             checked_urls = []
             for u in urls:
