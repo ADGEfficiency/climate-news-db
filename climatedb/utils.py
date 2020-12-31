@@ -47,16 +47,7 @@ def find_application_json(soup=None, find='headline'):
         app = json.loads(app.text)
         if find in app.keys():
             return app
-
-    import pdb; pdb.set_trace()
     raise ParserError(f'no application JSON with {find} in {len(apps)}')
-
-#  from bbc
-# import json#
-# def find_application_json(soup):
-    app = find_one_tag(soup, 'script', {'type': 'application/ld+json'}).text
-    app = app.replace('\n', '')
-    return json.loads(app)
 
 import time
 import random
@@ -73,6 +64,4 @@ def request(url):
             'url': response.url
         }
 
-    return {
-        'error': response.status_code
-    }
+    response.raise_for_status()

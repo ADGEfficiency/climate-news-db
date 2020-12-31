@@ -1,16 +1,20 @@
 import re
-import json
-from json.decoder import JSONDecodeError
+
+from climatedb import utils
 
 
-from bs4 import BeautifulSoup
-import requests
+def check_url(url):
+    if url[-4:] == ".pdf":
+        return False
+    if "video.cfm" in url:
+        return False
+    #  should check for the Sorry, seems like this page doesn't exist.
+    if url == "https://www.nzherald.co.nz/climate-change/news/article.cfm?c_id=26&objectid=19970":
+        return False
+    return url
 
-# old = https://www.nzherald.co.nz/climate-change/news/article.cfm?c_id=26&objectid=19970
-# new = 'https://www.nzherald.co.nz/nz/climate-change-how-warming-world-has-already-transformed-new-zealand/3JAU2562PMQRLSBLKH3WW2CEFA/'
 
-
-def get_nzherald_article_id(url):
+def get_article_id(url):
     if "article.cfm" in url:
         #  always the last integer
         reg = re.compile(r"\d+")
@@ -19,75 +23,42 @@ def get_nzherald_article_id(url):
         return url.strip('/').split('/')[-1]
 
 
-def check_nzherald_url(url, logger=None):
-    if url[-4:] == ".pdf":
-        return False
-    if "video.cfm" in url:
-        return False
-    #  should check for the Sorry, seems like this page doesn't exist.
-    if url == "https://www.nzherald.co.nz/climate-change/news/article.cfm?c_id=26&objectid=19970":
-        return False
-    return True
-
-
-def parse_nzherald_url(url):
-    req = requests.get(url)
-    html = req.text
-    soup = BeautifulSoup(html, features="html5lib")
-
-    # https://www.nzherald.co.nz/world/news/article.cfm?c_id=2&objectid=12314735 doesn't have article-body
-    try:
-        table = soup.findAll("div", attrs={"id": "article-body"})
-        if len(table) == 0:
-            table = soup.findAll("section", attrs={"class": "article__main"})
-
-        article = "".join([p.text for p in table[0].findAll("p")])
-
-        ld = soup.findAll("script", attrs={"type": "application/ld+json"})
-        ld = ld[0].getText()
-        ld = ld.replace("\n", "")
-    except IndexError as e:
-        return {"error": repr(e)}
+from climatedb import utils
+def parse_url(url):
+    response = utils.request(url)
+    soup = response['soup']
+    html = response['html']
 
     try:
-        ld = json.loads(ld)
-    except JSONDecodeError as e:
-        print("decode error")
-        return {"error": repr(e)}
+        body = utils.find_one_tag(soup, 'div', {'id': 'article-body'})
+    except utils.ParserError as error:
+        body = utils.find_one_tag(soup, 'section', {"class": "article__main"})
+
+    body = "".join([p.text for p in body.findAll("p")])
+
+    app = utils.find_single_application_json(soup)
+
+    if 'headline' not in app.keys():
+        raise utils.ParserError(f'{url}, headline not in application json')
+    headline = app['headline']
+    published = app['datePublished']
 
     return {
-        "newspaper_id": "nzherald",
-        "body": article,
-        "headline": ld["headline"],
+        **nzherald,
+        "body": body,
+        "headline": headline,
         "article_url": url,
-        "article_id": get_nzherald_article_id(url),
         "html": html,
-        "date_published": ld["datePublished"],
-        "date_modified": ld["dateModified"],
+        "article_id": get_article_id(url),
+        "date_published": published,
     }
-
 
 nzherald = {
     "newspaper_id": "nzherald",
     "newspaper": "The New Zealand Herald",
     "newspaper_url": "nzherald.co.nz",
-    "checker": check_nzherald_url,
-    "parser": parse_nzherald_url,
+    "checker": check_url,
+    "parser": parse_url,
+    "get_article_id": get_article_id,
+    "color": "#052962"
 }
-
-
-if __name__ == "__main__":
-
-    urls = (
-        "https://www.nzherald.co.nz/nz/news/article.cfm?c_id=1&objectid=12270976",
-        "https://www.nzherald.co.nz/nz/news/article.cfm?c_id=1&objectid=199698",
-    )
-
-    print(urls)
-    url = urls[0]
-
-
-"""
-<html class="articlestory"><head> <script type="application/ld+json">
-
-"""

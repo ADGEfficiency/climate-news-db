@@ -33,8 +33,6 @@ def get_guardian_article_id(url):
 
 def parse_guardian_html(url):
     r = request(url)
-    if 'error' in r.keys():
-        return {'error': r['error']}
 
     html = r['html']
     soup = r['soup']

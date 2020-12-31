@@ -1,7 +1,9 @@
 from climatedb.databases import RawArticles, Articles
-from climatedb.registry import find_newspaper_from_url
-from climatedb.registry import check_parsed_article, clean_parsed_article
+from climatedb.registry import find_newspaper_from_url, get_newspaper
 from climatedb.utils import form_article_id
+
+from datetime import datetime
+import html.parser
 
 
 def get_article_id(url, paper):
@@ -36,14 +38,14 @@ def main(
 
     if exists and replace:
         logger.info(f"{url}, already exists in final and replacing")
-        parsed = parse_url(url, paper, logger)
+        parsed = parse_url(url, paper)
 
     if not exists:
         logger.info(f"{url}, not in final")
-        parsed = parse_url(url, paper, logger)
+        parsed = parse_url(url, paper)
 
     else:
-        parsed = None
+        parsed = {'error': f'{url}, parse_url not run'}
 
     if 'error' in parsed.keys():
         logger.info(parsed['error'])
@@ -55,13 +57,14 @@ def main(
 from climatedb.utils import ParserError
 from requests.exceptions import TooManyRedirects
 
-def parse_url(url, paper, logger):
+from requests import HTTPError
+def parse_url(url, paper):
     newspaper_id = paper["newspaper_id"]
     msg = f"{url}, {newspaper_id}, parsing\n"
 
     try:
         parsed = paper['parser'](url)
-    except (ParserError, TooManyRedirects) as error:
+    except (HTTPError, ParserError, TooManyRedirects) as error:
         msg += f"{url}, parsing error, {error}\n"
         return {'error': msg}
 
@@ -71,6 +74,55 @@ def parse_url(url, paper, logger):
         msg += f"{url}, check error, {error}\n"
         return {'error': msg}
 
+    return parsed
+
+
+
+def check_parsed_article(parsed):
+    if not parsed:
+        return {}
+
+    newspaper = get_newspaper(parsed["newspaper_id"])
+    parsed["date_uploaded"] = datetime.utcnow().isoformat()
+    parsed = {**parsed, **newspaper}
+
+    del parsed["checker"]
+    del parsed["parser"]
+    del parsed["get_article_id"]
+
+    schema = [
+        "newspaper",
+        "newspaper_id",
+        "newspaper_url",
+        "body",
+        "headline",
+        "html",
+        "article_url",
+        "article_id",
+        "date_published",
+        "date_uploaded",
+    ]
+    for sc in schema:
+        #  check key exists
+        if sc not in parsed.keys():
+            raise ValueError(f"{sc} missing from parsed article")
+
+        #  check value length
+        val = parsed[sc]
+        if len(val) < 2:
+            url = parsed["article_url"]
+            msg = f"{url} - {sc} not long enough - {val}"
+            print(msg)
+            import pdb; pdb.set_trace()
+            raise ValueError(msg)
+
+    return parsed
+
+def clean_parsed_article(parsed):
+    #  data cleaning - replacing escaped html characters
+    html_parser = html.parser.HTMLParser()
+    parsed["body"] = html_parser.unescape(parsed["body"])
+    parsed["headline"] = html_parser.unescape(parsed["headline"])
     return parsed
 
 

@@ -1,5 +1,3 @@
-from datetime import datetime
-import html.parser
 import random
 
 from climatedb.newspapers.guardian import guardian
@@ -70,55 +68,6 @@ def get_newspaper(newspaper):
         if paper["newspaper_id"] == newspaper:
             return paper
     raise ValueError(f"{newspaper} not in registry")
-
-
-def check_parsed_article(parsed):
-    if not parsed:
-        return {}
-
-    newspaper = get_newspaper(parsed["newspaper_id"])
-    parsed["date_uploaded"] = datetime.utcnow().isoformat()
-    parsed = {**parsed, **newspaper}
-
-    del parsed["checker"]
-    del parsed["parser"]
-    del parsed["get_article_id"]
-
-    schema = [
-        "newspaper",
-        "newspaper_id",
-        "newspaper_url",
-        "body",
-        "headline",
-        "html",
-        "article_url",
-        "article_id",
-        "date_published",
-        "date_uploaded",
-    ]
-    for sc in schema:
-        #  check key exists
-        if sc not in parsed.keys():
-            raise ValueError(f"{sc} missing from parsed article")
-
-        #  check value length
-        val = parsed[sc]
-        if len(val) < 2:
-            url = parsed["article_url"]
-            msg = f"{url} - {sc} not long enough - {val}"
-            print(msg)
-            import pdb; pdb.set_trace()
-            raise ValueError(msg)
-
-    return parsed
-
-
-def clean_parsed_article(parsed):
-    #  data cleaning - replacing escaped html characters
-    html_parser = html.parser.HTMLParser()
-    parsed["body"] = html_parser.unescape(parsed["body"])
-    parsed["headline"] = html_parser.unescape(parsed["headline"])
-    return parsed
 
 
 def get_newspapers_from_registry(newspapers=None):
