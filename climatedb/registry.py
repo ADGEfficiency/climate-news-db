@@ -4,14 +4,14 @@ from climatedb.newspapers.aljazeera import aljazeera
 from climatedb.newspapers.bbc import bbc
 from climatedb.newspapers.cnn import cnn
 from climatedb.newspapers.economist import economist
-from climatedb.newspapers.guardian import guardian
 from climatedb.newspapers.fox import fox
+from climatedb.newspapers.guardian import guardian
 from climatedb.newspapers.nzherald import nzherald
-from climatedb.newspapers.skyau import skyau
 from climatedb.newspapers.nytimes import nytimes
+from climatedb.newspapers.skyau import skyau
+from climatedb.newspapers.stuff import stuff
 
 from climatedb.newspapers.newshub import newshub
-from climatedb.newspapers.stuff import stuff
 from climatedb.newspapers.atlantic import atlantic
 from climatedb.newspapers.washington_post import washington_post
 from climatedb.newspapers.dw import dw

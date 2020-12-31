@@ -1,12 +1,9 @@
-import json
+import re
 
-from bs4 import BeautifulSoup
-import requests
-
-from climatedb.utils import find_one_tag, form_article_id
+from climatedb import utils
 
 
-def check_washington_post_url(url, logger=None):
+def check_url(url):
     if ".washingtonpost.com/graphics" in url:
         return False
     if "washingtonpost.com/video/" in url:
@@ -15,10 +12,7 @@ def check_washington_post_url(url, logger=None):
         return False
     if url == "https://www.washingtonpost.com/climate-solutions/":
         return False
-    if (
-        url
-        == "https://www.washingtonpost.com/wp-srv/inatl/longterm/climate/background.htm"
-    ):
+    if (url== "https://www.washingtonpost.com/wp-srv/inatl/longterm/climate/background.htm"):
         return False
     if url == "https://www.washingtonpost.com/climate-environment/":
         return False
@@ -35,31 +29,44 @@ def check_washington_post_url(url, logger=None):
     return True
 
 
-def parse_washington_post_url(url, logger=None):
-    response = requests.get(url)
-    html = response.text
-    soup = BeautifulSoup(html, features="html5lib")
+def get_article_id(url):
+    return utils.form_article_id(url, -1)
+
+
+def parse_url(url):
+    response = utils.request(url)
+    soup = response['soup']
+    html = response['html']
 
     try:
-        body = find_one_tag(soup, "div", {"class": "article-body"})
-    except AssertionError:
-        body = find_one_tag(soup, "div", {"class": "ent-article-body ent-layout-centered"})
+        body = utils.find_one_tag(soup, "div", {"class": "article-body"})
 
-    body = body.findAll("p")
-    body = "".join(p.text for p in body)
+    except utils.ParserError:
+        body = utils.find_one_tag(soup, "div", {"class": "ent-article-body ent-layout-centered"})
 
-    #  <script type="application/ld+json" data-qa="schema">
-    app = find_one_tag(soup, "script", {"type": "application/ld+json"})
-    app = json.loads(app.text)
+    new_body = []
+    for p in body.findAll("p"):
+
+        if 'data-elm-loc' in p.attrs.keys():
+            new_body.append(p.text)
+
+        if 'class' in p.attrs.keys():
+            if 'font--body' in p.attrs['class']:
+                new_body.append(p.text)
+
+    body = "".join(new_body)
+    app = utils.find_application_json(soup, 'headline')
+    headline = app['headline']
+    published = app['datePublished']
 
     return {
-        "newspaper_id": "washington_post",
+        **washington_post,
         "body": body,
-        "article_id": form_article_id(url),
-        "headline": app["headline"],
+        "headline": headline,
         "article_url": url,
         "html": html,
-        "date_published": app["datePublished"]
+        "article_id": get_article_id(url),
+        "date_published": published,
     }
 
 
@@ -67,17 +74,9 @@ washington_post = {
     "newspaper_id": "washington_post",
     "newspaper": "The Washington Post",
     "newspaper_url": "washingtonpost.com",
-    "checker": check_washington_post_url,
-    "parser": parse_washington_post_url,
+
+    "checker": check_url,
+    "parser": parse_url,
+    "get_article_id": get_article_id,
     "color": "#000000",
 }
-
-
-if __name__ == "__main__":
-    url = "https://www.washingtonpost.com/climate-solutions/2020/02/24/can-you-pass-this-10-question-climate-quiz/"
-    response = requests.get(url)
-    html = response.text
-    soup = BeautifulSoup(html, features="html5lib")
-    out = parse_washington_post_url(url)
-    app = find_one_tag(soup, "script", {"type": "application/ld+json"})
-    app = json.loads(app.text)
