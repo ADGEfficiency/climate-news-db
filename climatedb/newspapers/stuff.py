@@ -1,40 +1,31 @@
-import requests
-from bs4 import BeautifulSoup
+import re
+
+from climatedb import utils
 
 
-def check_stuff_url(url, logger=None):
+def check_url(url):
     parts = url.split("/")
     if len(parts) < 7:
-        if logger:
-            logger.info(f"stuff, {url}, check failed, only {len(parts)} url parts")
         return False
 
     for unw in ["events.stuff.co.nz", "interactives.stuff.co.nz"]:
         if unw in url:
-            if logger:
-                logger.info(f"stuff, {url}, check failed, {unw} in url")
             return False
 
-    return True
+    return url
 
 
-def parse_stuff_url(url, logger=None):
-    response = requests.get(url)
-    html = response.text
-    soup = BeautifulSoup(html, features="html5lib")
+def get_article_id(url):
+    return utils.form_article_id(url, -1)
 
-    body = soup.findAll(
-        "span",
-        attrs={
-            "class": "sics-component__story__body sics-component__story__body--nativform"
-        },
-    )
-    assert len(body) == 1
-    body = "".join([p.text for p in body[0].findAll("p")])
 
-    modified = soup.findAll("span", attrs={"itemprop": "dateModified"})
-    assert len(modified) == 1
-    modified = modified[0]["content"]
+def parse_url(url):
+    response = utils.request(url)
+    soup = response['soup']
+    html = response['html']
+
+    body = utils.find_one_tag(soup, "span", {"class": "sics-component__story__body sics-component__story__body--nativform"})
+    body = "".join([p.text for p in body.findAll("p")])
 
     published = soup.findAll("meta", attrs={"itemprop": "datePublished"})
     assert len(published) == 1
@@ -45,14 +36,13 @@ def parse_stuff_url(url, logger=None):
     headline = headline[0].text
 
     return {
-        "newspaper_id": "stuff",
+        **stuff,
         "body": body,
         "headline": headline,
         "article_url": url,
         "html": html,
-        "article_id": url.split("/")[-1],
+        "article_id": get_article_id(url),
         "date_published": published,
-        "date_modified": modified,
     }
 
 
@@ -60,11 +50,9 @@ stuff = {
     "newspaper_id": "stuff",
     "newspaper": "Stuff.co.nz",
     "newspaper_url": "stuff.co.nz",
-    "checker": check_stuff_url,
-    "parser": parse_stuff_url,
+
+    "checker": check_url,
+    "parser": parse_url,
+    "get_article_id": get_article_id,
+    "color": "#00C386"
 }
-
-
-if __name__ == '__main__':
-    url = "https://www.stuff.co.nz/environment/climate-news/121491647/climate-explained-what-caused-major-climate-change-in-the-past"
-    parsed = parse_stuff_url(url)

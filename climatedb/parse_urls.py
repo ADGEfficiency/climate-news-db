@@ -111,10 +111,10 @@ def check_parsed_article(parsed):
         if len(val) < 2:
             url = parsed["article_url"]
             msg = f"{url} - {sc} not long enough - {val}"
-            print(msg)
-            raise ValueError(msg)
+            raise ParserError(msg)
 
     return parsed
+
 
 def clean_parsed_article(parsed):
     #  data cleaning - replacing escaped html characters
