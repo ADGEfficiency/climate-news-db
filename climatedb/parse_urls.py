@@ -52,17 +52,16 @@ def main(
 def parse_url(url, paper, logger):
     newspaper_id = paper["newspaper_id"]
     logger.info(f"{url}, {newspaper_id}, parsing")
-    parsed = paper['parser'](url)
 
-    if "error" in parsed.keys():
-        error = parsed["error"]
-        logger.info(f"{url}, parsing error, {error}")
+    try:
+        parsed = paper['parser'](url)
+    except AssertionError as error:
+        logger.info(f"{url}, parsing error")
         return None
-
-    parsed = check_parsed_article(parsed)
-    if "error" in parsed.keys():
-        error = parsed["error"]
-        logger.info(f"{url}, parsing check error, {error}")
+    try:
+        parsed = check_parsed_article(parsed)
+    except AssertionError as error:
+        logger.info(f"{url}, check error")
         return None
 
     return parsed
@@ -80,3 +79,14 @@ def save_parsed(parsed, logger, raw, final):
 
     final.add(parsed)
     logger.info(f"{url}, {article_id}, final saved")
+
+
+
+if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('url')
+    args = parser.parse_args()
+
+    from climatedb.logger import make_logger
+    main(args.url, logger=make_logger('climatedb.log'))

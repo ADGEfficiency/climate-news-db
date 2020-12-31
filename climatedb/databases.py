@@ -27,6 +27,9 @@ class URLs():
     def __len__(self):
         return len(self.engine)
 
+    def exists(self, key):
+        return self.engine.exists(key)
+
 
 class RawArticles():
     def __init__(

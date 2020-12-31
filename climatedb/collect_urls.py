@@ -7,7 +7,7 @@ from urllib.error import HTTPError
 import click
 from googlesearch import search
 
-from climatedb.databases import URLs
+from climatedb.databases import URLs, Articles
 from climatedb.logger import make_logger
 from climatedb.registry import get_newspapers_from_registry
 from climatedb.parse_urls import main as parse_url
@@ -106,10 +106,32 @@ def main(
             urls = urls[-num:]
             logger.info(f'filtered to {len(urls)} for {paper["newspaper_id"]} from {sourcedb.name}')
 
-        if check or source == "google":
-            urls = [u for u in urls if paper["checker"](u['url'])]
 
         db = URLs(db, engine='jsonl')
+        newspaper_id = paper['newspaper_id']
+        final = Articles(
+            f"final/{newspaper_id}",
+            engine="json-folder",
+            key='article_id'
+        )
+
+        #  filter out if we aren't replacing
+        if not replace:
+            urls = [u for u in urls if not final.exists(paper['get_article_id'](u['url']))]
+            logger.info(f'filtered to {len(urls)} after exists check')
+
+        if check or source == "google":
+            checked_urls = []
+            for u in urls:
+                if paper["checker"](u['url']):
+                    checked_urls.append(u)
+                else:
+                    logger.info(f"{u['url']}, check error")
+
+            urls = checked_urls
+            logger.info(f'filtered to {len(urls)} after exists check')
+
+
         logger.info(f"saving to {db.name}")
         logger.info(f"  {len(db)} before")
         db.add(urls)

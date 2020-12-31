@@ -5,6 +5,11 @@ from climatedb.utils import find_one_tag, form_article_id, request, find_applica
 
 
 def check_guardian_url(url):
+    #  many redirects
+    if 'covid-19-what-kind-of-face-mask-gives-the-best-protection-against-coronavirus' in url:
+        return False
+
+
     #  searching for a string like 2020/may/14
     expr = "\d{4}\/[a-z]{3}\/\d{2}"
     matches = re.findall(expr, url)
@@ -20,7 +25,8 @@ def check_guardian_url(url):
 
 
 def get_guardian_article_id(url):
-    return form_article_id(url, idx=-1)
+    article_id = form_article_id(url, idx=-1)
+    return article_id.split('|')[0]
 
 
 def parse_guardian_html(url):
@@ -35,7 +41,7 @@ def parse_guardian_html(url):
     body = "".join([p.text for p in body.findAll("p")])
 
     published = find_one_tag(soup, 'time', {"itemprop": "datePublished"})['datetime']
-    headline = find_one_tag(soup, 'title').text
+    headline = find_one_tag(soup, 'title').text.split('|')[0]
 
     return {
         "newspaper_id": "guardian",

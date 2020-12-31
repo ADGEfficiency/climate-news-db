@@ -44,8 +44,10 @@ def find_application_json(soup, find='headline'):
 #     app = app.replace('\n', '')
 #     return json.loads(app)
 
-
+import time
+import random
 def request(url):
+    time.sleep(random.randint(0, 2))
     response = requests.get(url)
     html = response.text
     soup = BeautifulSoup(html, features="html5lib")
