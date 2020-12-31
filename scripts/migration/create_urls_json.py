@@ -24,20 +24,16 @@ if __name__ == '__main__':
             print(n / len(data) * 100, len(new_data), url)
             paper = find_newspaper_from_url(url)
 
-            c1 = paper['newspaper_id'] == 'guardian'
-            c2 = paper['newspaper_id'] == 'bbc'
+            checker = paper['checker']
+            if checker(url):
+                new_data.append(url)
+            else:
+                print(f'dropping {url}')
 
-            if c1 or c2:
-                checker = paper['checker']
-                if checker(url):
-                    new_data.append(url)
-                else:
-                    print(f'dropping {url}')
         except TypeError:  # sometimes can't find paper because of times urls
             pass
 
-    #  SHOULD ALSO SAVE A NEW URLS.DATA?
-
+    data = new_data
     data = [{'url': d, 'search_time_UTC': datetime.utcnow().strftime('%m/%d/%Y %H:%M:%S')} for d in data]
     print(f'added timestamps')
 

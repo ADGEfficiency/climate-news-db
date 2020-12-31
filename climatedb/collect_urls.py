@@ -82,7 +82,7 @@ def main(
     parse,
     check,
     replace,
-    db
+    db_id
 ):
     logger = make_logger("logger.log")
     logger.info(f"collecting {num} from {newspapers} from {source}")
@@ -107,7 +107,7 @@ def main(
             logger.info(f'filtered to {len(urls)} for {paper["newspaper_id"]} from {sourcedb.name}')
 
 
-        db = URLs(db, engine='jsonl')
+        db = URLs(db_id, engine='jsonl')
         newspaper_id = paper['newspaper_id']
         final = Articles(
             f"final/{newspaper_id}",
