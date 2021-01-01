@@ -60,8 +60,8 @@ def year_chart():
 
 def get_latest_articles(articles, key='date_uploaded', num=8):
     df = create_article_df(articles)
-    df = df.sort_values(key)
-    return df.tail(num).to_dict(orient="records")
+    df = df.sort_values(key, ascending=False)
+    return df.head(num).to_dict(orient="records")
 
 
 @app.route("/")
@@ -113,7 +113,7 @@ def show_one_article():
 def show_logs():
     toggle = request.args.get("toggle")
     if toggle is None:
-        toggle = 'errors'
+        toggle = 'error'
 
     from climatedb.logger import load_logs
     logs = load_logs()
