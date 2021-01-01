@@ -1,5 +1,6 @@
 PROJECT_NAME = climate-news-db
 PROJECT_HOME = $(HOME)/$(PROJECT_NAME)/data
+S3_DIR = climate-news-db
 
 init:
 	pip install -r requirements.txt
@@ -7,22 +8,22 @@ init:
 	make init-data
 
 init-data:
-	mkdir -p "$(PROJECT_HOME)/raw"
-	mkdir -p "$(PROJECT_HOME)/final"
+	mkdir -p $(PROJECT_HOME)/raw
+	mkdir -p $(PROJECT_HOME)/final
 
 clean:
-	rm -rf "$(PROJECT_HOME)"
+	rm -rf "$(PROJECT_HOME)/raw"
+	rm -rf "$(PROJECT_HOME)/final"
 	make init-data
 
 app:
 	python3 app.py
 
 pushs3:
-	aws s3 sync $(PROJECT_HOME)/s3 s3://climate-nlp
+	aws s3 sync $(PROJECT_HOME) s3://$(S3_DIR) --exclude 'logger.log'
 
 pulls3:
-	mkdir -p "$(PROJECT_HOME)/s3"
-	aws s3 sync s3://climate-nlp $(PROJECT_HOME)/s3 --exclude 'raw/*'
+	aws s3 sync s3://$(S3_DIR) $(PROJECT_HOME) --exclude 'raw/*'
 
 scrape:
 	make pulls3

@@ -53,7 +53,7 @@ def find_application_json(soup=None, find='headline'):
 
 
 def request(url, headers=None):
-    time.sleep(random.randint(0, 2))
+    time.sleep(random.randint(1, 3))
 
     if headers:
         response = requests.get(url, headers=headers)

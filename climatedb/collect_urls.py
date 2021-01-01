@@ -69,7 +69,7 @@ def google_search(site, query, start=1, stop=10, backoff=1.0):
     help="Whether to replace in the final database",
 )
 @click.option(
-    "--db", default="urls.jsonl", help="Which database to use.", show_default=True
+    "--db", default="urls/urls.jsonl", help="Which database to use.", show_default=True
 )
 def cli(num, newspapers, source, parse, check, replace, db):
     return main(num, newspapers, source, parse, check, replace, db)
@@ -84,7 +84,7 @@ def main(
     replace,
     db_id
 ):
-    logger = make_logger("logger.log")
+    logger = make_logger("logs/logger.log")
     logger.info(f"collecting {num} from {newspapers} from {source}")
 
     newspapers = get_newspapers_from_registry(newspapers)
@@ -110,7 +110,7 @@ def main(
         db = URLs(db_id, engine='jsonl')
         newspaper_id = paper['newspaper_id']
         final = Articles(
-            f"final/{newspaper_id}",
+            f"articles/final/{newspaper_id}",
             engine="json-folder",
             key='article_id'
         )

@@ -30,3 +30,27 @@ def make_logger(log_file=None):
     logger.addHandler(c_handler)
 
     return logger
+
+
+def load_logs(log_file='logs/logger.log'):
+    from climatedb.config import DBHOME
+    fi = DBHOME / log_file
+    with fi.open('r') as file:
+        logs = file.read()
+
+    logs = logs.split('\n')
+    out = []
+    for log in logs:
+        try:
+            time, module, level, msg = log.split(' - ')
+            out.append({
+                'time': time,
+                'msg': msg,
+            })
+        except:
+            pass
+    return out
+
+if __name__ == '__main__':
+    logs = load_logs()
+

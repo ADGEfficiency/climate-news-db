@@ -10,12 +10,13 @@ if __name__ == '__main__':
     start_fresh = True
     check_urls = False
 
-    with open(DBHOME / 'urls.data', 'r') as fi:
+    with open(DBHOME / 'urls'/ 'urls.data', 'r') as fi:
         data = fi.readlines()
         data = [d.strip('\n') for d in data]
 
-    print(f'read {len(data)} from urls.data')
+    print(f'read {len(data)} from urls/urls.data')
     data = list(set(data))
+    print(f'uniques {len(data)}')
 
     new_data = []
 
@@ -33,11 +34,12 @@ if __name__ == '__main__':
         except TypeError:  # sometimes can't find paper because of times urls
             pass
 
+    print(f'new_data {len(data)} samples after running all checkers')
     data = new_data
     data = [{'url': d, 'search_time_UTC': datetime.utcnow().strftime('%m/%d/%Y %H:%M:%S')} for d in data]
     print(f'added timestamps')
 
-    urls = URLs('urls.jsonl', engine='jsonl', key='url')
+    urls = URLs('urls/urls.jsonl', engine='jsonl', key='url')
     if start_fresh and len(urls):
         urls.engine.data.unlink()
 

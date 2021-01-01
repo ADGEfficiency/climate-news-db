@@ -23,13 +23,12 @@ def get_articles_from_newspaper(newspaper_id, articles):
 
 from itertools import chain
 def get_all_articles():
-    papers = ['final/' + d.name for d in (DBHOME / 'final').iterdir()]
+    papers = ['articles/final/' + d.name for d in (DBHOME / 'articles/final').iterdir()]
     paper_dbs = [Articles(p) for p in papers]
     return list(chain(*[db.get() for db in paper_dbs]))
 
 
 app = Flask("climate-news-db")
-articles = get_all_articles()
 
 registry = pd.DataFrame(registry)
 registry = registry.set_index("newspaper_id")
@@ -38,6 +37,7 @@ registry = registry.set_index("newspaper_id")
 @app.route("/papers.json")
 def paper_json():
     """groupby paper, calculate statistics"""
+    articles = get_all_articles()
     df = create_article_df(articles)
     group = groupby_newspaper(df)
     group = group.set_index("newspaper_id")
@@ -52,6 +52,8 @@ def paper_json():
 @app.route("/years.json")
 def year_json():
     """groupby paper and by year"""
+
+    articles = get_all_articles()
     df = create_article_df(articles)
     return groupby_years_and_newspaper(df)
 
@@ -64,6 +66,8 @@ def year_chart():
 @app.route("/")
 def home():
     papers = paper_json()
+
+    articles = get_all_articles()
     data = {
         "n_articles": len(articles),
         "articles": articles,
@@ -74,6 +78,8 @@ def home():
 
 @app.route("/random")
 def show_random_article():
+
+    articles = get_all_articles()
     idx = randint(0, len(articles) - 1)
     article = articles[idx]
     return render_template("article.html", article=article)
@@ -83,9 +89,25 @@ def show_random_article():
 def show_one_article():
 
     articles = get_all_articles()
+    articles = get_all_articles()
     article_id = request.args.get("article_id")
     article = get_article(article_id, articles)
     return render_template("article.html", article=article)
+
+
+@app.route("/logs")
+def show_logs():
+    toggle = request.args.get("toggle")
+    if toggle is None:
+        toggle = 'all'
+
+    from climatedb.logger import load_logs
+    logs = load_logs()
+    if toggle == 'error':
+        logs = [l for l in logs if 'error' in l['msg']]
+
+    logs = logs[-16:]
+    return render_template("logs.html", logs=logs, toggle=toggle)
 
 
 @app.route("/newspaper")

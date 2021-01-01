@@ -24,10 +24,10 @@ def main(
     newspaper_id = paper["newspaper_id"]
 
     if not raw:
-        raw = RawArticles(f"raw/{newspaper_id}")
+        raw = RawArticles(f"articles/raw/{newspaper_id}")
     if not final:
         final = Articles(
-            f"final/{newspaper_id}",
+            f"articles/final/{newspaper_id}",
             engine="json-folder",
             key='article_id'
         )
@@ -70,7 +70,7 @@ def parse_url(url, paper):
 
     try:
         parsed = check_parsed_article(parsed)
-    except AssertionError as error:
+    except ParserError as error:
         msg += f"{url}, check error, {error}\n"
         return {'error': msg}
 
