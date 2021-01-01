@@ -1,10 +1,10 @@
 {% extends "layout.html" %}
 {% block body %}
   <div>
-  <p class="lead">Logs</p>
-  <p>Toggle = {{toggle}} - 
-  <a href="/logs?toggle=error">change to error</a> - 
-  <a href="/logs?toggle=all">change to all</a>
+  <p class="lead">Logs - {{toggle}}</p>
+  <p>
+  <a href="/logs?toggle=all">all</a> - 
+  <a href="/logs?toggle=error">errors </a> 
   </p>
     <table class="table table-condensed table-striped">
       <thead>

@@ -20,7 +20,7 @@ app:
 	python3 app.py
 
 pushs3:
-	aws s3 sync $(PROJECT_HOME) s3://$(S3_DIR) --exclude 'logger.log'
+	aws s3 sync $(PROJECT_HOME) s3://$(S3_DIR) --exclude 'logs/*'
 
 pulls3:
 	aws s3 sync s3://$(S3_DIR) $(PROJECT_HOME) --exclude 'raw/*'
@@ -40,3 +40,9 @@ datasette:
 
 test:
 	pytest climatedb/tests
+
+migrate:
+	python3 scripts/migration/create_urls_json.py
+
+status:
+	./scripts/status.sh

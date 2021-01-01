@@ -1,16 +1,18 @@
+from itertools import chain
 from random import randint
 
 from flask import Flask, render_template, request, jsonify
 import pandas as pd
 
-
 from climatedb.analytics import create_article_df, groupby_newspaper, groupby_years_and_newspaper
-from climatedb.registry import get_newspaper, registry
-
-import pandas as pd
-
 from climatedb.config import DBHOME
 from climatedb.databases import Articles
+from climatedb.registry import get_newspaper, registry
+
+
+app = Flask("climate-news-db")
+registry = pd.DataFrame(registry)
+registry = registry.set_index("newspaper_id")
 
 
 def get_article(article_id, articles):
@@ -21,17 +23,10 @@ def get_articles_from_newspaper(newspaper_id, articles):
     return [a for a in articles if a['newspaper_id'] == newspaper_id]
 
 
-from itertools import chain
 def get_all_articles():
     papers = ['articles/final/' + d.name for d in (DBHOME / 'articles/final').iterdir()]
     paper_dbs = [Articles(p) for p in papers]
     return list(chain(*[db.get() for db in paper_dbs]))
-
-
-app = Flask("climate-news-db")
-
-registry = pd.DataFrame(registry)
-registry = registry.set_index("newspaper_id")
 
 
 @app.route("/papers.json")
@@ -63,6 +58,12 @@ def year_chart():
     return render_template('year_chart.html')
 
 
+def get_latest_articles(articles, key='date_uploaded', num=8):
+    df = create_article_df(articles)
+    df = df.sort_values(key)
+    return df.tail(num).to_dict(orient="records")
+
+
 @app.route("/")
 def home():
     papers = paper_json()
@@ -73,7 +74,21 @@ def home():
         "articles": articles,
         "n_papers": len(papers)
     }
-    return render_template("home.html", data=data, papers=papers)
+    return render_template(
+        "home.html",
+        data=data,
+        papers=papers,
+    )
+
+@app.route("/latest")
+def latest():
+    articles = get_all_articles()
+    df = create_article_df(articles)
+    latest = get_latest_articles(articles, 'date_published')
+    scrape = get_latest_articles(articles, 'date_uploaded')
+    return render_template(
+        "latest.html", latest=latest, scrape=scrape
+    )
 
 
 @app.route("/random")
@@ -87,7 +102,6 @@ def show_random_article():
 
 @app.route("/article")
 def show_one_article():
-
     articles = get_all_articles()
     articles = get_all_articles()
     article_id = request.args.get("article_id")
@@ -99,14 +113,14 @@ def show_one_article():
 def show_logs():
     toggle = request.args.get("toggle")
     if toggle is None:
-        toggle = 'all'
+        toggle = 'errors'
 
     from climatedb.logger import load_logs
     logs = load_logs()
     if toggle == 'error':
         logs = [l for l in logs if 'error' in l['msg']]
 
-    logs = logs[-16:]
+    logs = logs[-32:]
     return render_template("logs.html", logs=logs, toggle=toggle)
 
 

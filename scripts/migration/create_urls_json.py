@@ -1,9 +1,25 @@
 """Migrates from urls.data list to urls.json"""
 from datetime import datetime
+from multiprocessing import Pool
+import tqdm
 
 from climatedb.config import DBHOME
 from climatedb.databases import URLs
 from climatedb.registry import find_newspaper_from_url
+
+
+def check_data(url):
+    try:
+        paper = find_newspaper_from_url(url)
+        checker = paper['checker']
+        if checker(url):
+            #print(f'checked {url}')
+            return url
+        else:
+            #print(f'reject {url}')
+            pass
+    except TypeError:  # sometimes can't find paper because of times urls
+        pass
 
 
 if __name__ == '__main__':
@@ -18,24 +34,13 @@ if __name__ == '__main__':
     data = list(set(data))
     print(f'uniques {len(data)}')
 
-    new_data = []
-
-    for n, url in enumerate(data):
-        try:
-            print(n / len(data) * 100, len(new_data), url)
-            paper = find_newspaper_from_url(url)
-
-            checker = paper['checker']
-            if checker(url):
-                new_data.append(url)
-            else:
-                print(f'dropping {url}')
-
-        except TypeError:  # sometimes can't find paper because of times urls
+    print('starting checking in parallel')
+    with Pool(8) as pool:
+        pool = Pool(processes=8)
+        for _ in tqdm.tqdm(pool.imap_unordered(check_data, data), total=len(data)):
             pass
 
     print(f'new_data {len(data)} samples after running all checkers')
-    data = new_data
     data = [{'url': d, 'search_time_UTC': datetime.utcnow().strftime('%m/%d/%Y %H:%M:%S')} for d in data]
     print(f'added timestamps')
 
@@ -47,4 +52,3 @@ if __name__ == '__main__':
     print(f'  before {len(urls)}')
     urls.add(data)
     print(f'  after {len(urls)}')
-
