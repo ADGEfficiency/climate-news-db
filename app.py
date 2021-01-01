@@ -41,6 +41,7 @@ def paper_json():
     papers.loc[:, "newspaper_id"] = papers.index
     papers = papers.sort_index()
     papers = papers.reset_index(drop=True)
+    papers = papers.fillna(0)
     return papers.to_dict(orient="records")
 
 
@@ -118,9 +119,9 @@ def show_logs():
     from climatedb.logger import load_logs
     logs = load_logs()
     if toggle == 'error':
-        logs = [l for l in logs if 'error' in l['msg']]
+       logs = [l for l in logs if 'error' in l['msg']]
 
-    logs = logs[-32:]
+    logs = logs
     return render_template("logs.html", logs=logs, toggle=toggle)
 
 

@@ -53,7 +53,7 @@ def parse_url(url):
     headline = app['headline']
     #  sometimes can be "" in the ld+json
     if headline == "":
-        headline = find_one_tag(soup, "h1", {"class": "c-article-header__hed"}).text
+        headline = utils.find_one_tag(soup, "h1", {"class": "c-article-header__hed"}).text
 
     published = app['datePublished']
 

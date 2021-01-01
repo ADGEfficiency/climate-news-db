@@ -1,6 +1,7 @@
 from datetime import datetime as dt
 import logging
 import random
+import json
 import time
 from urllib.error import HTTPError
 
@@ -85,26 +86,26 @@ def main(
     db_id
 ):
     logger = make_logger("logs/logger.log")
-    logger.info(f"collecting {num} from {newspapers} from {source}")
+    #logger.info({'msg': f"collecting {num} from {newspapers} from {source}"})
 
     newspapers = get_newspapers_from_registry(newspapers)
     collection = []
     for paper in newspapers:
 
         if source == "google":
-            logger.info(f'searching google for {num} for {paper["newspaper_id"]}')
+            logger.info(json.dumps({'msg': f'searching google for {num} for {paper["newspaper_id"]}'}))
             urls = collect_from_google(num, paper)
             urls = [{'url': u, 'search_time_UTC': now()} for u in urls]
-            logger.info(f'found {len(urls)} for {paper["newspaper_id"]}')
+            logger.info(json.dumps({'msg': f'found {len(urls)} for {paper["newspaper_id"]}'}))
 
         else:
             sourcedb = URLs(source, engine='jsonl')
             urls = sourcedb.get()
-            logger.info(f'loaded {len(urls)}')
+            logger.info(json.dumps({'msg': f'loaded {len(urls)}'}))
             urls = [u for u in urls if paper["newspaper_url"] in u['url']]
-            logger.info(f'loaded {len(urls)} for {paper["newspaper_id"]} from {sourcedb.name}')
+            logger.info(json.dumps({'msg': f'loaded {len(urls)} for {paper["newspaper_id"]} from {sourcedb.name}'}))
             urls = urls[-num:]
-            logger.info(f'filtered to {len(urls)} for {paper["newspaper_id"]} from {sourcedb.name}')
+            logger.info(json.dumps({'msg': f'filtered to {len(urls)} for {paper["newspaper_id"]} from {sourcedb.name}'}))
 
 
         db = URLs(db_id, engine='jsonl')
@@ -118,32 +119,31 @@ def main(
         #  filter out if we aren't replacing
         if not replace:
             urls = [u for u in urls if not final.exists(paper['get_article_id'](u['url']))]
-            logger.info(f'filtered to {len(urls)} after exists check')
+            logger.info(json.dumps({'msg': f'filtered to {len(urls)} after exists check'}))
 
-        logger.info(f'checking {len(urls)}')
+        logger.info(json.dumps({'msg': f'checking {len(urls)}'}))
         if check or source == "google":
             checked_urls = []
             for u in urls:
 
                 #  try check, catch a urlcheckerror?
                 if paper["checker"](u['url']):
-                    logger.info(f"{u['url']}, check OK")
+                    logger.info({'msg': 'check OK'})
                     checked_urls.append(u)
 
                 else:
-                    logger.info(f"{u['url']}, check error")
+                    logger.info(json.dumps({'msg': f"{u['url']}, check error"}))
 
             urls = checked_urls
-            logger.info(f'filtered to {len(urls)} after exists check')
+            logger.info(json.dumps({'msg': f'filtered to {len(urls)} after exists check'}))
 
-
-        logger.info(f"saving to {db.name}")
-        logger.info(f"  {len(db)} before")
+        logger.info(json.dumps({'msg': f"saving to {db.name}"}))
+        logger.info(json.dumps({'msg': f"  {len(db)} before"}))
         db.add(urls)
-        logger.info(f"  {len(db)} after")
+        logger.info(json.dumps({'msg': f"  {len(db)} after"}))
         collection.extend(urls)
 
     if parse:
-        logger.info(f"parsing {len(collection)}")
+        logger.info(json.dumps({'msg': f"parsing {len(collection)}"}))
         for url in collection:
             parse_url(url['url'], replace=replace, logger=logger)

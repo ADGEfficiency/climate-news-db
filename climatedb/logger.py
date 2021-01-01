@@ -19,13 +19,13 @@ def make_logger(log_file=None):
         log_file = DBHOME / log_file
         log_file.parent.mkdir(exist_ok=True, parents=True)
         f_handler = logging.FileHandler(log_file)
-        f_format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        f_format = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
         f_handler.setFormatter(f_format)
         f_handler.setLevel(logging.INFO)
         logger.addHandler(f_handler)
 
     c_handler.setLevel(logging.INFO)
-    c_format = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
+    c_format = logging.Formatter("%(asctime)s - %(message)s")
     c_handler.setFormatter(c_format)
     logger.addHandler(c_handler)
 
@@ -41,11 +41,12 @@ def load_logs(log_file='logs/logger.log'):
     logs = logs.split('\n')
     out = []
     for log in logs:
+        msg = log.split(' - ')[-1]
+        import json
         try:
-            time, module, level, msg = log.split(' - ')
             out.append({
-                'time': time,
-                'msg': msg,
+                **json.loads(msg),
+                'time': log.split(' - ')[0]
             })
         except:
             pass

@@ -31,27 +31,61 @@ def main(
             engine="json-folder",
             key='article_id'
         )
+
+    def dispatch(exists, replace):
+
+        #  always parse if replace
+        if replace:
+            return 'parse'
+
+        #  exists but we don't want to replace it
+        if exists and not replace:
+            return 'no-parse'
+
+        #  doesn't exist, we must make it
+        if not exists and not replace:
+            return 'parse'
+
+    def test_parse_dispatch():
+
+        #  exists, replace, expected
+        data = (
+            (True, False, 'no-parse'),
+            (True, True, 'parse'),
+            (False, False, 'parse')
+        )
+
+        for exists, replace, expected in data:
+            assert dispatch(exists, replace) == expected
+
+    test_parse_dispatch()
+
     article_id = get_article_id(url, paper)
     exists = final.exists(article_id)
-    if exists and not replace:
-        logger.info(f"{url}, already exists in final and not replacing")
 
-    if exists and replace:
-        logger.info(f"{url}, already exists in final and replacing")
+    action = dispatch(exists, replace)
+    parsed = {}
+    if action == 'parse':
         parsed = parse_url(url, paper)
+        if 'error' in parsed.keys():
+            logger.info({
+                'url': url,
+                'error': parsed['error'],
+                'msg': 'error'
+            })
+        else:
+            logger.info({
+                'url': parsed['article_url'],
+                'msg': 'parse_url success',
+            })
 
-    if not exists:
-        logger.info(f"{url}, not in final")
-        parsed = parse_url(url, paper)
-
-    else:
-        parsed = {'error': f'{url}, parse_url not run'}
-
-    if 'error' in parsed.keys():
-        logger.info(parsed['error'])
-
-    if parsed and 'error' not in parsed.keys():
-        save_parsed(parsed, logger, raw, final)
+    if parsed:
+        if 'error' not in parsed.keys():
+            save_parsed(parsed, logger, raw, final)
+            logger.info({
+                'url': url,
+                'msg': "save articles/raw and articles/final success",
+            })
 
 
 from climatedb.utils import ParserError
@@ -59,19 +93,16 @@ from requests.exceptions import TooManyRedirects
 
 from requests import HTTPError
 def parse_url(url, paper):
-    newspaper_id = paper["newspaper_id"]
-    msg = f"{url}, {newspaper_id}, parsing\n"
-
     try:
         parsed = paper['parser'](url)
     except (HTTPError, ParserError, TooManyRedirects) as error:
-        msg += f"{url}, parsing error, {error}\n"
+        msg = f"parse_url error, {error}\n"
         return {'error': msg}
 
     try:
         parsed = check_parsed_article(parsed)
     except ParserError as error:
-        msg += f"{url}, check error, {error}\n"
+        msg = f"check_parsed_article error, {error}\n"
         return {'error': msg}
 
     return parsed
@@ -128,15 +159,9 @@ def save_parsed(parsed, logger, raw, final):
     article_id = parsed["article_id"]
     url = parsed['article_url']
     parsed = clean_parsed_article(parsed)
-    logger.info(f"{url}, {article_id}, cleaned")
-
     raw.add(parsed)
     del parsed["html"]
-    logger.info(f"{url}, {article_id}, raw saved")
-
     final.add(parsed)
-    logger.info(f"{url}, {article_id}, final saved")
-
 
 
 if __name__ == '__main__':
