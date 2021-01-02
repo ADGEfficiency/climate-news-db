@@ -100,7 +100,6 @@ def main(
         #  filter out if we aren't replacing
         if not replace:
             urls = [u for u in urls if not final.exists(paper['get_article_id'](u['url']))]
-            l.info(json.dumps({'msg': f'filtered to {len(urls)} after exists check'}))
         urls = urls[-num:]
         l.info(json.dumps({'msg': f'filtered to {len(urls)} for {paper["newspaper_id"]} from {urls_db.name}'}))
 
