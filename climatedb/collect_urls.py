@@ -1,49 +1,22 @@
-from datetime import datetime as dt
-import logging
-import random
 import json
-import time
-from urllib.error import HTTPError
 
 import click
-from googlesearch import search
 
 from climatedb.databases import URLs, Articles
 from climatedb.logger import make_logger
-from climatedb.registry import get_newspapers_from_registry
 from climatedb.parse_urls import main as parse_url
+from climatedb.registry import get_newspapers_from_registry
 
+from climatedb import services
 
-def now():
-    return dt.utcnow().isoformat()
-
-
-def collect_from_google(num, newspaper, logger=None):
-    return google_search(
-        newspaper["newspaper_url"],
-        "climate change",
-        stop=num
-    )
-
-
-def google_search(site, query, start=1, stop=10, backoff=1.0):
-    #  protects against a -1 example
-    if stop <= 0:
-        raise ValueError("stop of {stop} is invalid")
-
-    try:
-        qry = f"{query} site:{site}"
-        time.sleep((2 ** backoff) + random.random())
-        return list(search(qry, start=start, stop=stop, pause=1.0, user_agent="climatecoder"))
-
-    except HTTPError as e:
-        logger = logging.getLogger("climatedb")
-        logger.info(f"{qry}, {e}, backoff {backoff}")
-        return google_search(site, query, stop, backoff=backoff+1)
+l = make_logger("logs/logger.log")
 
 
 @click.command()
-@click.argument("newspapers", nargs=-1)
+@click.argument(
+    "newspapers",
+    nargs=-1
+)
 @click.option(
     "-n",
     "--num",
@@ -52,7 +25,9 @@ def google_search(site, query, start=1, stop=10, backoff=1.0):
     show_default=True,
 )
 @click.option(
-    "--source", default="google", help="Where to look for urls.", show_default=True
+    "--search/--no-search",
+    default=True,
+    help="If to search for more urls.",
 )
 @click.option(
     "--parse/--no-parse",
@@ -70,45 +45,43 @@ def google_search(site, query, start=1, stop=10, backoff=1.0):
     help="Whether to replace in the final database",
 )
 @click.option(
-    "--db", default="urls/urls.jsonl", help="Which database to use.", show_default=True
+    "--db", default="jsonl", help="Which article databases to use."
 )
-def cli(num, newspapers, source, parse, check, replace, db):
-    return main(num, newspapers, source, parse, check, replace, db)
-
-
-def main(
-    num,
+def cli(
     newspapers,
-    source,
+    num,
+    search,
     parse,
     check,
     replace,
-    db_id
+    db
 ):
-    logger = make_logger("logs/logger.log")
-    #logger.info({'msg': f"collecting {num} from {newspapers} from {source}"})
+    return main(
+        newspapers,
+        num,
+        search,
+        parse,
+        check,
+        replace,
+        db
+    )
 
+
+
+def main(
+    newspapers,
+    num,
+    search,
+    parse,
+    check,
+    replace,
+    db
+):
     newspapers = get_newspapers_from_registry(newspapers)
-    collection = []
+    urls_db = URLs('urls/urls.jsonl', engine='jsonl')
+    l.info(json.dumps({'msg': f'loaded {len(urls_db)}'}))
+
     for paper in newspapers:
-
-        if source == "google":
-            logger.info(json.dumps({'msg': f'searching google for {num} for {paper["newspaper_id"]}'}))
-            urls = collect_from_google(num, paper)
-            urls = [{'url': u, 'search_time_UTC': now()} for u in urls]
-            logger.info(json.dumps({'msg': f'found {len(urls)} for {paper["newspaper_id"]}'}))
-
-        else:
-            sourcedb = URLs(source, engine='jsonl')
-            urls = sourcedb.get()
-            logger.info(json.dumps({'msg': f'loaded {len(urls)}'}))
-            urls = [u for u in urls if paper["newspaper_url"] in u['url']]
-            logger.info(json.dumps({'msg': f'loaded {len(urls)} for {paper["newspaper_id"]} from {sourcedb.name}'}))
-            urls = urls[-num:]
-            logger.info(json.dumps({'msg': f'filtered to {len(urls)} for {paper["newspaper_id"]} from {sourcedb.name}'}))
-
-
-        db = URLs(db_id, engine='jsonl')
         newspaper_id = paper['newspaper_id']
         final = Articles(
             f"articles/final/{newspaper_id}",
@@ -116,34 +89,51 @@ def main(
             key='article_id'
         )
 
+        def msg(value):
+            return json.dumps({
+                'msg': value
+            })
+
+        #  get urls
+        urls = [u for u in urls_db.get() if paper["newspaper_url"] in u['url']]
+        l.info(msg(f'{len(urls)} for {paper["newspaper_id"]} from {urls_db.name}'}))
+
         #  filter out if we aren't replacing
         if not replace:
             urls = [u for u in urls if not final.exists(paper['get_article_id'](u['url']))]
-            logger.info(json.dumps({'msg': f'filtered to {len(urls)} after exists check'}))
+            l.info(json.dumps({'msg': f'filtered to {len(urls)} after exists check'}))
+        urls = urls[-num:]
+        l.info(json.dumps({'msg': f'filtered to {len(urls)} for {paper["newspaper_id"]} from {urls_db.name}'}))
 
-        logger.info(json.dumps({'msg': f'checking {len(urls)}'}))
-        if check or source == "google":
-            checked_urls = []
-            for u in urls:
+        #  search
+        new_urls = services.search(paper, num)
+        urls_db.add(new_urls)
 
-                #  try check, catch a urlcheckerror?
-                if paper["checker"](u['url']):
-                    logger.info({'msg': 'check OK'})
-                    checked_urls.append(u)
+        l.info(json.dumps({'msg': f'found {len(urls)} for {paper["newspaper_id"]}'}))
+        urls.extend(new_urls)
 
-                else:
-                    logger.info(json.dumps({'msg': f"{u['url']}, check error"}))
+        #  filter out if we aren't replacing
+        if not replace:
+            urls = [u for u in urls if not final.exists(paper['get_article_id'](u['url']))]
+            l.info(json.dumps({'msg': f'filtered to {len(urls)} after exists check'}))
 
-            urls = checked_urls
-            logger.info(json.dumps({'msg': f'filtered to {len(urls)} after exists check'}))
+        #  check urls
+        l.info(json.dumps({'msg': f'checking {len(urls)}'}))
+        checked_urls = []
+        for u in urls:
+            #  try check, catch a urlcheckerror?
+            if paper["checker"](u['url']):
+                checked_urls.append(u)
+            else:
+                l.info(json.dumps({'msg': f"{u['url']}, check error"}))
 
-        logger.info(json.dumps({'msg': f"saving to {db.name}"}))
-        logger.info(json.dumps({'msg': f"  {len(db)} before"}))
-        db.add(urls)
-        logger.info(json.dumps({'msg': f"  {len(db)} after"}))
-        collection.extend(urls)
+            #  colud remove these from urlsdb...
 
-    if parse:
-        logger.info(json.dumps({'msg': f"parsing {len(collection)}"}))
-        for url in collection:
-            parse_url(url['url'], replace=replace, logger=logger)
+        urls_to_parse = checked_urls
+        l.info(json.dumps({'msg': f'filtered to {len(urls)} after exists check'}))
+
+        #  parse
+        if parse:
+            l.info(json.dumps({'msg': f"parsing {len(urls_to_parse)}"}))
+            for url in urls_to_parse:
+                parse_url(url['url'], replace=replace, l=logger)

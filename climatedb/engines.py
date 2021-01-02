@@ -4,7 +4,6 @@ import json
 from climatedb.config import DBHOME
 
 
-
 class AbstractDB(abc.ABC):
     @abc.abstractmethod
     def add(self, batch):

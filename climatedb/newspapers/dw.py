@@ -66,20 +66,26 @@ def parse_url(url):
     html = response['html']
 
     #  hope it's going to be the first one :)
-    body = soup.findAll("div", {"class": "longText"})[0]
-    body = "".join([p.text for p in body.findAll("p", recursive=False) if not p.attrs])
+    try:
+        body = soup.findAll("div", {"class": "longText"})[0]
+        body = "".join([p.text for p in body.findAll("p", recursive=False) if not p.attrs])
+    except IndexError:
+        raise utils.ParserError('no longText')
+    try:
+        headline = utils.find_one_tag(soup, 'title', {"id": None}).text.split('|')[0].strip(' ')
 
-    headline = utils.find_one_tag(soup, 'title', {"id": None}).text.split('|')[0].strip(' ')
+        date = soup.findAll('div', {'class': 'col1 dim'})[0].findAll('li')
+        for li in date:
+            st = li.findAll('strong')
+            if st[0].text == 'Date':
+                date = li.text
+                break
 
-    date = soup.findAll('div', {'class': 'col1 dim'})[0].findAll('li')
-    for li in date:
-        st = li.findAll('strong')
-        if st[0].text == 'Date':
-            date = li.text
-            break
+        date = date.split('\n')[1]
+        published = datetime.strptime(date, '%d.%m.%Y').isoformat()
 
-    date = date.split('\n')[1]
-    published = datetime.strptime(date, '%d.%m.%Y').isoformat()
+    except IndexError:
+        raise utils.ParserError('no headline or date')
 
     return {
         **dw,
