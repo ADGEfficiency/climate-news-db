@@ -44,9 +44,10 @@ def load_logs(log_file='logs/logger.log'):
         msg = log.split(' - ')[-1]
         import json
         try:
+            import pandas as pd
             out.append({
                 **json.loads(msg),
-                'time': log.split(' - ')[0]
+                'time': pd.to_datetime(log.split(' - ')[0]).isoformat()
             })
         except:
             pass

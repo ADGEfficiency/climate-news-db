@@ -79,7 +79,6 @@ def main(
 ):
     newspapers = get_newspapers_from_registry(newspapers)
     urls_db = URLs('urls/urls.jsonl', engine='jsonl')
-    l.info(json.dumps({'msg': f'loaded {len(urls_db)}'}))
 
     for paper in newspapers:
         newspaper_id = paper['newspaper_id']
@@ -96,7 +95,7 @@ def main(
 
         #  get urls
         urls = [u for u in urls_db.get() if paper["newspaper_url"] in u['url']]
-        l.info(msg(f'{len(urls)} for {paper["newspaper_id"]} from {urls_db.name}'}))
+        l.info(msg(f'loaded {len(urls)} for {newspaper_id}'))
 
         #  filter out if we aren't replacing
         if not replace:
@@ -134,6 +133,6 @@ def main(
 
         #  parse
         if parse:
-            l.info(json.dumps({'msg': f"parsing {len(urls_to_parse)}"}))
+            l.info(msg(f"parsing {len(urls_to_parse)} for {newspaper_id}"}))
             for url in urls_to_parse:
-                parse_url(url['url'], replace=replace, l=logger)
+                parse_url(url['url'], replace=replace, logger=l)

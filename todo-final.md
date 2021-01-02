@@ -1,5 +1,7 @@
 Unit of work for collecting & parsing?
 
+Check errors being passed back into logs
+
 ---
 
 # RULES

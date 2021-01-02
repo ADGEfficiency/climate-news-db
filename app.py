@@ -26,7 +26,11 @@ def get_articles_from_newspaper(newspaper_id, articles):
 def get_all_articles():
     papers = ['articles/final/' + d.name for d in (DBHOME / 'articles/final').iterdir()]
     paper_dbs = [Articles(p) for p in papers]
-    return list(chain(*[db.get() for db in paper_dbs]))
+    articles = list(chain(*[db.get() for db in paper_dbs]))
+
+    for article in articles:
+        article['date_published_nice'] = pd.to_datetime(article['date_published']).strftime('%Y-%m-%d')
+    return articles
 
 
 @app.route("/papers.json")
@@ -94,7 +98,6 @@ def latest():
 
 @app.route("/random")
 def show_random_article():
-
     articles = get_all_articles()
     idx = randint(0, len(articles) - 1)
     article = articles[idx]
@@ -103,7 +106,6 @@ def show_random_article():
 
 @app.route("/article")
 def show_one_article():
-    articles = get_all_articles()
     articles = get_all_articles()
     article_id = request.args.get("article_id")
     article = get_article(article_id, articles)
@@ -122,6 +124,9 @@ def show_logs():
        logs = [l for l in logs if 'error' in l['msg']]
 
     logs = logs
+    logs = pd.DataFrame(logs)
+    logs = logs.sort_values('time', ascending=False)
+    logs = logs.to_dict(orient="records")
     return render_template("logs.html", logs=logs, toggle=toggle)
 
 
