@@ -12,16 +12,26 @@ $ make init
 
 ## Use
 
-The entry point to the data collection is the CLI command `collect`.  To collect 16 articles from Google:
+The entry point to the data collection is the CLI command `collect`.  To collect 16 articles from Google and download into `$HOME/climate-news-db/data`:
 
 ```bash
 $ dbcollect economist -n 16 --parse --source google
 ```
 
-This will download data into `$HOME/climate-nlp`.  The final data is in `$HOME/climate-nlp/final/{newspaper_id}/{article_id}.json`.  The corresponding raw HTML is found at `$HOME/climate-nlp/raw/{newspaper_id}/{article_id}.html'`.
+Flask app to display data in `$HOME/climate-news-db/data`:
+
+```bash
+$ make app
+```
 
 CLI options:
 
 ```bash
 $ dbcollect --help
+```
+
+## Test
+
+```bash
+$ make test
 ```
