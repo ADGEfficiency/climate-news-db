@@ -1,16 +1,13 @@
-from climatedb.config import DBHOME
 from climatedb.databases import URLs
 from climatedb.registry import get_newspaper
-from climatedb.collect_urls import collect_from_google, now
+from climatedb.services import now
 from climatedb.logger import make_logger
-from climatedb.tests.test_databases import setup
 
 #  maybe should mock test data here, instead of calling collect google
 #  mock newspaper registry, urls, mock newspaper checker etc
 
 
-def test_collect_components(setup):
-    logger = make_logger('temp/logger.log')
+def test_collect_components():
     paper = get_newspaper('bbc')
     urls = [
         'https://www.bbc.com/news/science-environment-24021772',
@@ -18,7 +15,7 @@ def test_collect_components(setup):
     ]
     check = True
     if check:
-        urls = [u for u in urls if paper['checker'](u, logger=logger)]
+        urls = [u for u in urls if paper['checker'](u)]
     urls = [{'url': u, 'search_time_UTC': now()} for u in urls]
 
     db = URLs('temp/urls.json')

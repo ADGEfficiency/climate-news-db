@@ -133,6 +133,6 @@ def main(
 
         #  parse
         if parse:
-            l.info(msg(f"parsing {len(urls_to_parse)} for {newspaper_id}"}))
+            l.info(msg(f"parsing {len(urls_to_parse)} for {newspaper_id}"))
             for url in urls_to_parse:
                 parse_url(url['url'], replace=replace, logger=l)

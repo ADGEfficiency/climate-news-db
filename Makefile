@@ -11,11 +11,6 @@ init-data:
 	mkdir -p $(PROJECT_HOME)/raw
 	mkdir -p $(PROJECT_HOME)/final
 
-clean:
-	rm -rf "$(PROJECT_HOME)/raw"
-	rm -rf "$(PROJECT_HOME)/final"
-	make init-data
-
 app:
 	python3 app.py
 

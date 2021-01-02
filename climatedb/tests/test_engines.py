@@ -1,6 +1,6 @@
 from shutil import rmtree
 
-from climatedb.databases import DBHOME
+from climatedb.config import DBHOME
 from climatedb.engines import *
 
 import pytest
