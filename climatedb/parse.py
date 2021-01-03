@@ -5,6 +5,10 @@ from climatedb.utils import form_article_id
 from datetime import datetime
 import html.parser
 
+from climatedb.utils import ParserError
+from requests.exceptions import TooManyRedirects
+from requests import HTTPError
+
 
 def get_article_id(url, paper):
     if "get_article_id" in paper.keys():
@@ -15,7 +19,7 @@ def get_article_id(url, paper):
 
 def main(
     url,
-    logger,
+    lgr,
     replace=True,
     raw=None,
     final=None
@@ -68,30 +72,26 @@ def main(
     if action == 'parse':
         parsed = parse_url(url, paper)
         if 'error' in parsed.keys():
-            logger.info({
+            lgr({
                 'url': url,
                 'error': parsed['error'],
                 'msg': 'error'
             })
         else:
-            logger.info({
+            lgr({
                 'url': parsed['article_url'],
                 'msg': 'parse_url success',
             })
 
     if parsed:
         if 'error' not in parsed.keys():
-            save_parsed(parsed, logger, raw, final)
-            logger.info({
+            save_parsed(parsed, lgr, raw, final)
+            lgr({
                 'url': url,
                 'msg': "save articles/raw and articles/final success",
             })
 
 
-from climatedb.utils import ParserError
-from requests.exceptions import TooManyRedirects
-
-from requests import HTTPError
 def parse_url(url, paper):
     try:
         parsed = paper['parser'](url)
