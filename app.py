@@ -14,6 +14,7 @@ app = Flask("climate-news-db")
 registry = pd.DataFrame(registry)
 registry = registry.set_index("newspaper_id")
 
+articles = get_all_articles()
 
 def get_article(article_id, articles):
     return [a for a in articles if a['article_id'] == article_id][0]
@@ -36,7 +37,7 @@ def get_all_articles():
 @app.route("/papers.json")
 def paper_json():
     """groupby paper, calculate statistics"""
-    articles = get_all_articles()
+    #articles = get_all_articles()
     df = create_article_df(articles)
     group = groupby_newspaper(df)
     group = group.set_index("newspaper_id")
@@ -53,7 +54,7 @@ def paper_json():
 def year_json():
     """groupby paper and by year"""
 
-    articles = get_all_articles()
+    #articles = get_all_articles()
     df = create_article_df(articles)
     return groupby_years_and_newspaper(df)
 
@@ -73,7 +74,7 @@ def get_latest_articles(articles, key='date_uploaded', num=8):
 def home():
     papers = paper_json()
 
-    articles = get_all_articles()
+    #articles = get_all_articles()
     data = {
         "n_articles": len(articles),
         "articles": articles,
@@ -87,7 +88,7 @@ def home():
 
 @app.route("/latest")
 def latest():
-    articles = get_all_articles()
+    #articles = get_all_articles()
     df = create_article_df(articles)
     latest = get_latest_articles(articles, 'date_published')
     scrape = get_latest_articles(articles, 'date_uploaded')
@@ -98,7 +99,7 @@ def latest():
 
 @app.route("/random")
 def show_random_article():
-    articles = get_all_articles()
+    #articles = get_all_articles()
     idx = randint(0, len(articles) - 1)
     article = articles[idx]
     return render_template("article.html", article=article)
