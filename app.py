@@ -14,7 +14,7 @@ app = Flask("climate-news-db")
 registry = pd.DataFrame(registry)
 registry = registry.set_index("newspaper_id")
 
-articles = get_all_articles()
+
 
 def get_article(article_id, articles):
     return [a for a in articles if a['article_id'] == article_id][0]
@@ -32,6 +32,9 @@ def get_all_articles():
     for article in articles:
         article['date_published_nice'] = pd.to_datetime(article['date_published']).strftime('%Y-%m-%d')
     return articles
+
+
+articles = get_all_articles()
 
 
 @app.route("/papers.json")
