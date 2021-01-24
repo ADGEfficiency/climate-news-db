@@ -1,25 +1,22 @@
-
 {% extends "layout.html" %}
 {% block body %}
   <div>
 		<p>{{articles|length}} articles from {{newspaper.newspaper}}.</p>
-
     <table class="table table-condensed table-striped">
       <thead>
-        <th>Article ID</th>
         <th>Published</th>
         <th>Headline</th>
+        <th>Article ID</th>
       </thead>
       <tbody>
         {% for article in articles %}
         <tr>
-          <td>{{article.article_id}}</td>
           <td>{{article.date_published_nice}}</td>
           <td><a href=/article?article_id={{article.article_id}}>{{article.headline}}</a></td>
+          <td>{{article.article_id}}</td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
-
   </div>
 {% endblock %}

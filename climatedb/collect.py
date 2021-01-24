@@ -98,7 +98,10 @@ def cli(
 
         #  parse
         urls_to_parse = urls
-        lgr({'msg': f"parsing {len(urls_to_parse)}"})
-        for url in urls_to_parse:
-            parse_url(url['url'], replace=True, lgr=lgr)
-            lgr(f"{url}, parsed success")
+        if parse:
+            lgr({'msg': f"parsing {len(urls_to_parse)}"})
+            for url in urls_to_parse:
+                parse_url(url['url'], replace=True, lgr=lgr)
+                lgr(f"{url}, parsed success")
+        else:
+            lgr({'msg': f"not parsing {len(urls_to_parse)}"})
