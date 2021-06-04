@@ -60,8 +60,12 @@ def parse_url(url):
 
     app = utils.find_one_tag(soup, "script", {"type": "application/json"})
     app = json.loads(app.text)
-    meta = app["props"]["pageProps"]["metadata"]
-    published = meta["datePublished"]
+
+    if 'metadata' in app["props"]["pageProps"].keys():
+        meta = app["props"]["pageProps"]["metadata"]
+        published = meta["datePublished"]
+    else:
+        published = app['props']['pageProps']['content'][0]['datePublished']
 
     return {
         **economist,

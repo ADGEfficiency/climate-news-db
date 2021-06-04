@@ -44,11 +44,17 @@ lgr = JSONLogger()
     default=True,
     help="Whether to parse the urls after collecting them.",
 )
+@click.option(
+    "--replace/--no-replace",
+    default=True,
+    help="Whether to replace existing parsed articles.",
+)
 def cli(
     newspapers,
     num,
     search,
     parse,
+    replace
 ):
     newspapers = get_newspapers_from_registry(newspapers)
     urls_db = URLs('urls/urls.jsonl', engine='jsonl')
@@ -101,7 +107,7 @@ def cli(
         if parse:
             lgr({'msg': f"parsing {len(urls_to_parse)}"})
             for url in urls_to_parse:
-                parse_url(url['url'], replace=True, lgr=lgr)
+                parse_url(url['url'], replace=replace, lgr=lgr)
                 lgr(f"{url}, parsed success")
         else:
             lgr({'msg': f"not parsing {len(urls_to_parse)}"})

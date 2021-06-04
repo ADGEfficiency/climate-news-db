@@ -1,3 +1,19 @@
+# TODO May 2021
+
+Sqlite
+- migration script from urls.json to sqlite
+
+Sort out the 1970!
+
+Article ID should include the newspaper (in the app view)
+
+Analyse failed article parsing
+
+---
+
+tool to remove rejected urls from urls.json
+
+
 # RULES
 
 - everything in JSON
@@ -8,9 +24,6 @@
 
 # GOALS
 
-## SCRAPING & PARSING
-- sqlite database
-
 ## TESTS
 
 END TO END - without google - check collect & parse from static urls
@@ -18,6 +31,7 @@ END TO END - without google - check collect & parse from static urls
 UNIT - databases, engines
 
 ## MIGRATION TOOLING
+
 - check urls, fix ids, fix .html
 
 URLS
@@ -103,7 +117,6 @@ Add logging to the database creation
 clustering
 
 question answering (?)
-
 
 things learnt
 - put sanity checks on cleaned data (body certain length, headline not missing etc)

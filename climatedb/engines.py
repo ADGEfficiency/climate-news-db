@@ -196,7 +196,6 @@ class SQLiteDB(AbstractDB):
             data = tuple(self.record(**data))
             rhs = '(' + ('?,' * (len(data)-1)) + '?)'
             qry = f'INSERT INTO {self.table} VALUES ' + rhs
-            print(qry, data)
             self.c.execute(qry, data)
         self.c.commit()
 
