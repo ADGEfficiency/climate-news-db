@@ -1,4 +1,4 @@
-from climatedb.databases import RawArticles, Articles
+from climatedb.engines import JSONFolder
 from climatedb.registry import find_newspaper_from_url, get_newspaper
 from climatedb.utils import form_article_id
 
@@ -28,11 +28,13 @@ def main(
     newspaper_id = paper["newspaper_id"]
 
     if not raw:
-        raw = RawArticles(f"articles/raw/{newspaper_id}")
+        raw = JSONFolder(
+            f"articles/raw/{newspaper_id}",
+            key='article_id'
+        )
     if not final:
-        final = Articles(
+        final = JSONFolder(
             f"articles/final/{newspaper_id}",
-            engine="json-folder",
             key='article_id'
         )
 
@@ -74,8 +76,7 @@ def main(
         if 'error' in parsed.keys():
             lgr({
                 'url': url,
-                'error': parsed['error'],
-                'msg': 'error'
+                'msg': f'error {parsed["error"]}'
             })
         else:
             lgr({

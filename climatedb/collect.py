@@ -3,7 +3,8 @@ import json
 import click
 
 from climatedb import services
-from climatedb.databases import URLs, Articles
+from climatedb.databases import ArticlesFolders
+from climatedb.engines import JSONFolder, SQLiteEngine, JSONLinesFile
 from climatedb.logger import make_logger
 from climatedb.parse import main as parse_url
 from climatedb.registry import get_newspapers_from_registry
@@ -57,11 +58,11 @@ def cli(
     replace
 ):
     newspapers = get_newspapers_from_registry(newspapers)
-    urls_db = URLs('urls/urls.jsonl', engine='jsonl')
+    urls_db = JSONLinesFile('urls/urls.jsonl', key='url')
 
     for paper in newspapers:
         newspaper_id = paper['newspaper_id']
-        final = Articles(f"articles/final/{newspaper_id}")
+        final = JSONFolder(f"articles/final/{newspaper_id}", key='url')
 
         if search:
             urls = services.search(paper, num)

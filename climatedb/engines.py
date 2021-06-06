@@ -3,6 +3,9 @@ import json
 
 from climatedb.config import DBHOME
 
+from collections import namedtuple
+import sqlite3
+
 
 class AbstractDB(abc.ABC):
     @abc.abstractmethod
@@ -134,7 +137,6 @@ class JSONFolder(AbstractDB):
                 fi.write(json.dumps(data))
 
     def get(self):
-        #  TODO could be put back into the engine
         data = []
         for f in self.fldr.iterdir():
             if f.is_file() and f.suffix == '.json':
@@ -151,9 +153,6 @@ class JSONFolder(AbstractDB):
     def __len__(self):
         return len([f for f in self.fldr.iterdir() if f.suffix == '.json'])
 
-from collections import namedtuple
-import sqlite3
-
 
 def format_schema(schema):
     names = ''
@@ -169,11 +168,10 @@ def format_schema(schema):
     return names, sql_schema
 
 
-class SQLiteDB(AbstractDB):
+class SQLiteEngine(AbstractDB):
     def __init__(
         self,
         table,
-        key,
         schema,
         db='climatedb.sqlite'
     ):
@@ -181,12 +179,11 @@ class SQLiteDB(AbstractDB):
         names, schema = format_schema(schema)
         self.record = namedtuple(table, names)
         self.schema = schema
-        self.key = key
 
         if db == 'test':
-            self.c = sqlite3.connect(':memory:')
+            self.c = sqlite3.connect(':memory:', check_same_thread=False)
         else:
-            self.c = sqlite3.connect(DBHOME / db)
+            self.c = sqlite3.connect(DBHOME / db, check_same_thread=False)
 
         qry = f"CREATE TABLE IF NOT EXISTS {self.table} ({schema});"
         self.c.execute(qry)
@@ -199,23 +196,23 @@ class SQLiteDB(AbstractDB):
             self.c.execute(qry, data)
         self.c.commit()
 
-    def get(self, num=0):
+    def get(self):
         data = self.c.execute(f'SELECT * FROM {self.table}').fetchall()
-        out = []
-        for d in data:
-            d = self.record(*d)
-            out.append(d._asdict())
-        return out
+        return [self.record(*d)._asdict() for d in data]
 
-    def exists(self, key):
-        data = self.c.execute(f'SELECT * FROM {self.table} WHERE {self.key}=?', (key, )).fetchall()
+    def exists(self, key, value):
+        data = self.c.execute(f'SELECT * FROM {self.table} WHERE {key}=?', (value, )).fetchall()
         if data:
             return True
+
+    def filter(self, key, value):
+        data = self.c.execute(f'SELECT * FROM {self.table} WHERE {key}=?', (value, )).fetchall()
+        return [self.record(*d)._asdict() for d in data]
 
 
 engines = {
     'jsonl': JSONLinesFile,
     'html-folder': HTMLFolder,
     'json-folder': JSONFolder,
-    'sqlite': SQLiteDB
+    'sqlite': SQLiteEngine
 }

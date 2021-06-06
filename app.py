@@ -1,4 +1,3 @@
-from itertools import chain
 from random import randint
 
 from flask import Flask, render_template, request, jsonify
@@ -6,7 +5,8 @@ import pandas as pd
 
 from climatedb.analytics import create_article_df, groupby_newspaper, groupby_years_and_newspaper
 from climatedb.config import DBHOME
-from climatedb.databases import Articles
+from climatedb import services, databases
+
 from climatedb.registry import get_newspaper, registry
 
 
@@ -14,33 +14,35 @@ app = Flask("climate-news-db")
 registry = pd.DataFrame(registry)
 registry = registry.set_index("newspaper_id")
 
+# db = databases.ArticlesFolders()
+db = databases.ArticlesSQLite()
+articles = services.get_all_articles(db)
 
 
-def get_article(article_id, articles):
-    return [a for a in articles if a['article_id'] == article_id][0]
+@app.route("/newspaper")
+def show_one_newspaper():
+    newspaper_id = request.args.get("newspaper_id")
+    articles = services.get_all_articles_from_newspaper(db, newspaper_id)
+    articles = pd.DataFrame(articles)
+    articles = articles.sort_values('date_published', ascending=False)
+    articles = articles.reset_index(drop=True)
+    articles = articles.to_dict(orient="records")
+    newspaper = get_newspaper(newspaper_id)
+    return render_template("newspaper.html", newspaper=newspaper, articles=articles)
 
 
-def get_articles_from_newspaper(newspaper_id, articles):
-    return [a for a in articles if a['newspaper_id'] == newspaper_id]
-
-
-def get_all_articles():
-    papers = ['articles/final/' + d.name for d in (DBHOME / 'articles/final').iterdir()]
-    paper_dbs = [Articles(p) for p in papers]
-    articles = list(chain(*[db.get() for db in paper_dbs]))
-
-    for article in articles:
-        article['date_published_nice'] = pd.to_datetime(article['date_published']).strftime('%Y-%m-%d')
-    return articles
-
-
-articles = get_all_articles()
+@app.route("/article")
+def show_one_article():
+    article_id = request.args.get("article_id")
+    article = services.get_article_from_article_id(db, article_id)
+    return render_template("article.html", article=article)
 
 
 @app.route("/papers.json")
 def paper_json():
     """groupby paper, calculate statistics"""
-    #articles = get_all_articles()
+    articles = services.get_all_articles(db)
+
     df = create_article_df(articles)
     group = groupby_newspaper(df)
     group = group.set_index("newspaper_id")
@@ -56,8 +58,7 @@ def paper_json():
 @app.route("/years.json")
 def year_json():
     """groupby paper and by year"""
-
-    #articles = get_all_articles()
+    articles = services.get_all_articles(db)
     df = create_article_df(articles)
     return groupby_years_and_newspaper(df)
 
@@ -68,6 +69,7 @@ def year_chart():
 
 
 def get_latest_articles(articles, key='date_uploaded', num=8):
+    articles = services.get_all_articles(db)
     df = create_article_df(articles)
     df = df.sort_values(key, ascending=False)
     return df.head(num).to_dict(orient="records")
@@ -77,7 +79,6 @@ def get_latest_articles(articles, key='date_uploaded', num=8):
 def home():
     papers = paper_json()
 
-    #articles = get_all_articles()
     data = {
         "n_articles": len(articles),
         "articles": articles,
@@ -89,9 +90,9 @@ def home():
         papers=papers,
     )
 
+
 @app.route("/latest")
 def latest():
-    #articles = get_all_articles()
     df = create_article_df(articles)
     latest = get_latest_articles(articles, 'date_published')
     scrape = get_latest_articles(articles, 'date_uploaded')
@@ -102,17 +103,8 @@ def latest():
 
 @app.route("/random")
 def show_random_article():
-    #articles = get_all_articles()
     idx = randint(0, len(articles) - 1)
     article = articles[idx]
-    return render_template("article.html", article=article)
-
-
-@app.route("/article")
-def show_one_article():
-    articles = get_all_articles()
-    article_id = request.args.get("article_id")
-    article = get_article(article_id, articles)
     return render_template("article.html", article=article)
 
 
@@ -133,18 +125,11 @@ def show_logs():
     logs = logs.to_dict(orient="records")
     return render_template("logs.html", logs=logs, toggle=toggle)
 
-
-@app.route("/newspaper")
-def show_one_newspaper():
-    newspaper = request.args.get("newspaper_id")
-    articles = get_all_articles()
-    articles = get_articles_from_newspaper(newspaper, articles)
-    articles = pd.DataFrame(articles)
-    articles = articles.sort_values('date_published', ascending=False)
-    articles = articles.reset_index(drop=True)
-    articles = articles.to_dict(orient="records")
-    newspaper = get_newspaper(newspaper)
-    return render_template("newspaper.html", newspaper=newspaper, articles=articles)
+from datetime import datetime
+@app.template_filter('datetimeformat')
+def datetimeformat(value, fmt='%Y-%m-%d'):
+    dt = str(value).replace('Z', '')
+    return datetime.fromisoformat(dt).strftime(fmt)
 
 
 if __name__ == "__main__":

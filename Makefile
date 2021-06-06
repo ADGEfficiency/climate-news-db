@@ -37,7 +37,8 @@ test:
 	pytest climatedb/tests
 
 migrate:
-	python3 scripts/migration/create_urls_json.py
+	rm -rf data/climatedb.sqlite
+	python3 scripts/migrate_to_sqlite.py
 
 status:
 	./scripts/status.sh

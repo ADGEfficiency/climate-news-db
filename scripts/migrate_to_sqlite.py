@@ -1,18 +1,7 @@
-from climatedb.databases import URLs, Articles
+from climatedb.databases import ArticlesSQLite, ArticlesFolders
 
-if __name__ == '__main__':
 
-    #  setup urls in sqlite
-    url_schema = (
-        ('url', 'TEXT'),
-        ('search_time_UTC', 'TEXT')
-    )
-
-    urls = URLs('urls', engine='sqlite', key='url', schema=url_schema)
-    #  get urls from urls.json, put into sqlite db
-    data = URLs('urls/urls.jsonl', engine='jsonl').get()
-    urls.add(data)
-
+def add_articles_to_sqlite():
     #  articles
     schema = [
         ("newspaper", "TEXT"),
@@ -27,9 +16,13 @@ if __name__ == '__main__':
         ("color", "TEXT"),
     ]
 
-    json_db = Articles('articles/final/bbc', engine='json-folder', key='article_id', schema=schema)
-    sql_db = Articles('final', engine='sqlite', key='article_id', schema=schema)
+    json_db = ArticlesFolders()
+    sql_db = ArticlesSQLite()
 
-    print(f'{len(json_db)} JSON articles')
     json_articles = json_db.get()
+    print(len(json_articles))
     sql_db.add(json_articles)
+
+
+if __name__ == '__main__':
+    add_articles_to_sqlite()

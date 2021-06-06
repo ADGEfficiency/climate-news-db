@@ -1,18 +1,12 @@
-# TODO May 2021
-
-Sqlite
-- migration script from urls.json to sqlite
-
 Sort out the 1970!
-
-Article ID should include the newspaper (in the app view)
 
 Analyse failed article parsing
 
----
-
 tool to remove rejected urls from urls.json
 
+Test the datetime conversions...
+
+---
 
 # RULES
 

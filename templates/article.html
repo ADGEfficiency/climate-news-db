@@ -7,14 +7,12 @@
           <th>Newspaper</th>
           <th>Published</th>
           <th>Article URL</th>
-          <th>Article ID</th>
         </thead>
         <tbody>
           <tr>
             <td><a href="/newspaper?newspaper_id={{article.newspaper_id}}">{{article.newspaper}}</a></td>
-            <td>{{article.date_published_nice}}</td>
+            <td>{{article.date_published|datetimeformat()}}</td>
             <td><a href={{article.article_url}}>{{article.article_url}}</a></td>
-            <td>{{article.article_id}}</td>
           </tr>
         </tbody>
       </table>

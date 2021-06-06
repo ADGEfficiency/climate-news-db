@@ -1,6 +1,16 @@
-from pathlib import Path
+from itertools import chain
 
-from climatedb.engines import engines
+import pandas as pd
+
+from climatedb.engines import JSONFolder, SQLiteEngine, JSONLinesFile
+from climatedb.config import DBHOME
+
+
+class AbstractDB():
+    def get(self):
+        pass
+    def get_record_by_key(self, key, value):
+        pass
 
 
 class URLs():
@@ -11,9 +21,7 @@ class URLs():
         schema=None,
         engine='jsonl'
     ):
-        self.name = name
-        Engine = engines[engine]
-        self.engine = Engine(name, key, schema)
+        self.engine = JSONLinesFile(name, key, schema)
 
     def add(self, batch):
         for data in batch:
@@ -31,59 +39,76 @@ class URLs():
         return self.engine.exists(key)
 
 
-class RawArticles():
-    def __init__(
-        self,
-        name='raw',
-        key='article_id',
-        value='html'
-    ):
-        self.engine = engines['html-folder'](name, key=key, value=value)
-        self.key = key
+class ArticlesFolders():
+    """nested folders of JSON files, one folder per newspaper"""
+    def __init__(self):
+        self.home = DBHOME / 'articles' / 'final'
 
-    def add(self, batch):
-        self.engine.add(batch)
+        #  newspapers each live in their own folder
+        papers = [p for p in self.home.iterdir() if p.is_dir()]
 
-    def get(self, value=None):
-        data = self.engine.get()
-        if value is None:
-            return data
+        self.papers = {
+            p.name: JSONFolder(p, key='article_id') for p in papers
+        }
+        articles = list(chain(
+            *[fldr.get() for fldr in self.papers.values()]
+        ))
 
-        for da in data:
-            if da[self.key] == value:
-                return da
-
-
-class Articles():
-    def __init__(
-        self,
-        name='final',
-        engine='json-folder',
-        key='article_id',
-        schema=None,
-    ):
-        Engine = engines[engine]
-        self.engine = Engine(name, key, schema)
-        self.key = key
+        self.articles = articles
+        print(f' loaded {len(self.articles)} from {len(self.papers)} newspapers')
 
     def add(self, batch):
         if isinstance(batch, dict):
             batch = (batch,)
-        for data in batch:
-            if not self.exists(data[self.key]):
-                self.engine.add(batch)
+        for article in batch:
+            paper = article['newspaper_id']
+            self.papers[paper].add(article)
 
-    def get(self, value=None):
-        data = self.engine.get()
-        if value is None:
-            return data
+    def get(self):
+        return self.articles
 
-        for da in data:
-            if da[self.key] == value:
-                return da
+    def filter(self, key, value):
+        return [r for r in self.articles if r[key] == value]
 
-    def __len__(self):
-        return len(self.engine)
 
-    def exists(self, key):
-        return self.engine.exists(key)
+article_schema = [
+    ("newspaper", "TEXT"),
+    ("newspaper_id", "TEXT"),
+    ("newspaper_url", "TEXT"),
+    ("body", "TEXT"),
+    ("headline", "TEXT"),
+    ("article_url", "TEXT"),
+    ("article_id", "TEXT"),
+    ("date_published", "TEXT"),
+    ("date_uploaded", "TEXT"),
+    ("color", "TEXT"),
+]
+
+
+class ArticlesSQLite():
+    def __init__(self):
+        self.engine = SQLiteEngine(
+            table='final',
+            schema=article_schema,
+            db='climatedb.sqlite'
+        )
+
+    def get(self):
+        return self.engine.get()
+
+    def filter(self, key, value):
+        return self.engine.filter(key, value)
+
+    def add(self, batch):
+        return self.engine.add(batch)
+
+
+databases = {
+    'folders': ArticlesFolders,
+    'sqlite': ArticlesSQLite
+}
+
+
+if __name__ == '__main__':
+    db = ArticlesSQLite()
+    print(db.get())

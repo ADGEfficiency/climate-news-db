@@ -62,3 +62,5 @@ registry = [
     nytimes,
     skyau
 ]
+
+newspapers = {p['newspaper_id']: p for p in registry}

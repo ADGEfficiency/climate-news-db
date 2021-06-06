@@ -3,16 +3,16 @@
     <p class="lead">Latest Published</p>
     <table class="table table-condensed table-striped">
       <thead>
+        <th>Published</th>
         <th>Headline</th>
         <th>Newspaper</th>
-        <th>Date Published</th>
       </thead>
       <tbody>
         {% for article in latest %}
         <tr>
+          <td>{{article.date_published|datetimeformat('%Y-%m-%d %H:%M')}}</td>
           <td><a href=/article?article_id={{article.article_id}}>{{article.headline}}</a></td>
           <td>{{article.newspaper}}</td>
-          <td>{{article.date_published}}</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -21,16 +21,16 @@
     <p class="lead">Latest Scraped</p>
     <table class="table table-condensed table-striped">
       <thead>
+        <th>Scraped</th>
         <th>Headline</th>
         <th>Newspaper</th>
-        <th>Date Scraped</th>
       </thead>
       <tbody>
         {% for article in scrape %}
         <tr>
+          <td>{{article.date_uploaded|datetimeformat('%Y-%m-%d %H:%M')}}</td>
           <td><a href=/article?article_id={{article.article_id}}>{{article.headline}}</a></td>
           <td>{{article.newspaper}}</td>
-          <td>{{article.date_uploaded}}</td>
         </tr>
         {% endfor %}
       </tbody>
