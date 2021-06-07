@@ -76,7 +76,7 @@ def main(
         if 'error' in parsed.keys():
             lgr({
                 'url': url,
-                'msg': f'error {parsed["error"]}'
+                'msg': f'{url}, error: {parsed["error"]}'
             })
         else:
             lgr({
