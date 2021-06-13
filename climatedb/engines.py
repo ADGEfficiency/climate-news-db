@@ -173,14 +173,16 @@ class SQLiteEngine(AbstractDB):
         self,
         table,
         schema,
-        db='climatedb.sqlite'
+        index,
+        db='climatedb.sqlite',
     ):
         self.table = table
+        self.index = index
         names, schema = format_schema(schema)
         self.record = namedtuple(table, names)
         self.schema = schema
 
-        if db == 'test':
+        if db in ['test', 'temp']:
             self.c = sqlite3.connect(':memory:', check_same_thread=False)
         else:
             self.c = sqlite3.connect(DBHOME / db, check_same_thread=False)
@@ -188,11 +190,14 @@ class SQLiteEngine(AbstractDB):
         qry = f"CREATE TABLE IF NOT EXISTS {self.table} ({schema});"
         self.c.execute(qry)
 
+        qry = f"CREATE UNIQUE INDEX 'index' ON {self.table} ({self.index});"
+        self.c.execute(qry)
+
     def add(self, batch):
         for data in batch:
             data = tuple(self.record(**data))
             rhs = '(' + ('?,' * (len(data)-1)) + '?)'
-            qry = f'INSERT INTO {self.table} VALUES ' + rhs
+            qry = f'INSERT OR REPLACE INTO {self.table} VALUES ' + rhs
             self.c.execute(qry, data)
         self.c.commit()
 

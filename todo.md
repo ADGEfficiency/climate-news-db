@@ -30,6 +30,9 @@ parse does
 
 for parse - change parsed_articles into only articles
 
+HTMLfolder should be a database?
+- same level as JSONFolder
+
 
 ---
 

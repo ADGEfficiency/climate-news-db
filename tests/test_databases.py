@@ -1,6 +1,6 @@
 from shutil import rmtree
 
-from climatedb.databases import *
+from climatedb import databases
 from climatedb.config import DBHOME
 
 import pytest
@@ -9,12 +9,13 @@ import pytest
 @pytest.fixture()
 def setup():
     rmtree(DBHOME / 'temp', ignore_errors=True)
+    (DBHOME / 'temp').mkdir()
     yield
     rmtree(DBHOME / 'temp', ignore_errors=True)
 
 
 def test_urls_db(setup):
-    db = URLs(name='temp/test.jsonl', engine='jsonl', key='url')
+    db = databases.URLs(name='temp/test.jsonl', engine='jsonl', key='url')
 
     payload = [
         {'url': 'http://1.html', 'time': '2020-01-01'},
@@ -39,15 +40,26 @@ def test_urls_db(setup):
     assert data == payload[-2:]
 
 
-def test_raw_articles_db(setup):
-    #  only HTMLFolder as an engine
-    db = RawArticles('temp', key='id', value='html')
+def test_articles_folders():
 
     payload = [
         {'id': '1', 'time': '2020-01-01', 'html': '<div>1</div>'},
         {'id': '2', 'time': '2020-01-02', 'html': '<div>2</div>'},
         {'id': '3', 'time': '2020-01-03', 'html': '<div>3</div>'},
     ]
+
+    db = databases.ArticlesFolders(
+        'temp',
+        folder_key='time',
+        file_key='id'
+    )
+
+    #  add data
+    db.add(payload)
+
+    #  test we get everything back
+    data = db.get()
+    assert data == payload
 
     #  check we don't add duplicates
     db.add(payload)
@@ -57,42 +69,34 @@ def test_raw_articles_db(setup):
 
     #  check we get the correct data back
     for d in payload:
-        assert d['html'] == db.get(d['id'])['html']
+        assert d['html'] == db.filter('id', d['id'])[0]['html']
 
 
-def test_articles_db():
-    for engine in ['sqlite', ]:
+def test_articles_sqlite():
 
-        payload = [
-            {'id': 1, 'time': '2020-01-01', 'html': '<div>1</div>'},
-            {'id': 2, 'time': '2020-01-02', 'html': '<div>2</div>'},
-            {'id': 3, 'time': '2020-01-03', 'html': '<div>3</div>'},
-        ]
+    payload = [
+        {'id': 1, 'time': '2020-01-01', 'html': '<div>1</div>'},
+        {'id': 2, 'time': '2020-01-02', 'html': '<div>2</div>'},
+        {'id': 3, 'time': '2020-01-03', 'html': '<div>3</div>'},
+    ]
 
-        schema = (
-            ('id', 'INT'),
-            ('time', 'TEXT'),
-            ('html', 'TEXT')
-        )
+    schema = (('id', 'INT'), ('time', 'TEXT'), ('html', 'TEXT'))
 
-        db = Articles(
-            name='test',
-            engine=engine,
-            key='id',
-            schema=schema
-        )
-        db.add(payload)
+    db = databases.ArticlesSQLite(db='temp', schema=schema, index='id')
 
-        #  test we get everything back
-        data = db.get()
-        assert data == payload
+    #  add data
+    db.add(payload)
 
-        #  check we don't add duplicates
-        db.add(payload)
-        db.add(payload)
-        data = db.get()
-        assert len(data) == 3
+    #  test we get everything back
+    data = db.get()
+    assert data == payload
 
-        #  check we get the correct data back
-        for d in payload:
-            assert d['html'] == db.get(d['id'])['html']
+    #  check we don't add duplicates
+    db.add(payload)
+    db.add(payload)
+    data = db.get()
+    assert len(data) == 3
+
+    #  check we get the correct data back
+    for d in payload:
+        assert d['html'] == db.filter('id', d['id'])[0]['html']

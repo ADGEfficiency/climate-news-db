@@ -1,8 +1,8 @@
 from climatedb.logger import make_logger
-from climatedb.parse_urls import main
+from climatedb.parse import main
 from climatedb.registry import find_newspaper_from_url
 
-from climatedb.databases import RawArticles, Articles
+from climatedb.databases import ArticlesFolders
 
 
 def test_parse_main():
@@ -11,16 +11,9 @@ def test_parse_main():
 
     paper = find_newspaper_from_url(url)
     newspaper_id = paper["newspaper_id"]
-    raw = RawArticles(f"temp/raw/{newspaper_id}")
-    final = Articles(
-        f"temp/final/{newspaper_id}",
-        engine="json-folder",
-        key='article_id'
-    )
+    raw = ArticlesFolders(f"temp/raw/{newspaper_id}")
+    final = ArticlesFolders(f"temp/final/{newspaper_id}", key='article_id')
     main(url, logger, replace=True, raw=raw, final=final)
 
     #  check raw & final are where they should be 
     #  rm temp
-
-
-test_parse_main()
