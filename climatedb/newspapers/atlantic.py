@@ -47,7 +47,6 @@ def parse_url(url):
         body = body.findAll("p")
         body = "".join(p.text for p in body if "c-letters-cta__text" not in p.attrs.values())
 
-
     app = utils.find_application_json(soup, 'headline')
 
     headline = app['headline']

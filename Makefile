@@ -34,7 +34,7 @@ datasette:
 	datasette $(PROJECT_HOME)/climatedb.sqlite
 
 test:
-	pytest climatedb/tests
+	pytest tests
 
 migrate:
 	rm -rf data/climatedb.sqlite

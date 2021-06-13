@@ -47,7 +47,9 @@ def parse_url(url):
 
     #  TODO
     scripts = soup.findAll("script", attrs={"type": "application/ld+json"})
-    assert len(scripts) == 2
+    if len(scripts) != 2:
+        raise utils.ParserError('len(scripts) not equal 2')
+
     app = str(scripts[0].contents[0])
     app = app.replace("\n", "")
     app = json.loads(app)

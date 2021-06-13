@@ -165,11 +165,11 @@ def save_parsed(parsed, logger, raw, final):
     final.add(parsed)
 
 
-if __name__ == '__main__':
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument('url')
-    args = parser.parse_args()
+# if __name__ == '__main__':
+#     import argparse
+#     parser = argparse.ArgumentParser()
+#     parser.add_argument('url')
+#     args = parser.parse_args()
 
-    from climatedb.logger import make_logger
-    main(args.url, logger=make_logger('climatedb.log'))
+#     from climatedb.logger import make_logger
+#     main(args.url, logger=make_logger('climatedb.log'))

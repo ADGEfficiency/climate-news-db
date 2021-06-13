@@ -10,6 +10,27 @@ Point towards data science south
 
 Put link to download database as csv
 
+## what is a service?
+- searching,
+- parsing,
+- collecting (?) what is collecting
+
+collect does
+- search or get all urls from urls_db,
+- check exists,
+- limit num,
+- if parse
+
+parse does
+- run parse,
+- handle errors,
+- checks articles,
+- cleans articles,
+- saves parsed (should be saved articles)
+
+for parse - change parsed_articles into only articles
+
+
 ---
 
 # RULES
