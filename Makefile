@@ -15,7 +15,7 @@ app:
 	python3 app.py
 
 pushs3:
-	aws s3 sync $(PROJECT_HOME) s3://$(S3_DIR) --exclude 'logs/*' --exclude 'temp/*' --profile adg
+	aws s3 sync $(PROJECT_HOME) s3://$(S3_DIR) --exclude 'logs/*' --exclude 'temp/*' --exclude 'article_body/*' --profile adg
 
 pulls3:
 	aws s3 sync s3://$(S3_DIR) $(PROJECT_HOME) --exclude 'raw/*' --profile adg
