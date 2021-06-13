@@ -101,18 +101,23 @@ def test_sqlite():
         {'url': 'C', 'id': 3},
     ]
     #  test add
-    db = SQLiteDB('test', schema=schema, key='id', db='test')
+    db = SQLiteEngine(
+        table='test',
+        schema=schema,
+        index='id',
+        db='test'
+    )
     db.add(payload)
     data = db.get()
     assert data == payload
 
     #  test exists & not exists
     for d in payload:
-        assert db.exists(d['id'])
+        assert db.exists('id', d['id'])
 
-    assert not db.exists('4')
+    assert not db.exists('id', '4')
 
-    #  do add duplicates
+    #  don't add duplicates
     db.add(payload)
     data = db.get()
-    assert len(data) == len(payload) * 2
+    assert len(data) == len(payload)

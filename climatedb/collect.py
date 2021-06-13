@@ -11,8 +11,8 @@ from climatedb.registry import get_newspapers_from_registry
 
 
 class JSONLogger():
-    def __init__(self):
-        self.lgr = make_logger("logs/logger.log")
+    def __init__(self, fi="logs/logger.log"):
+        self.lgr = make_logger(fi)
 
     def __call__(self, msgs):
         if isinstance(msgs, str):

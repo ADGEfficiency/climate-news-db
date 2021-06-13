@@ -78,6 +78,10 @@ class ArticlesFolders():
         articles = self.get()
         return [r for r in articles if r[key] == value]
 
+    def exists(self, key, value):
+        #  bool(0) -> False
+        return bool(len(self.filter(key, value)))
+
 
 article_schema = [
     ("newspaper", "TEXT"),
