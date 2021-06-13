@@ -6,6 +6,10 @@ tool to remove rejected urls from urls.json
 
 Test the datetime conversions...
 
+Point towards data science south
+
+Put link to download database as csv
+
 ---
 
 # RULES
