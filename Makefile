@@ -39,6 +39,7 @@ test:
 migrate:
 	rm -rf data/climatedb.sqlite
 	python3 scripts/migrate_to_sqlite.py
+	cd data; zip -r ./climate-news-db-dataset.zip ./climate-news-db-dataset.csv ./article_body/
 
 status:
 	./scripts/status.sh
