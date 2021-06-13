@@ -125,6 +125,13 @@ def show_logs():
     logs = logs.to_dict(orient="records")
     return render_template("logs.html", logs=logs, toggle=toggle)
 
+
+from flask import send_file
+@app.route("/download")
+def download():
+    return send_file('data/climate-news-db-dataset.zip', as_attachment=True)
+
+
 from datetime import datetime
 @app.template_filter('datetimeformat')
 def datetimeformat(value, fmt='%Y-%m-%d'):
