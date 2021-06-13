@@ -190,7 +190,7 @@ class SQLiteEngine(AbstractDB):
         qry = f"CREATE TABLE IF NOT EXISTS {self.table} ({schema});"
         self.c.execute(qry)
 
-        qry = f"CREATE UNIQUE INDEX 'index' ON {self.table} ({self.index});"
+        qry = f"CREATE UNIQUE INDEX IF NOT EXISTS 'index' ON {self.table} ({self.index});"
         self.c.execute(qry)
 
     def add(self, batch):

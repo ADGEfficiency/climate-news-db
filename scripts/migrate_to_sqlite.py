@@ -1,3 +1,4 @@
+from datetime import datetime
 from climatedb.databases import ArticlesSQLite, ArticlesFolders
 
 
@@ -19,19 +20,20 @@ def add_articles_to_sqlite():
     sql_db = ArticlesSQLite()
 
     articles = json_db.get()
-    #  remove articles from early times (1970 year)
 
-    for a in articles[1:]:
-        import pdb; pdb.set_trace()
-    # articles = [
-    #     a for a in articles
-    #     if a['date_published']
-    # ]
+    print(len(articles))
+    #  remove articles from early times (1970 year)
+    for article in articles[1:]:
+        dt = datetime.fromisoformat(
+            article['date_published'][:19]
+        )
+        if dt.year < 1980:
+            articles.remove(article)
 
     print(len(articles))
 
     sql_db.add(articles)
-    csv_db.add(articles)
+    # csv_db.add(articles)
 
 
 if __name__ == '__main__':
