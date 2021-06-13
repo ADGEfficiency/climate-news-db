@@ -1,3 +1,6 @@
+need to change key to newspaper_id/url
+
+
 parse not being tested (error on )
 ```
   parse_url(url['url'], replace=replace, lgr=lgr)
