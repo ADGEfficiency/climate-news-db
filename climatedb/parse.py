@@ -67,7 +67,7 @@ def main(
     test_parse_dispatch()
 
     article_id = get_article_id(url, paper)
-    exists = final.exists('article_id', article_id)
+    exists = final.exists(article_id)
 
     action = dispatch(exists, replace)
     parsed = {}

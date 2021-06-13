@@ -1,3 +1,19 @@
+parse not being tested (error on )
+```
+  parse_url(url['url'], replace=replace, lgr=lgr)
+File "/Users/adam/climate-news-db/climatedb/parse.py", line 70, in main
+  exists = final.exists('article_id', article_id)
+TypeError: exists() takes 2 positional arguments but 3 were given
+```
+
+way failing on exi
+
+part of code not being tested
+
+different way engine.exists(value) works versus database.exists(key, value) etc
+
+---
+
 Sort out the 1970!
 
 Analyse failed article parsing
