@@ -16,7 +16,6 @@ from climatedb.newspapers.skyau import skyau
 from climatedb.newspapers.stuff import stuff
 from climatedb.newspapers.washington_post import washington_post
 
-
 from climatedb.newspapers.independent import independent
 
 

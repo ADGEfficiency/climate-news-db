@@ -1,6 +1,6 @@
 # climate-news-db
 
-Database of climate change news articles - [see with the dataset here](http://www.climate-news-db.com/).
+Database of climate change news articles - [see the dataset here](http://www.climate-news-db.com/).
 
 ## Setup
 
