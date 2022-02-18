@@ -2,36 +2,18 @@
 
 Database of climate change news articles - [see the dataset here](http://www.climate-news-db.com/).
 
-## Setup
 
-Python 3.7+.
+## Data Structures
 
-```bash
-$ make init
-```
+data/$urls.txt
 
-## Use
+- text file with one url per line
+- these urls are dirty
 
-The entry point to the data collection is the CLI command `collect`.  To collect 16 articles from Google and download into `$HOME/climate-news-db/data`:
 
-```bash
-$ dbcollect economist -n 16 --parse --source google
-```
+data/articles/$(NEWSPAPER_ID)/$(ARTICLE_ID).{json,html}
 
-Flask app to display data in `$HOME/climate-news-db/data`:
+- stage = [raw, processed]
+- newspaper_id
+- article_id
 
-```bash
-$ make app
-```
-
-CLI options:
-
-```bash
-$ dbcollect --help
-```
-
-## Test
-
-```bash
-$ make test
-```

@@ -1,5 +1,22 @@
-need to change key to newspaper_id/url
+2022-02
 
+orchestration
+
+- build in prefect - search, parse/collect, db creation
+
+pipeline
+- rework scrapers to use scrapy
+- add a clean step
+- where to define data structures
+
+app
+- deploy flask app on elastic beanstalk
+
+draw a diagram of the system
+
+---
+
+need to change key to newspaper_id/url
 
 parse not being tested (error on )
 ```

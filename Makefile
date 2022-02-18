@@ -41,3 +41,6 @@ test:
 
 status:
 	./scripts/status.sh
+
+scrapy:
+	scrapy startproject climate_news_db
