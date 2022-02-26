@@ -3,8 +3,7 @@ from pathlib import Path
 import scrapy
 from rich import print
 
-from climatedb.databases_neu import get_urls_for_paper, JSONLines
-from climatedb.types import ArticleModel
+from climatedb.databases_neu import get_urls_for_paper, JSONLines, Article, save_html
 from climatedb.parsing_utils import get_title, get_date
 
 
@@ -31,7 +30,7 @@ class GuardianSpider(scrapy.Spider):
         article_name = response.url.split("/")[-1]
 
         #  title
-        title = get_title(response)
+        headline = get_title(response)
 
         #  body
         body = response.xpath(
@@ -80,28 +79,17 @@ class GuardianSpider(scrapy.Spider):
 
         #  one jsonline - saved by scrapy for us
         meta = {
-            "title": title,
+            "headline": headline,
             "subtitle": subtitle,
             "body": body,
             "article_url": response.url,
             "article_id": article_name,
             "date_published": date,
+            "article_name": article_name,
         }
         #  here we ensure this type is what we want!
-        meta = dict(ArticleModel(**meta))
+        meta = Article(**meta).dict()
 
-        #  save html ourselves
-        fi = (
-            Path.home()
-            / "climate-news-db"
-            / "data-reworked"
-            / "articles"
-            / self.name
-            / article_name
-        )
-        fi.parent.mkdir(exist_ok=True, parents=True)
-
-        fi.with_suffix(".html").write_bytes(response.body)
-        self.log(f" saved to {fi}.html")
-
+        breakpoint()
+        save_html(self.name, article_name, response)
         return meta

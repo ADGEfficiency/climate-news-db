@@ -5,14 +5,14 @@
     <table class="table table-condensed table-striped">
       <thead>
         <th>Published</th>
-        <th>Title</th>
+        <th>Headline</th>
         <th>Body</th>
       </thead>
       <tbody>
         {% for article in articles %}
         <tr>
           <td>{{article.date_published|datetimeformat()}}</td>
-          <td><a href=/article?article_id={{article.article_id}}>{{article.title}}</a></td>
+          <td><a href=/article?article_id={{article.article_id}}>{{article.headline}}</a></td>
           <td>{{article.body[:80]+'...'}}</td>
         </tr>
         {% endfor %}

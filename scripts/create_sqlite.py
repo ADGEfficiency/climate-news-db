@@ -3,6 +3,8 @@ from typing import Optional
 from sqlmodel import Field, Session, SQLModel, create_engine
 from sqlalchemy import select
 
+from rich import print
+
 from climatedb.databases_neu import (
     JSONLines,
     JSONFile,
@@ -28,6 +30,8 @@ def add_papers():
             session.add(p)
         session.commit()
 
+    print(f"added {len(papers)} newspapers to {db_uri}")
+
 
 def add_articles(newspaper):
     articles = JSONLines(home / f"articles/{newspaper}.jsonlines").read()
@@ -39,6 +43,7 @@ def add_articles(newspaper):
         for a in articles:
             session.add(a)
         session.commit()
+    print(f"added {len(articles)} articles to {db_uri}")
 
 
 def add_app_table():
@@ -65,8 +70,7 @@ def add_app_table():
 
 
 if __name__ == "__main__":
-
     add_papers()
-    add_articles("guardian")
-
+    for paper in ["guardian", "nytimes", "aljazeera"]:
+        add_articles(paper)
     add_app_table()

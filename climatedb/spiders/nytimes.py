@@ -3,7 +3,7 @@ from climatedb.databases_neu import get_urls_for_paper, JSONLines
 from pathlib import Path
 
 from climatedb.parsing_utils import get_title, get_date
-from climatedb.types import ArticleModel
+from climatedb.databases_neu import Article
 
 
 class NYTimesSpider(scrapy.Spider):

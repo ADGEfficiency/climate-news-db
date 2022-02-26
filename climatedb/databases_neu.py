@@ -5,24 +5,20 @@ from typing import List
 from rich import print
 from pathlib import Path
 
+from config import data_home as home
+
 
 def get_urls_for_paper(paper: str) -> List[str]:
     """
     Gets all urls for a newspaper from $(DATA_HOME) / urls.csv
     """
-    raw = pd.read_csv("./datareworked/urls.csv")
+    raw = pd.read_csv(f"{home}/urls.csv")
     mask = raw["newspaper_id"] == paper
     data = raw[mask]
     urls = data["url"].values.tolist()
 
     #  here we can filter out what we already have
-    existing = (
-        Path.home()
-        / "climate-news-db"
-        / "datareworked"
-        / "articles"
-        / f"{paper}.jsonlines"
-    )
+    existing = home / "articles" / f"{paper}.jsonlines"
     if existing.is_file():
         jl = JSONLines(existing)
         existing = jl.read()
@@ -35,7 +31,7 @@ def get_urls_for_paper(paper: str) -> List[str]:
         existing = []
 
     print(
-        f"all_urls {raw.shape[0]}, urls {len(urls)}, existing {len(existing)}, dispatch {len(dispatch)}"
+        f"{paper}, all_urls {raw.shape[0]}, urls {len(urls)}, existing {len(existing)}, dispatch {len(dispatch)}"
     )
 
     return list(dispatch)
@@ -76,6 +72,15 @@ engine = create_engine(db_uri)
 SQLModel.metadata.create_all(engine)
 
 
+def save_html(paper, article, response):
+    """used by spiders"""
+    fi = (
+        Path.home() / "climate-news-db" / "data-reworked" / "articles" / paper / article
+    )
+    fi.parent.mkdir(exist_ok=True, parents=True)
+    fi.with_suffix(".html").write_bytes(response.body)
+
+
 class Newspaper(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
@@ -87,8 +92,9 @@ class Newspaper(SQLModel, table=True):
 class Article(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     body: str
-    title: str
+    headline: str
     article_id: str
+    article_name: str
     article_url: str
     date_published: datetime
     newspaper_id: int
@@ -96,7 +102,7 @@ class Article(SQLModel, table=True):
 
 class AppTable(SQLModel, table=True):
     body: str
-    title: str
+    headline: str
     article_id: str = Field(primary_key=True)
     article_url: str
     date_published: datetime
