@@ -6,7 +6,10 @@ DATA_HOME = $(HOME)/climate-news-db/datareworked
 DB_FI = $(DATA_HOME)/db.sqlite
 DB_URI = sqlite:////$(DB_FI)
 
-all: pipe
+export DATA_HOME
+export DB_URI
+
+all: app
 
 old-pipe: pulls3 collect clean migrate pushs3
 
@@ -36,8 +39,8 @@ init-data:
 	mkdir -p $(PROJECT_HOME)/raw
 	mkdir -p $(PROJECT_HOME)/final
 
-app:
-	export DATA_HOME=$(DATA_HOME); export DB_URI=$(DB_URI); python3 app.py
+# app:
+# 	export DATA_HOME=$(DATA_HOME); export DB_URI=$(DB_URI); python3 neuapp.py
 
 datasette:
 	datasette $(PROJECT_HOME)/climatedb.sqlite
@@ -63,13 +66,19 @@ $(DATA_HOME)/urls.csv: $(DATA_HOME)/urls.txt scripts/create_urls_csv.py
 $(DATA_HOME)/articles/guardian.jsonlines: $(DATA_HOME)/urls.csv
 	echo $(papers) | xargs -n 1 -I {} -- scrapy crawl {} -o ./data-reworked/articles/{}.jsonlines -L INFO
 
-# db: setup scrapy
-db:
+scrapy: $(DATA_HOME)/articles/guardian.jsonlines
+
+scrape-one:
+	scrapy crawl $(PAPER) -o ./data-reworked/articles/$(PAPER).jsonlines -L INFO
+
+db: setup scrapy
 	rm -rf $(DB_FI)
-	#  hmmmm
-	export DATA_HOME=$(DATA_HOME); export DB_URI=$(DB_URI); python3 scripts/create_sqlite.py
+	python3 scripts/create_sqlite.py
 
 pipe: db
+
+app:
+	uvicorn neuapp:app --reload
 
 inspect:
 	wc -l ./data-reworked/articles/guardian.jsonlines

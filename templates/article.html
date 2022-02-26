@@ -1,21 +1,25 @@
 {% extends "layout.html" %}
 {% block body %}
+{% set short_url = article.article_url.split('/')[-1].split('?')[0] %}
   <div>
       <p class="lead">{{article.headline}}</p>
       <table class="table">
         <thead>
           <th>Newspaper</th>
           <th>Published</th>
-          <th>Article URL</th>
+          <th>Source</th>
         </thead>
         <tbody>
           <tr>
-            <td><a href="/newspaper?newspaper_id={{article.newspaper_id}}">{{article.newspaper}}</a></td>
+            <td><a href="/newspaper?newspaper_id={{article.newspaper_id}}">{{article.fancy_name}}</a></td>
             <td>{{article.date_published|datetimeformat()}}</td>
-            <td><a href={{article.article_url}}>{{article.article_url}}</a></td>
+            <td>
+              <a href="{{article.article_url}}">{{short_url}}</a>
+            </td>
           </tr>
         </tbody>
       </table>
-		<p>{{article.body}}</p>
+      <p> 
+    {{article.body}}</p>
   </div>
 {% endblock %}

@@ -1,61 +1,72 @@
-from climatedb.spiders.guardian import JSONLines
-from datetime import datetime
-from sqlalchemy import Column, Integer, String, DateTime, Table, DateTime, MetaData
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import Session
-from sqlalchemy.orm import sessionmaker
-import numpy as np
-import pandas as pd
+from typing import Optional
 
-from sqlalchemy.orm import sessionmaker
+from sqlmodel import Field, Session, SQLModel, create_engine
+from sqlalchemy import select
 
-import os
-
+from climatedb.databases_neu import (
+    JSONLines,
+    JSONFile,
+    Newspaper,
+    Article,
+    AppTable,
+    find_id_for_newspaper,
+)
 from config import data_home as home
 from config import db_uri
 
-meta = MetaData()
+from datetime import datetime
 
-articles_table = Table(
-    "articles",
-    meta,
-    Column("id", Integer, primary_key=True),
-    Column("body", String),
-    Column("title", String),
-    Column("article_id", String, unique=True),
-    Column("article_url", String),
-    Column("date_published", DateTime),
-    Column("newspaper_id", String),
-)
-engine = create_engine(db_uri, connect_args={"check_same_thread": False})
-Session = sessionmaker(engine)
+engine = create_engine(db_uri)
+SQLModel.metadata.create_all(engine)
+
+
+def add_papers():
+    papers = JSONFile(home / "newspapers.json").read()
+    papers = [Newspaper(**p) for p in papers.values()]
+    with Session(engine) as session:
+        for p in papers:
+            session.add(p)
+        session.commit()
+
+
+def add_articles(newspaper):
+    articles = JSONLines(home / f"articles/{newspaper}.jsonlines").read()
+    articles = [
+        Article(**a, newspaper_id=find_id_for_newspaper(newspaper)) for a in articles
+    ]
+
+    with Session(engine) as session:
+        for a in articles:
+            session.add(a)
+        session.commit()
+
+
+def add_app_table():
+    with Session(engine) as session:
+        query = session.query(Article, Newspaper).join(
+            Newspaper, Article.newspaper_id == Newspaper.id
+        )
+        data = session.exec(query).all()
+
+    with Session(engine) as session:
+        for d in data:
+            art, new = d
+            ap = AppTable(
+                body=art.body,
+                title=art.title,
+                article_id=art.id,
+                article_url=art.article_url,
+                date_published=art.date_published,
+                newspaper_id=new.id,
+                fancy_name=new.fancy_name,
+            )
+            session.add(ap)
+        session.commit()
+
 
 if __name__ == "__main__":
-    meta.create_all(engine)
 
-    jl = JSONLines(home / "articles/guardian.jsonlines").read()
+    add_papers()
+    add_articles("guardian")
 
-    articles = pd.DataFrame(jl)
-    articles["date_published"] = pd.to_datetime(articles["date_published"])
-    articles["date_published"] = [d.to_pydatetime() for d in articles["date_published"]]
-
-    # article = ArticleTable(**article)
-    articles["newspaper_id"] = "guardian"
-
-    #  really want to join on newspapers here eh
-    #  will need to make that table first
-    #  maybe create a table called app for the app only
-
-    with Session() as s:
-        for row in range(articles.shape[0]):
-            article = articles.iloc[row].to_dict()
-            # engine.execute(articles_table.insert.on_conflict_do_nothing(), **article)
-
-            from sqlalchemy.dialects.sqlite import insert
-
-            #  st = statement
-            st = insert(articles_table).values(**article)
-            st = st.on_conflict_do_nothing()
-            engine.execute(st)
+    add_app_table()

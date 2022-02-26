@@ -38,30 +38,12 @@ from scripts.create_sqlite import articles_table, meta, engine
 #     articles = con.execute(articles_table.select(articles_table.c.article_id == "id"))
 
 
-def find_article_from_article_id(article_id, engine):
-    with engine.connect() as con:
-        return con.execute(
-            articles_table.select(articles_table.c.article_id == article_id)
-        ).first()
-
-
 @app.route("/article")
 def show_one_article():
     article_id = request.args.get("article_id")
     article_id = "climate-crisis-alarm-at-record-breaking-heatwave-in-siberia"
     article = find_article_from_article_id(article_id, engine)
     return render_template("article.html", article=article)
-
-
-###
-
-from scripts.create_sqlite import Session
-
-
-def find_articles_by_newspaper(newspaper_id, engine):
-    with Session() as s:
-        articles = s.query(articles_table).filter_by(newspaper_id=newspaper_id).all()
-        return articles
 
 
 @app.route("/newspaper")

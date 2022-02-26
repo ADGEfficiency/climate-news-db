@@ -1,6 +1,7 @@
 from config import data_home as h
 from rich import print
 from multiprocessing import Pool
+import json
 import pandas as pd
 
 
@@ -17,8 +18,6 @@ def find_newspaper_from_url(url):
 
 
 if __name__ == "__main__":
-    import json
-
     fi = h / "urls.jsonl"
     urls = fi.read_text().split("\n")[:-1]
     urls = [json.loads(u)["url"] for u in urls]
@@ -29,4 +28,3 @@ if __name__ == "__main__":
 
     pd.DataFrame(csv_data).to_csv("./data-reworked/urls.csv", index=False)
     print(f"saved urls.csv {len(csv_data)} urls")
-# csv_data = [c for c in csv_data if c is not None]

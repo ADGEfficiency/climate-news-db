@@ -1,0 +1,4 @@
+fastapi
+sqlmodel
+uvicorn[standard]
+jinja2

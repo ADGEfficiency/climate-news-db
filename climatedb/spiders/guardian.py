@@ -34,7 +34,9 @@ class GuardianSpider(scrapy.Spider):
         title = get_title(response)
 
         #  body
-        body = response.xpath('//p[not(contains(.,"Last modified"))]/text()').getall()
+        body = response.xpath(
+            '//p[not(contains(.,"Last modified") or contains(.,"First published"))]/text()'
+        ).getall()
 
         #  filtering out the subtitle
         #  subtile dosen't usually have a . at the end

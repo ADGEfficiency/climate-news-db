@@ -1,18 +1,18 @@
 {% extends "layout.html" %}
 {% block body %}
   <div>
-		<p>{{articles|length}} articles from {{newspaper.newspaper}}.</p>
+		<p>{{articles|length}} articles from {{newspaper.fancy_name}}.</p>
     <table class="table table-condensed table-striped">
       <thead>
         <th>Published</th>
-        <th>Headline</th>
+        <th>Title</th>
         <th>Body</th>
       </thead>
       <tbody>
         {% for article in articles %}
         <tr>
           <td>{{article.date_published|datetimeformat()}}</td>
-          <td><a href=/article?article_id={{article.article_id}}>{{article.headline}}</a></td>
+          <td><a href=/article?article_id={{article.article_id}}>{{article.title}}</a></td>
           <td>{{article.body[:80]+'...'}}</td>
         </tr>
         {% endfor %}
