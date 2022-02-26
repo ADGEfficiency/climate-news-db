@@ -6,19 +6,13 @@ from climatedb.engines import JSONFolder, SQLiteEngine, JSONLinesFile
 from climatedb.config import DBHOME
 
 
-class URLs():
-    def __init__(
-        self,
-        name,
-        key='url',
-        schema=None,
-        engine='jsonl'
-    ):
+class URLs:
+    def __init__(self, name, key="url", schema=None, engine="jsonl"):
         self.engine = JSONLinesFile(name, key, schema)
 
     def add(self, batch):
         for data in batch:
-            if not self.engine.exists(data['url']):
+            if not self.engine.exists(data["url"]):
                 self.engine.add(batch)
 
     def get(self, num=0):
@@ -32,27 +26,25 @@ class URLs():
         return self.engine.exists(key)
 
 
-class ArticlesFolders():
+class ArticlesFolders:
     """nested folders of JSON files, one folder per newspaper"""
+
     def __init__(
         self,
-        name='final',
-        folder_key='newspaper_id',
-        file_key='article_id',
+        name="final",
+        folder_key="newspaper_id",
+        file_key="article_id",
     ):
         self.folder_key = folder_key
         self.file_key = file_key
 
-        self.home = DBHOME / 'articles' / name
+        self.home = DBHOME / "articles" / name
         self.home.mkdir(exist_ok=True, parents=True)
 
         #  newspapers each live in their own folder
         folders = [p for p in self.home.iterdir() if p.is_dir()]
 
-        self.folders = {
-            p.name: JSONFolder(p, key=self.file_key)
-            for p in folders
-        }
+        self.folders = {p.name: JSONFolder(p, key=self.file_key) for p in folders}
 
     def add(self, batch):
         if isinstance(batch, dict):
@@ -68,10 +60,8 @@ class ArticlesFolders():
             self.folders[folder].add(article)
 
     def get(self):
-        articles = list(chain(
-            *[fldr.get() for fldr in self.folders.values()]
-        ))
-        print(f' loaded {len(articles)} from {len(self.folders)} folders')
+        articles = list(chain(*[fldr.get() for fldr in self.folders.values()]))
+        print(f" loaded {len(articles)} from {len(self.folders)} folders")
         return articles
 
     def filter(self, key, value):
@@ -97,19 +87,11 @@ article_schema = [
 ]
 
 
-class ArticlesSQLite():
+class ArticlesSQLite:
     def __init__(
-        self,
-        db='climatedb.sqlite',
-        schema=article_schema,
-        index='article_id'
+        self, db="climatedb.sqlite", schema=article_schema, index="article_id"
     ):
-        self.engine = SQLiteEngine(
-            table='final',
-            schema=schema,
-            db=db,
-            index=index
-        )
+        self.engine = SQLiteEngine(table="final", schema=schema, db=db, index=index)
 
     def get(self):
         return self.engine.get()
@@ -121,12 +103,9 @@ class ArticlesSQLite():
         return self.engine.add(batch)
 
 
-databases = {
-    'folders': ArticlesFolders,
-    'sqlite': ArticlesSQLite
-}
+databases = {"folders": ArticlesFolders, "sqlite": ArticlesSQLite}
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     db = ArticlesSQLite()
     print(db.get())

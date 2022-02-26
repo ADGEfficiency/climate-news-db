@@ -4,7 +4,11 @@ requests
 pytest
 html5lib
 flask
+Flask-SQLAlchemy
 pandas
 awscli
 click
 scrapy
+pydantic
+rich
+streamlit

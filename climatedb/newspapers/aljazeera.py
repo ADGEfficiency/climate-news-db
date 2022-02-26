@@ -49,8 +49,8 @@ def get_article_id(url):
 
 def parse_url(url):
     response = utils.request(url)
-    soup = response['soup']
-    html = response['html']
+    soup = response["soup"]
+    html = response["html"]
 
     try:
         body = utils.find_one_tag(soup, "div", {"class": "main-article-body"})
@@ -65,14 +65,16 @@ def parse_url(url):
         body = p_tags
 
     if len(body) == 0:
-        body = utils.find_one_tag(soup, "div", {"class": "wysiwyg wysiwyg--all-content"})
+        body = utils.find_one_tag(
+            soup, "div", {"class": "wysiwyg wysiwyg--all-content"}
+        )
         body = body.findAll("p")
 
     body = "".join([p.text for p in body])
 
-    app = utils.find_application_json(soup, 'headline')
-    headline = app['headline']
-    published = app['datePublished']
+    app = utils.find_application_json(soup, "headline")
+    headline = app["headline"]
+    published = app["datePublished"]
 
     return {
         **aljazeera,
@@ -89,7 +91,6 @@ aljazeera = {
     "newspaper_id": "aljazeera",
     "newspaper": "Al Jazeera",
     "newspaper_url": "aljazeera.com",
-
     "checker": check_url,
     "parser": parse_url,
     "get_article_id": get_article_id,

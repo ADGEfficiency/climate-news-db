@@ -1,3 +1,8 @@
+2022-02-26
+
+need to properly manage database uri, datahome etc
+
+
 2022-02
 
 orchestration
