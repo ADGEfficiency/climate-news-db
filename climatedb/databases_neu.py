@@ -1,11 +1,16 @@
+from config import data_home as home
+from config import db_uri
+from datetime import datetime
 from fastapi.templating import Jinja2Templates
+from pathlib import Path
+from pydantic import constr
+from rich import print
+from sqlalchemy import select
+from sqlmodel import Field, Session, SQLModel, create_engine
+from typing import List
+from typing import Optional
 import json
 import pandas as pd
-from typing import List
-from rich import print
-from pathlib import Path
-
-from config import data_home as home
 
 
 def get_urls_for_paper(paper: str) -> List[str]:
@@ -13,7 +18,7 @@ def get_urls_for_paper(paper: str) -> List[str]:
     Gets all urls for a newspaper from $(DATA_HOME) / urls.csv
     """
     raw = pd.read_csv(f"{home}/urls.csv")
-    mask = raw["newspaper_id"] == paper
+    mask = raw["name"] == paper
     data = raw[mask]
     urls = data["url"].values.tolist()
 
@@ -57,16 +62,6 @@ class JSONFile:
 
 #  sqlite stuff
 
-from typing import Optional
-
-from sqlmodel import Field, Session, SQLModel, create_engine
-from sqlalchemy import select
-
-from climatedb.databases_neu import JSONLines, JSONFile
-from config import data_home as home
-from config import db_uri
-
-from datetime import datetime
 
 engine = create_engine(db_uri)
 SQLModel.metadata.create_all(engine)
@@ -91,9 +86,8 @@ class Newspaper(SQLModel, table=True):
 
 class Article(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    body: str
+    body: constr(min_length=64)
     headline: str
-    article_id: str
     article_name: str
     article_url: str
     date_published: datetime
@@ -101,12 +95,13 @@ class Article(SQLModel, table=True):
 
 
 class AppTable(SQLModel, table=True):
-    body: str
+    #  article
+    body: constr(min_length=64)
     headline: str
-    article_id: str = Field(primary_key=True)
+    article_id: int = Field(primary_key=True)
     article_url: str
     date_published: datetime
-
+    #  newspaper
     newspaper_id: int
     fancy_name: str
 

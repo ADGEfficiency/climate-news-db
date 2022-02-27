@@ -1,5 +1,6 @@
 import pytz
 from datetime import datetime
+import json
 
 
 def get_title(response) -> str:
@@ -14,3 +15,13 @@ def get_date(response) -> datetime:
     tz = pytz.timezone("UTC")
     date = tz.localize(date)
     return date
+
+
+def get_app_json(response) -> dict:
+    app_json = response.xpath("//script[@type='application/ld+json']/text()").get()
+    return json.loads(app_json)
+
+
+def get_body(response):
+    body = response.xpath("//p/descendant-or-self::*/text()").getall()
+    return "".join(body)

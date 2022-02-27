@@ -3,7 +3,7 @@ import scrapy
 from climatedb.databases_neu import get_urls_for_paper, JSONLines, save_html
 from pathlib import Path
 
-from climatedb.parsing_utils import get_title, get_date
+from climatedb.parsing_utils import get_app_json, get_body
 from climatedb.databases_neu import Article
 
 
@@ -14,13 +14,12 @@ class AljazeeraSpider(scrapy.Spider):
     def parse(self, response):
         article_name = response.url.strip("/").split("/")[-1]
 
-        #  TODO
-        unwanted = set(["Follow Al Jazeera English:"])
-        body = response.xpath("//p/text()").getall()
+        body = get_body(response)
+        body = body.replace("Follow Al Jazeera English:", "")
+
         subtitle = response.xpath("//p/em//text()").get()
 
-        app_json = response.xpath("//script[@type='application/ld+json']/text()").get()
-        app_json = json.loads(app_json)
+        app_json = get_app_json(response)
         date = app_json["datePublished"]
         headline = app_json["headline"]
 
@@ -30,8 +29,8 @@ class AljazeeraSpider(scrapy.Spider):
             "subtitle": subtitle,
             "body": body,
             "article_url": response.url,
-            "article_id": article_name,
             "date_published": date,
+            "article_name": article_name,
         }
         meta = Article(**meta).dict()
         save_html(self.name, article_name, response)

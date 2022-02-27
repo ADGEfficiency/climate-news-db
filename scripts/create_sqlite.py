@@ -38,11 +38,20 @@ def add_articles(newspaper):
     articles = [
         Article(**a, newspaper_id=find_id_for_newspaper(newspaper)) for a in articles
     ]
+    from sqlalchemy.dialects.sqlite import insert
 
     with Session(engine) as session:
-        for a in articles:
-            session.add(a)
-        session.commit()
+        for art in articles:
+            #  huge TODO - should be able to ignore in the add
+            # session.add(art)
+            try:
+                session.execute(
+                    insert(Article).values(art.dict()).on_conflict_do_nothing()
+                )
+                session.commit()
+            except Exception as err:
+                breakpoint()
+
     print(f"added {len(articles)} articles to {db_uri}")
 
 
@@ -58,7 +67,7 @@ def add_app_table():
             art, new = d
             ap = AppTable(
                 body=art.body,
-                title=art.title,
+                headline=art.headline,
                 article_id=art.id,
                 article_url=art.article_url,
                 date_published=art.date_published,

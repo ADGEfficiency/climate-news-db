@@ -4,17 +4,18 @@ from multiprocessing import Pool
 import json
 import pandas as pd
 
+from climatedb.databases_neu import JSONFile
+
 
 def find_newspaper_from_url(url):
-    #  TODO drive this from newspapers.json
-    if "www.theguardian.com" in url:
-        return {"url": url, "newspaper_id": "guardian"}
-    if "www.nytimes.com" in url:
-        return {"url": url, "newspaper_id": "nytimes"}
-    if "www.aljazeera.com" in url:
-        return {"url": url, "newspaper_id": "aljazeera"}
-    else:
-        return {"url": url, "newspaper_id": "UNKNOWN"}
+
+    papers = JSONFile(home / "newspapers.json").read()
+
+    for paper in papers.values():
+        if paper["newspaper_url"] in url:
+            return {"url": url, **paper}
+
+    return {"name": "UNKNOWN"}
 
 
 if __name__ == "__main__":
@@ -26,5 +27,7 @@ if __name__ == "__main__":
     with Pool(4, maxtasksperchild=32) as pool:
         csv_data = pool.map(find_newspaper_from_url, urls)
 
-    pd.DataFrame(csv_data).to_csv(f"{home}/urls.csv", index=False)
-    print(f"saved urls.csv {len(csv_data)} urls")
+    df = pd.DataFrame(csv_data)
+    df = df.dropna(axis=0)
+    df.to_csv(f"{home}/urls.csv", index=False)
+    print(f"saved urls.csv {df.shape[0]} urls")

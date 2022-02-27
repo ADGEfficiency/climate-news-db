@@ -7,18 +7,20 @@ from climatedb import utils
 def check_url(url):
     #  TODO TEST
     u = urlparse(url)
-    unwanted = set([
-        "interactive",
-        "topic",
-        "spotlight",
-        "times-journeys",
-        "freakonomics.blogs.nytimes.com",
-        "newsletters",
-        "ask",
-        "video"
-    ])
+    unwanted = set(
+        [
+            "interactive",
+            "topic",
+            "spotlight",
+            "times-journeys",
+            "freakonomics.blogs.nytimes.com",
+            "newsletters",
+            "ask",
+            "video",
+        ]
+    )
 
-    if u.path and u.path.split('/')[1] in unwanted:
+    if u.path and u.path.split("/")[1] in unwanted:
         return False
     return url
 
@@ -29,8 +31,8 @@ def get_article_id(url):
 
 def parse_url(url):
     response = utils.request(url)
-    soup = response['soup']
-    html = response['html']
+    soup = response["soup"]
+    html = response["html"]
 
     body = utils.find_one_tag(soup, "section", {"name": "articleBody"})
     body = "".join([p.text for p in body.findAll("p")])
@@ -42,9 +44,9 @@ def parse_url(url):
     for n in body:
         body.replace(n, "")
 
-    app = utils.find_application_json(soup, 'headline')
-    headline = app['headline']
-    published = app['datePublished']
+    app = utils.find_application_json(soup, "headline")
+    headline = app["headline"]
+    published = app["datePublished"]
 
     return {
         **nytimes,
@@ -64,5 +66,5 @@ nytimes = {
     "checker": check_url,
     "parser": parse_url,
     "get_article_id": get_article_id,
-    "color": "#FFFFFF"
+    "color": "#FFFFFF",
 }

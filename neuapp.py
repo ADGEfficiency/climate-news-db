@@ -14,7 +14,6 @@ from climatedb.databases_neu import (
 )
 from fastapi.staticfiles import StaticFiles
 
-
 from typing import Optional
 
 from fastapi import FastAPI, Request
@@ -45,7 +44,7 @@ async def read_root():
     return articles
 
 
-@app.get("/article", response_class=HTMLResponse)
+@app.get("/article/{article_id}", response_class=HTMLResponse)
 async def read_article(request: Request, article_id: int):
     """show one article by article id"""
     article = find_article(article_id)
@@ -63,7 +62,7 @@ async def read_random_article(request: Request):
     )
 
 
-@app.get("/newspaper", response_class=HTMLResponse)
+@app.get("/newspaper/{newspaper_id}", response_class=HTMLResponse)
 async def read_newspaper_articles(request: Request, newspaper_id: int):
     """show one article by article id"""
     articles, newspaper = find_articles_by_newspaper(newspaper_id)

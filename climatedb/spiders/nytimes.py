@@ -1,9 +1,9 @@
 import scrapy
-from climatedb.databases_neu import get_urls_for_paper, JSONLines
-from pathlib import Path
 
-from climatedb.parsing_utils import get_title, get_date
-from climatedb.databases_neu import Article
+from climatedb.databases_neu import get_urls_for_paper, save_html, Article
+from climatedb.parsing_utils import get_app_json
+
+from climatedb.utils import form_article_id
 
 
 class NYTimesSpider(scrapy.Spider):
@@ -11,7 +11,7 @@ class NYTimesSpider(scrapy.Spider):
     start_urls = get_urls_for_paper(name)
 
     def parse(self, response):
-        article_name = response.url.split("/")[-1]
+        article_name = form_article_id(response.url, -1)
 
         body = response.xpath("//p/text()").getall()
 
@@ -25,34 +25,20 @@ class NYTimesSpider(scrapy.Spider):
         body = neu_body[1:]
         body = "".join(body)
 
-        title = get_title(response)
-        title = title.replace(" - The New York Times", "")
-
-        date = get_date(response)
+        app_json = get_app_json(response)
+        date = app_json["datePublished"]
+        headline = app_json["headline"]
+        headline = headline.replace(" - The New York Times", "")
 
         #  one jsonline - saved by scrapy for us
         meta = {
-            "title": title,
+            "headline": headline,
             "subtitle": subtitle,
             "body": body,
             "article_url": response.url,
-            "article_id": article_name,
             "date_published": date,
+            "article_name": article_name,
         }
-        #  here we ensure this type is what we want!
-        meta = dict(ArticleModel(**meta))
-
-        #  save html ourselves
-        fi = (
-            Path.home()
-            / "climate-news-db"
-            / "data-reworked"
-            / "articles"
-            / self.name
-            / article_name
-        )
-        fi.parent.mkdir(exist_ok=True, parents=True)
-        fi = fi.with_suffix(".html")
-        fi.write_bytes(response.body)
-        self.log(f" saved to {fi}")
+        meta = Article(**meta).dict()
+        save_html(self.name, article_name, response)
         return meta

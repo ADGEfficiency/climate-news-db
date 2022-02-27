@@ -150,4 +150,8 @@ But ended up getting it from application.json
 
 ---
 
-created newspapers.json
+created newspapers.json - use it to drive makefile
+
+---
+
+.env - with {} syntax for sharing with Make, include .env

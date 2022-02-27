@@ -74,7 +74,6 @@ class GuardianSpider(scrapy.Spider):
         #  instead try to find
         #  <meta property="article:published_time" content="2014-03-31T10:16:33.000Z" />
         #  <meta property="article:published_time" content="2018-10-30T14:58:39.000Z"/>
-
         date = get_date(response)
 
         #  one jsonline - saved by scrapy for us
@@ -83,13 +82,10 @@ class GuardianSpider(scrapy.Spider):
             "subtitle": subtitle,
             "body": body,
             "article_url": response.url,
-            "article_id": article_name,
             "date_published": date,
             "article_name": article_name,
         }
         #  here we ensure this type is what we want!
         meta = Article(**meta).dict()
-
-        breakpoint()
         save_html(self.name, article_name, response)
         return meta
