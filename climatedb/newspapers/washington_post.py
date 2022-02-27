@@ -12,19 +12,28 @@ def check_url(url):
         return False
     if url == "https://www.washingtonpost.com/climate-solutions/":
         return False
-    if (url== "https://www.washingtonpost.com/wp-srv/inatl/longterm/climate/background.htm"):
+    if (
+        url
+        == "https://www.washingtonpost.com/wp-srv/inatl/longterm/climate/background.htm"
+    ):
         return False
     if url == "https://www.washingtonpost.com/climate-environment/":
         return False
-    if url == "https://www.washingtonpost.com/news/energy-environment/wp/category/climate-change/":
+    if (
+        url
+        == "https://www.washingtonpost.com/news/energy-environment/wp/category/climate-change/"
+    ):
         return False
-    if url.endswith('.pdf'):
+    if url.endswith(".pdf"):
         return False
     if url == "washingtonpost.com/wp-srv/inatl/longterm/climate/overview.htm":
         return False
-    if url == "https://www.washingtonpost.com/wp-srv/inatl/longterm/climate/overview.htm":
+    if (
+        url
+        == "https://www.washingtonpost.com/wp-srv/inatl/longterm/climate/overview.htm"
+    ):
         return False
-    if url == 'https://www.washingtonpost.com/energy-policy/':
+    if url == "https://www.washingtonpost.com/energy-policy/":
         return False
     return True
 
@@ -35,29 +44,31 @@ def get_article_id(url):
 
 def parse_url(url):
     response = utils.request(url)
-    soup = response['soup']
-    html = response['html']
+    soup = response["soup"]
+    html = response["html"]
 
     try:
         body = utils.find_one_tag(soup, "div", {"class": "article-body"})
 
     except utils.ParserError:
-        body = utils.find_one_tag(soup, "div", {"class": "ent-article-body ent-layout-centered"})
+        body = utils.find_one_tag(
+            soup, "div", {"class": "ent-article-body ent-layout-centered"}
+        )
 
     new_body = []
     for p in body.findAll("p"):
 
-        if 'data-elm-loc' in p.attrs.keys():
+        if "data-elm-loc" in p.attrs.keys():
             new_body.append(p.text)
 
-        if 'class' in p.attrs.keys():
-            if 'font--body' in p.attrs['class']:
+        if "class" in p.attrs.keys():
+            if "font--body" in p.attrs["class"]:
                 new_body.append(p.text)
 
     body = "".join(new_body)
-    app = utils.find_application_json(soup, 'headline')
-    headline = app['headline']
-    published = app['datePublished']
+    app = utils.find_application_json(soup, "headline")
+    headline = app["headline"]
+    published = app["datePublished"]
 
     return {
         **washington_post,
@@ -74,7 +85,6 @@ washington_post = {
     "newspaper_id": "washington_post",
     "newspaper": "The Washington Post",
     "newspaper_url": "washingtonpost.com",
-
     "checker": check_url,
     "parser": parse_url,
     "get_article_id": get_article_id,

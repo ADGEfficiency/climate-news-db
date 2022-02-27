@@ -20,8 +20,8 @@ def get_article_id(url):
 
 def parse_url(url):
     response = utils.request(url)
-    soup = response['soup']
-    html = response['html']
+    soup = response["soup"]
+    html = response["html"]
 
     try:
         body = utils.find_one_tag(soup, "p", {"class": "description-text"})
@@ -50,7 +50,7 @@ def parse_url(url):
             else:
                 published = datetime.fromtimestamp(0).isoformat()
 
-    headline = utils.find_one_tag(soup, 'title').text
+    headline = utils.find_one_tag(soup, "title").text
     headline = headline.split("|")[0]
 
     return {
@@ -68,9 +68,8 @@ skyau = {
     "newspaper_id": "skyau",
     "newspaper": "Sky News Australia",
     "newspaper_url": "skynews.com.au",
-
     "checker": check_url,
     "parser": parse_url,
     "get_article_id": get_article_id,
-    "color": "#93A681"
+    "color": "#93A681",
 }

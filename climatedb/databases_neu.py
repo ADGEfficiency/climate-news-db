@@ -87,8 +87,8 @@ class Newspaper(SQLModel, table=True):
 class Article(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     body: constr(min_length=64)
-    headline: str
-    article_name: str
+    headline: constr(min_length=8)
+    article_name: constr(min_length=4)
     article_url: str
     date_published: datetime
     newspaper_id: int

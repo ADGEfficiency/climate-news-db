@@ -23,14 +23,15 @@ SQLModel.metadata.create_all(engine)
 
 
 def add_papers():
-    papers = JSONFile(home / "newspapers.json").read()
-    papers = [Newspaper(**p) for p in papers.values()]
+    raw_papers = JSONFile(home / "newspapers.json").read()
+    papers = [Newspaper(**p) for p in raw_papers.values()]
     with Session(engine) as session:
         for p in papers:
             session.add(p)
         session.commit()
 
     print(f"added {len(papers)} newspapers to {db_uri}")
+    return raw_papers
 
 
 def add_articles(newspaper):
@@ -50,9 +51,9 @@ def add_articles(newspaper):
                 )
                 session.commit()
             except Exception as err:
-                breakpoint()
+                pass
 
-    print(f"added {len(articles)} articles to {db_uri}")
+    print(f"added {len(articles)} articles to {db_uri} for {newspaper}")
 
 
 def add_app_table():
@@ -79,7 +80,10 @@ def add_app_table():
 
 
 if __name__ == "__main__":
-    add_papers()
-    for paper in ["guardian", "nytimes", "aljazeera"]:
-        add_articles(paper)
+    papers = add_papers()
+    for paper in papers.keys():
+        try:
+            add_articles(paper)
+        except FileNotFoundError:
+            pass
     add_app_table()

@@ -14,7 +14,7 @@ NEWSPIDER_MODULE = "climatedb.spiders"
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-# USER_AGENT = 'cdb_scrapy (+http://www.yourdomain.com)'
+USER_AGENT = "Mozilla/5.0 (iPad; CPU OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148"
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True

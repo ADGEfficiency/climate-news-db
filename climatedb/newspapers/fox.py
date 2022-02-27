@@ -31,8 +31,8 @@ def get_article_id(url):
 
 def parse_url(url):
     response = utils.request(url)
-    soup = response['soup']
-    html = response['html']
+    soup = response["soup"]
+    html = response["html"]
 
     body = utils.find_one_tag(soup, "div", {"class": "article-body"})
     body = "".join([p.text for p in body.findAll("p") if not check_for_strong_link(p)])
@@ -48,13 +48,13 @@ def parse_url(url):
     #  TODO
     scripts = soup.findAll("script", attrs={"type": "application/ld+json"})
     if len(scripts) != 2:
-        raise utils.ParserError('len(scripts) not equal 2')
+        raise utils.ParserError("len(scripts) not equal 2")
 
     app = str(scripts[0].contents[0])
     app = app.replace("\n", "")
     app = json.loads(app)
-    headline = app['headline']
-    published = app['datePublished']
+    headline = app["headline"]
+    published = app["datePublished"]
 
     return {
         **fox,
@@ -71,9 +71,8 @@ fox = {
     "newspaper_id": "fox",
     "newspaper": "Fox News",
     "newspaper_url": "foxnews.com",
-
     "checker": check_url,
     "parser": parse_url,
     "get_article_id": get_article_id,
-    "color": "#003366"
+    "color": "#003366",
 }

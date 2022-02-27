@@ -32,11 +32,17 @@ def check_url(url):
         return False
     if "e.newsletters.cnn.com" in url:
         return False
-    if url == "https://www.cnn.com/2009/WORLD/europe/07/05/oxfam.climate.change.human.cost/index.html":
+    if (
+        url
+        == "https://www.cnn.com/2009/WORLD/europe/07/05/oxfam.climate.change.human.cost/index.html"
+    ):
         return False
     if url == "https://www.cnn.com/2008/TECH/science/03/31/Intro.timeline/index.html":
         return False
-    if url == "https://www.cnn.com/2009/WORLD/europe/05/29/annan.climate.change.human/index.html":
+    if (
+        url
+        == "https://www.cnn.com/2009/WORLD/europe/05/29/annan.climate.change.human/index.html"
+    ):
         return False
     if url == "https://www.cnn.com/world":
         return False
@@ -55,20 +61,19 @@ def get_article_id(url):
 
 def parse_url(url):
     response = utils.request(url)
-    soup = response['soup']
-    html = response['html']
-
+    soup = response["soup"]
+    html = response["html"]
 
     body = utils.find_one_tag(soup, "div", {"itemprop": "articleBody"})
     new_body = []
     for pt in body.findAll("div"):
         flag = False
 
-        if 'class' in pt.attrs.keys():
-            class_ = pt.attrs['class']
+        if "class" in pt.attrs.keys():
+            class_ = pt.attrs["class"]
 
             for thing in class_:
-                if 'zn-body__paragraph' in thing:
+                if "zn-body__paragraph" in thing:
                     flag = True
 
         if flag:
@@ -77,9 +82,11 @@ def parse_url(url):
     body = new_body
     body = "".join(body)
 
-    headline = utils.find_one_tag(soup, 'title', {"id": None}).text.replace(" - CNN", "")
-    published = utils.find_one_tag(soup, 'meta', {'itemprop': 'datePublished'})
-    published = published['content']
+    headline = utils.find_one_tag(soup, "title", {"id": None}).text.replace(
+        " - CNN", ""
+    )
+    published = utils.find_one_tag(soup, "meta", {"itemprop": "datePublished"})
+    published = published["content"]
 
     return {
         **cnn,
@@ -88,7 +95,7 @@ def parse_url(url):
         "article_url": url,
         "html": html,
         "article_id": get_article_id(url),
-        "date_published": published
+        "date_published": published,
     }
 
 
@@ -96,14 +103,13 @@ cnn = {
     "newspaper_id": "cnn",
     "newspaper": "CNN",
     "newspaper_url": "cnn.com",
-
     "checker": check_url,
     "parser": parse_url,
     "get_article_id": get_article_id,
-    "color": "#CC0000"
+    "color": "#CC0000",
 }
 
 
-if __name__ == '__main__':
-    url = 'https://edition.cnn.com/2020/12/18/opinions/biden-nominees-bold-climate-action-reid/index.html'
+if __name__ == "__main__":
+    url = "https://edition.cnn.com/2020/12/18/opinions/biden-nominees-bold-climate-action-reid/index.html"
     parse_url(url)

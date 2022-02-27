@@ -28,6 +28,5 @@ if __name__ == "__main__":
         csv_data = pool.map(find_newspaper_from_url, urls)
 
     df = pd.DataFrame(csv_data)
-    df = df.dropna(axis=0)
     df.to_csv(f"{home}/urls.csv", index=False)
     print(f"saved urls.csv {df.shape[0]} urls")

@@ -28,14 +28,16 @@ def form_article_id(url, idx=-1):
     url = url.strip("/")
     url = url.split("?")[0]
     article_id = url.split("/")[idx]
-    return article_id.replace(".html", "")
+    article_id = article_id.replace(".html", "")
+    article_id = article_id.split("|")[0]
+    return article_id
 
 
 def find_single_application_json(soup):
-    app = soup.findAll('script', {'type': 'application/ld+json'})
+    app = soup.findAll("script", {"type": "application/ld+json"})
 
     if len(app) != 1:
-        raise ParserError(f'app-json {len(app)}')
+        raise ParserError(f"app-json {len(app)}")
     app = json.loads(app[0].text)
 
     if isinstance(app, list):
@@ -43,13 +45,13 @@ def find_single_application_json(soup):
     return app
 
 
-def find_application_json(soup=None, find='headline'):
-    apps = soup.findAll('script', {'type': 'application/ld+json'})
+def find_application_json(soup=None, find="headline"):
+    apps = soup.findAll("script", {"type": "application/ld+json"})
     for app in apps:
         app = json.loads(app.text)
         if find in app.keys():
             return app
-    raise ParserError(f'no application JSON with {find} in {len(apps)}')
+    raise ParserError(f"no application JSON with {find} in {len(apps)}")
 
 
 def request(url, headers=None):
@@ -63,11 +65,6 @@ def request(url, headers=None):
     html = response.text
     soup = BeautifulSoup(html, features="html5lib")
     if response.status_code == 200:
-        return {
-            'response': response,
-            'html': html,
-            'soup': soup,
-            'url': response.url
-        }
+        return {"response": response, "html": html, "soup": soup, "url": response.url}
 
     response.raise_for_status()

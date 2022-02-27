@@ -21,10 +21,14 @@ def get_article_id(url):
 
 def parse_url(url):
     response = utils.request(url)
-    soup = response['soup']
-    html = response['html']
+    soup = response["soup"]
+    html = response["html"]
 
-    body = utils.find_one_tag(soup, "span", {"class": "sics-component__story__body sics-component__story__body--nativform"})
+    body = utils.find_one_tag(
+        soup,
+        "span",
+        {"class": "sics-component__story__body sics-component__story__body--nativform"},
+    )
     body = "".join([p.text for p in body.findAll("p")])
 
     published = soup.findAll("meta", attrs={"itemprop": "datePublished"})
@@ -50,9 +54,8 @@ stuff = {
     "newspaper_id": "stuff",
     "newspaper": "Stuff.co.nz",
     "newspaper_url": "stuff.co.nz",
-
     "checker": check_url,
     "parser": parse_url,
     "get_article_id": get_article_id,
-    "color": "#00C386"
+    "color": "#00C386",
 }

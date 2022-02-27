@@ -31,34 +31,38 @@ def get_article_id(url):
 
 def parse_url(url):
     response = utils.request(url)
-    soup = response['soup']
-    html = response['html']
+    soup = response["soup"]
+    html = response["html"]
 
     try:
-        body = utils.find_one_tag(soup, 'article')
-        body = ''.join([p.text for p in body.findAll('p')])
+        body = utils.find_one_tag(soup, "article")
+        body = "".join([p.text for p in body.findAll("p")])
 
     except utils.ParserError:
         body = utils.find_one_tag(
             soup,
             "div",
-            {"class": "article-body js-article-container", "itemprop": "articleBody"}
+            {"class": "article-body js-article-container", "itemprop": "articleBody"},
         )
         body = body.findAll("p")
-        body = "".join(p.text for p in body if "c-letters-cta__text" not in p.attrs.values())
+        body = "".join(
+            p.text for p in body if "c-letters-cta__text" not in p.attrs.values()
+        )
 
-    app = utils.find_application_json(soup, 'headline')
+    app = utils.find_application_json(soup, "headline")
 
-    headline = app['headline']
+    headline = app["headline"]
     #  sometimes can be "" in the ld+json
     if headline == "":
-        headline = utils.find_one_tag(soup, "h1", {"class": "c-article-header__hed"}).text
+        headline = utils.find_one_tag(
+            soup, "h1", {"class": "c-article-header__hed"}
+        ).text
 
-    published = app['datePublished']
+    published = app["datePublished"]
 
     return {
         **atlantic,
-        "body": body,
+        "body": namebody,
         "headline": headline,
         "article_url": url,
         "html": html,
@@ -71,7 +75,6 @@ atlantic = {
     "newspaper_id": "atlantic",
     "newspaper": "The Atlantic",
     "newspaper_url": "theatlantic.com",
-
     "checker": check_url,
     "parser": parse_url,
     "get_article_id": get_article_id,
