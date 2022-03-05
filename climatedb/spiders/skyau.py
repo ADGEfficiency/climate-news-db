@@ -26,6 +26,4 @@ class SkyAUSpider(ClimateDBSpider):
             "date_published": date,
             "article_name": article_name,
         }
-        meta = Article(**meta).dict()
-        save_html(self.name, article_name, response)
-        return meta
+        return self.tail(response, meta)

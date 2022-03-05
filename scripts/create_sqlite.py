@@ -1,9 +1,11 @@
+from datetime import datetime
 from typing import Optional
 
-from sqlmodel import Field, Session, SQLModel, create_engine
-from sqlalchemy import select
-
 from rich import print
+from sqlalchemy import func
+from sqlalchemy import select
+from sqlalchemy.dialects.sqlite import insert
+from sqlmodel import Field, Session, SQLModel, create_engine
 
 from climatedb.databases_neu import (
     JSONLines,
@@ -12,11 +14,12 @@ from climatedb.databases_neu import (
     Article,
     AppTable,
     find_id_for_newspaper,
+    find_all_articles,
+    find_all_papers,
 )
-from config import data_home as home
-from config import db_uri
+from climatedb.config import data_home as home
+from climatedb.config import db_uri
 
-from datetime import datetime
 
 engine = create_engine(db_uri)
 SQLModel.metadata.create_all(engine)
@@ -39,24 +42,49 @@ def add_articles(newspaper):
     articles = [
         Article(**a, newspaper_id=find_id_for_newspaper(newspaper)) for a in articles
     ]
-    from sqlalchemy.dialects.sqlite import insert
 
     with Session(engine) as session:
+        count = 0
         for art in articles:
-            #  huge TODO - should be able to ignore in the add
-            # session.add(art)
             try:
-                session.execute(
-                    insert(Article).values(art.dict()).on_conflict_do_nothing()
-                )
-                session.commit()
+                st = insert(Article).values(art.dict()).on_conflict_do_nothing()
+                session.execute(st)
+                count += 1
             except Exception as err:
                 pass
+        session.commit()
 
-    print(f"added {len(articles)} articles to {db_uri} for {newspaper}")
+    print(f"added {count} from {len(articles)} articles to {db_uri} for {newspaper}")
 
 
 def add_app_table():
+
+    #  group articles by newspaper
+    with Session(engine) as session:
+        query = session.query(
+            Article.newspaper_id,
+            func.count(Article.newspaper_id),
+            func.avg(Article.article_length),
+        ).group_by(Article.newspaper_id)
+        #  id, count, avg length
+        statistics = session.exec(query).all()
+
+    #  update the newspaper table with these statistics
+    with Session(engine) as session:
+        for stats in statistics:
+            st = (
+                session.query(Newspaper)
+                .filter(Newspaper.id == stats[0])
+                .update(
+                    {
+                        "article_count": stats[1],
+                        "average_article_length": stats[2],
+                    }
+                )
+            )
+        session.commit()
+
+    #  add article and newspaper to apptable
     with Session(engine) as session:
         query = session.query(Article, Newspaper).join(
             Newspaper, Article.newspaper_id == Newspaper.id
@@ -65,25 +93,42 @@ def add_app_table():
 
     with Session(engine) as session:
         for d in data:
-            art, new = d
+            art, pap = d
             ap = AppTable(
                 body=art.body,
                 headline=art.headline,
                 article_id=art.id,
                 article_url=art.article_url,
                 date_published=art.date_published,
-                newspaper_id=new.id,
-                fancy_name=new.fancy_name,
+                date_uploaded=art.date_uploaded,
+                newspaper_id=pap.id,
+                fancy_name=pap.fancy_name,
             )
             session.add(ap)
         session.commit()
 
 
+def load_latest():
+    with Session(engine) as session:
+        query = (
+            session.query(AppTable).order_by(AppTable.date_published.desc()).limit(5)
+        )
+        latest = [l[0] for l in session.exec(query).all()]
+
+    with Session(engine) as session:
+        query = session.query(AppTable).order_by(AppTable.date_uploaded.desc()).limit(5)
+        scrape = [l[0] for l in session.exec(query).all()]
+
+    return latest, scrape
+
+
 if __name__ == "__main__":
     papers = add_papers()
+
     for paper in papers.keys():
         try:
             add_articles(paper)
         except FileNotFoundError:
-            pass
+            print(f"no JSONLines for {paper}")
+
     add_app_table()

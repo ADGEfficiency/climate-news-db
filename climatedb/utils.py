@@ -25,8 +25,10 @@ def find_one_tag(soup, name, attrs={}):
 
 
 def form_article_id(url, idx=-1):
+    url = url.replace("/?gb=true", "")
     url = url.strip("/")
     url = url.split("?")[0]
+
     article_id = url.split("/")[idx]
     article_id = article_id.replace(".html", "")
     article_id = article_id.split("|")[0]

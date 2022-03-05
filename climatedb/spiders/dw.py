@@ -6,8 +6,10 @@ from climatedb.parsing_utils import get_body
 from climatedb.utils import form_article_id
 from datetime import datetime
 
+from climatedb.spiders.base import ClimateDBSpider
 
-class DWSpider(scrapy.Spider):
+
+class DWSpider(ClimateDBSpider):
     name = "dw"
     start_urls = get_urls_for_paper(name)
 
@@ -46,6 +48,4 @@ class DWSpider(scrapy.Spider):
             "date_published": date,
             "article_name": article_name,
         }
-        meta = Article(**meta).dict()
-        save_html(self.name, article_name, response)
-        return meta
+        return self.tail(response, meta)

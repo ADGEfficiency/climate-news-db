@@ -2,6 +2,8 @@ from climatedb.databases_neu import get_urls_for_paper, JSONLines, save_html, Ar
 from climatedb.utils import form_article_id
 from climatedb.spiders.base import ClimateDBSpider
 
+from climatedb import parsing_utils
+
 
 class BBCSpider(ClimateDBSpider):
     name = "bbc"
@@ -10,22 +12,17 @@ class BBCSpider(ClimateDBSpider):
     def parse(self, response):
 
         article_name = form_article_id(response.url, -2)
-        body = response.xpath(
-            '//div[@itemprop="articleBody"]/descendant-or-self::*/text()'
-        ).getall()
-
-        for unwanted in [
-            "The opinions expressed in this commentary are",
-            "(CNN)",
-            "contributed to this report",
-        ]:
-            body = [b for b in body if unwanted not in b]
-
-        body = "".join(body)
+        # body = response.xpath(
+        #     '//div[@itemprop="articleBody"]/descendant-or-self::*/text()'
+        # ).getall()
+        # body = "".join(body)
+        body = parsing_utils.get_body(response)
 
         headline = response.xpath('//meta[@property="og:title"]/@content').get()
         subtitle = response.xpath('//meta[@property="og:description"]/@content').get()
-        date = response.xpath('//meta[@name="pubdate"]/@content').get()
+
+        app = parsing_utils.get_app_json(response)
+        date = app["datePublished"]
 
         meta = {
             "headline": headline,
@@ -35,6 +32,4 @@ class BBCSpider(ClimateDBSpider):
             "date_published": date,
             "article_name": article_name,
         }
-        meta = Article(**meta).dict()
-        save_html(self.name, article_name, response)
-        return meta
+        return self.tail(response, meta)

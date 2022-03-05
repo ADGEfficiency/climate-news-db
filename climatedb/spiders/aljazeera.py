@@ -1,14 +1,14 @@
 import json
-import scrapy
 from climatedb.databases_neu import get_urls_for_paper, JSONLines, save_html
 from pathlib import Path
 
 from climatedb.parsing_utils import get_app_json, get_body
 from climatedb.databases_neu import Article
 from climatedb.utils import form_article_id
+from climatedb.spiders.base import ClimateDBSpider
 
 
-class AljazeeraSpider(scrapy.Spider):
+class AljazeeraSpider(ClimateDBSpider):
     name = "aljazeera"
     start_urls = get_urls_for_paper(name)
 
@@ -43,6 +43,6 @@ class AljazeeraSpider(scrapy.Spider):
             "date_published": date,
             "article_name": article_name,
         }
-        meta = Article(**meta).dict()
-        save_html(self.name, article_name, response)
-        return meta
+        #  shouldnt need this!
+        assert len(meta["article_name"]) > 4
+        return self.tail(response, meta)

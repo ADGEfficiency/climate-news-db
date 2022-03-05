@@ -32,4 +32,4 @@ class NewsHubSpider(ClimateDBSpider):
         }
         meta = Article(**meta).dict()
         save_html(self.name, article_name, response)
-        return meta
+        return self.tail(response, meta)

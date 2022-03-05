@@ -1,7 +1,7 @@
 import abc
 import json
 
-from climatedb.config import DBHOME
+from climatedb.config import data_home
 
 from collections import namedtuple
 import sqlite3
@@ -25,7 +25,7 @@ class JSONLinesFile(AbstractDB):
     """Single File, each row a JSON"""
 
     def __init__(self, name, key=None, schema=None):
-        self.data = DBHOME / name
+        self.data = data_home / name
         self.data.parent.mkdir(exist_ok=True, parents=True)
         self.key = key
 
@@ -76,7 +76,7 @@ class HTMLFolder(AbstractDB):
     """Folder of HTML files"""
 
     def __init__(self, name, key, value):
-        self.fldr = DBHOME / name
+        self.fldr = data_home / name
         self.fldr.mkdir(exist_ok=True, parents=True)
         self.key = key
         self.value = value
@@ -113,7 +113,7 @@ class JSONFolder(AbstractDB):
     """Folder of JSON files"""
 
     def __init__(self, name, key, schema=None):
-        self.fldr = DBHOME / name
+        self.fldr = data_home / name
         self.fldr.mkdir(exist_ok=True, parents=True)
         self.key = key
 
@@ -177,7 +177,7 @@ class SQLiteEngine(AbstractDB):
         if db in ["test", "temp"]:
             self.c = sqlite3.connect(":memory:", check_same_thread=False)
         else:
-            self.c = sqlite3.connect(DBHOME / db, check_same_thread=False)
+            self.c = sqlite3.connect(data_home / db, check_same_thread=False)
 
         qry = f"CREATE TABLE IF NOT EXISTS {self.table} ({schema});"
         self.c.execute(qry)

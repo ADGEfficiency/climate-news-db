@@ -4,15 +4,17 @@ export
 #  gets the keys of newspapers.json as a list
 PAPERS:=$(shell cat $(DATA_HOME)/newspapers.json | jq 'keys[]')
 
+all: app
+
 #  DATA PIPELINE
 
-all: db
+pipe: db
 
 setup:
 	pip install -r requirements.txt -q
 	pip install --editable . -q
 
-$(DATA_HOME)/urls.csv: $(DATA_HOME)/urls.txt scripts/create_urls_csv.py
+$(DATA_HOME)/urls.csv: $(DATA_HOME)/urls.jsonl scripts/create_urls_csv.py
 	python3 scripts/create_urls_csv.py
 
 $(DATA_HOME)/articles/$(PAPERS).jsonlines: $(DATA_HOME)/urls.csv
@@ -43,14 +45,11 @@ pulls3:
 clean:
 	rm -rf $(DATA_HOME)/articles/* $(DATA_HOME)/db.sqlite $(DATA_HOME)/urls.csv
 
-deep-clean: clean
-	rm -rf $(DATA_HOME)/urls.csv
-
 datasette:
 	datasette $(DB_FI)
 
 scrape-one:
-	scrapy crawl $(PAPER) -o $(DATA_HOME)/articles/$(PAPER).jsonlines -L DEBUG
+	scrapy crawl $(PAPER) -L DEBUG -o $(DATA_HOME)/articles/$(PAPER).jsonlines
 
 inspect:
 	echo $(PAPERS) | xargs -n 1 -I {} -- wc -l $(DATA_HOME)/articles/{}.jsonlines
@@ -58,4 +57,7 @@ inspect:
 dbnodep:
 	rm -rf $(DB_FI)
 	python3 scripts/create_sqlite.py
+
+zip:
+	cd $(DATA_HOME); zip -r ./climate-news-db-dataset.zip ./*
 

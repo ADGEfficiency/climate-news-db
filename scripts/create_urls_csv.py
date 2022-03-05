@@ -1,4 +1,4 @@
-from config import data_home as home
+from climatedb.config import data_home as home
 from rich import print
 from multiprocessing import Pool
 import json

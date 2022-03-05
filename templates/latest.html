@@ -4,15 +4,15 @@
     <table class="table table-condensed table-striped">
       <thead>
         <th>Published</th>
-        <th>Headline</th>
         <th>Newspaper</th>
+        <th>Headline</th>
       </thead>
       <tbody>
         {% for article in latest %}
         <tr>
           <td>{{article.date_published|datetimeformat('%Y-%m-%d %H:%M')}}</td>
+          <td>{{article.fancy_name}}</td>
           <td><a href=/article?article_id={{article.article_id}}>{{article.headline}}</a></td>
-          <td>{{article.newspaper}}</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -22,15 +22,15 @@
     <table class="table table-condensed table-striped">
       <thead>
         <th>Scraped</th>
-        <th>Headline</th>
         <th>Newspaper</th>
+        <th>Headline</th>
       </thead>
       <tbody>
         {% for article in scrape %}
         <tr>
           <td>{{article.date_uploaded|datetimeformat('%Y-%m-%d %H:%M')}}</td>
+          <td>{{article.fancy_name}}</td>
           <td><a href=/article?article_id={{article.article_id}}>{{article.headline}}</a></td>
-          <td>{{article.newspaper}}</td>
         </tr>
         {% endfor %}
       </tbody>

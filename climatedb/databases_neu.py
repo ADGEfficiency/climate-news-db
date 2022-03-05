@@ -1,5 +1,5 @@
-from config import data_home as home
-from config import db_uri
+from climatedb.config import data_home as home
+from climatedb.config import db_uri
 from datetime import datetime
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
@@ -83,15 +83,25 @@ class Newspaper(SQLModel, table=True):
     newspaper_url: str
     color: str
 
+    article_count: Optional[int]
+    average_article_length: Optional[int]
+
+
+from sqlalchemy import UniqueConstraint
+
 
 class Article(SQLModel, table=True):
+    __table_args__ = (UniqueConstraint("article_name"),)
     id: Optional[int] = Field(default=None, primary_key=True)
     body: constr(min_length=64)
     headline: constr(min_length=8)
     article_name: constr(min_length=4)
     article_url: str
-    date_published: datetime
+    date_published: Optional[datetime]
+    date_uploaded: datetime
     newspaper_id: int
+
+    article_length: int
 
 
 class AppTable(SQLModel, table=True):
@@ -100,7 +110,8 @@ class AppTable(SQLModel, table=True):
     headline: str
     article_id: int = Field(primary_key=True)
     article_url: str
-    date_published: datetime
+    date_published: Optional[datetime]
+    date_uploaded: datetime
     #  newspaper
     newspaper_id: int
     fancy_name: str
@@ -117,6 +128,25 @@ def find_all_articles():
     with Session(engine) as s:
         st = select(Article)
         return s.exec(st).fetchall()
+
+
+def find_all_papers():
+    """used by app"""
+    with Session(engine) as s:
+        st = select(Newspaper)
+        data = s.exec(st).fetchall()
+
+        papers = []
+        for paper in data:
+            paper = paper[0]
+            if paper.article_count is None:
+                paper.article_count = 0
+            if paper.average_article_length is None:
+                paper.average_article_length = 0
+
+            papers.append(paper)
+
+        return papers
 
 
 def find_article(article_id: int):

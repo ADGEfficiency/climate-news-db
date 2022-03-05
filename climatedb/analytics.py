@@ -3,16 +3,10 @@ import pandas as pd
 
 def create_article_df(articles):
     df = pd.DataFrame(articles)
-    df.loc[:, "date_published"] = pd.to_datetime(
-        df.loc[:, "date_published"], utc=True
-    )
-    nice_dates = [
-        pd.to_datetime(d)
-        for d in df.loc[:, 'date_published'].values
-    ]
+    df.loc[:, "date_published"] = pd.to_datetime(df.loc[:, "date_published"], utc=True)
+    nice_dates = [pd.to_datetime(d) for d in df.loc[:, "date_published"].values]
     df.loc[:, "date_published_nice"] = nice_dates
     return df
-
 
 
 def groupby_newspaper(df):

@@ -1,30 +1,13 @@
 from pathlib import Path
 
-import scrapy
-from rich import print
-
+from climatedb.spiders.base import ClimateDBSpider
 from climatedb.databases_neu import get_urls_for_paper, JSONLines, Article, save_html
 from climatedb.parsing_utils import get_title, get_date
 
 
-class GuardianSpider(scrapy.Spider):
+class GuardianSpider(ClimateDBSpider):
     name = "guardian"
-
-    #  these aren't actually used (overwritten by get_urls_for_paper)
-    #  more included as reference
-    start_urls = [
-        "https://www.theguardian.com/commentisfree/2018/oct/30/climate-change-action-effective-ipcc-report-fossil-fuels",
-        #  tough to know what to do with the first p element here
-        "https://www.theguardian.com/environment/2020/jun/17/climate-crisis-alarm-at-record-breaking-heatwave-in-siberia",
-    ]
     start_urls = get_urls_for_paper(name)
-
-    def __init__(self, *args, **kwargs):
-        super(GuardianSpider, self).__init__(*args, **kwargs)
-
-        #  use the -a start_url="some/url" CLI argument if we pass it
-        if "start_url" in kwargs.keys():
-            self.start_urls = [kwargs.get("start_url")]
 
     def parse(self, response):
         article_name = response.url.split("/")[-1]
@@ -76,7 +59,6 @@ class GuardianSpider(scrapy.Spider):
         #  <meta property="article:published_time" content="2018-10-30T14:58:39.000Z"/>
         date = get_date(response)
 
-        #  one jsonline - saved by scrapy for us
         meta = {
             "headline": headline,
             "subtitle": subtitle,
@@ -85,7 +67,5 @@ class GuardianSpider(scrapy.Spider):
             "date_published": date,
             "article_name": article_name,
         }
-        #  here we ensure this type is what we want!
-        meta = Article(**meta).dict()
-        save_html(self.name, article_name, response)
-        return meta
+
+        return self.tail(response, meta)

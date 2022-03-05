@@ -155,3 +155,13 @@ created newspapers.json - use it to drive makefile
 ---
 
 .env - with {} syntax for sharing with Make, include .env
+
+---
+
+rewrite app in fast api, settle on using meta for most scraping stuff
+
+---
+
+moving analytics from the webapp into the backend
+
+
