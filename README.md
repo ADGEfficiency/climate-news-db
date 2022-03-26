@@ -3,6 +3,10 @@
 Database of climate change news articles - [see the dataset here](http://www.climate-news-db.com/).
 
 
+ecr repo
+https://ap-southeast-2.console.aws.amazon.com/ecr/repositories/private/087085368915/climatedb-dev?region=ap-southeast-2
+
+
 ## Data Structures
 
 data/urls.jsonl

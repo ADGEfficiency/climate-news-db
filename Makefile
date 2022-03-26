@@ -70,3 +70,23 @@ dbnodep:
 
 zip:
 	cd $(DATA_HOME); zip -r ./climate-news-db-dataset.zip ./*
+
+
+#  INFRA
+
+ACCOUNTNUM=$(shell aws sts get-caller-identity --query "Account" --output text)
+
+./node_modules/serverless/README.md:
+	npm install serverless
+sls-setup: ./node_modules/serverless/README.md
+
+# .SILENT: infra
+
+AWSPROFILE=adg
+IMAGENAME=climatedb-$(STAGE)
+
+docker:
+	./build-docker-image.sh $(ACCOUNTNUM) $(IMAGENAME) ./Dockerfile $(AWSPROFILE)
+
+infra: sls-setup #docker
+	npx serverless deploy -s $(STAGE) --param account=$(ACCOUNTNUM) --verbose
