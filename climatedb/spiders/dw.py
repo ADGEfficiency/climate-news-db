@@ -1,5 +1,3 @@
-import scrapy
-
 from climatedb.databases_neu import get_urls_for_paper, save_html, Article
 from climatedb.parsing_utils import get_body
 
@@ -26,6 +24,7 @@ class DWSpider(ClimateDBSpider):
 
         #  <span class="date">11.07.2017</span>
         date = response.xpath('//span[@class="date"]/text()').get()
+        date = datetime.strptime(li, "%d.%m.%Y")
         # <li><strong>Date</strong>
         # 13.04.2014
         # </li>

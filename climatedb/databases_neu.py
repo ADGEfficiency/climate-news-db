@@ -127,7 +127,8 @@ def find_all_articles():
     """used by app"""
     with Session(engine) as s:
         st = select(Article)
-        return s.exec(st).fetchall()
+        articles = s.exec(st).fetchall()
+        return [a[0] for a in articles]
 
 
 def find_all_papers():

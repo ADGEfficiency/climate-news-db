@@ -1,7 +1,17 @@
+2022-03-12
+
+deploy new fastapi to herouku:
+
+- `data-neu`
+
+setup lambda to start searching urls:
+
+- `data-neu`
+
+
 2022-02-26
 
 need to properly manage database uri, datahome etc
-
 
 2022-02
 

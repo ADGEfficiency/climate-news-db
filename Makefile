@@ -1,6 +1,9 @@
 include .env
 export
 
+#  these come from .env
+S3_DIR = s3://$(S3_BUCKET)/$(DATA_DIR)
+
 #  gets the keys of newspapers.json as a list
 PAPERS:=$(shell cat $(DATA_HOME)/newspapers.json | jq 'keys[]')
 
@@ -33,9 +36,8 @@ app:
 
 #  S3
 
-S3_DIR = s3://$(S3_BUCKET)/$(DATA_DIR)
 pushs3:
-	aws s3 sync $(DATA_HOME) $(S3_DIR)  --exclude 'logs/*' --exclude 'temp/*' --exclude 'article_body/*'
+	aws s3 sync $(DATA_HOME) $(S3_DIR) --exclude 'logs/*' --exclude 'temp/*' --exclude 'article_body/*'
 
 pulls3:
 	aws s3 sync $(S3_DIR) $(DATA_HOME) --exclude 'raw/*' --exclude 'temp/*' --exclude 'article_body/*'
@@ -60,4 +62,3 @@ dbnodep:
 
 zip:
 	cd $(DATA_HOME); zip -r ./climate-news-db-dataset.zip ./*
-

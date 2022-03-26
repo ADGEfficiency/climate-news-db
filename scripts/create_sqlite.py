@@ -47,13 +47,12 @@ def add_articles(newspaper):
         count = 0
         for art in articles:
             try:
-                st = insert(Article).values(art.dict()).on_conflict_do_nothing()
+                st = insert(Article).values(art.dict())
                 session.execute(st)
                 count += 1
             except Exception as err:
-                pass
-        session.commit()
-
+                print(err)
+            session.commit()
     print(f"added {count} from {len(articles)} articles to {db_uri} for {newspaper}")
 
 

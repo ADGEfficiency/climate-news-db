@@ -11,7 +11,7 @@ class BBCSpider(ClimateDBSpider):
 
     def parse(self, response):
 
-        article_name = form_article_id(response.url, -2)
+        article_name = form_article_id(response.url, -1)
         # body = response.xpath(
         #     '//div[@itemprop="articleBody"]/descendant-or-self::*/text()'
         # ).getall()

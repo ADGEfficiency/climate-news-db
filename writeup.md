@@ -164,4 +164,16 @@ rewrite app in fast api, settle on using meta for most scraping stuff
 
 moving analytics from the webapp into the backend
 
+join, insert in sqlite
 
+---
+
+using the dataset - first.py
+
+---
+
+# FIRST
+
+
+
+Let's start our project with scraping a single sample - 
