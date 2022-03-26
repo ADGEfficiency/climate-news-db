@@ -1,5 +1,6 @@
 service: climatedb
 frameworkVersion: "3"
+configValidationMode: error
 
 custom:
   name: ${self:service}-${opt:stage}
@@ -9,6 +10,11 @@ provider:
   name: aws
   runtime: python3.8
   region: ap-southeast-2
+
+  environment:
+    S3_BUCKET: climate-news-db
+    DB_URI: sqlite:////var/task/data-neu/db.sqlite
+  timeout: 900
 
 resources:
   Resources:
@@ -27,3 +33,8 @@ functions:
     image:
       uri: ${self:custom.account}.dkr.ecr.ap-southeast-2.amazonaws.com/${self:custom.name}:latest
       command: climatedb.lambda.handlers.search_handler
+
+  controller:
+    image:
+      uri: ${self:custom.account}.dkr.ecr.ap-southeast-2.amazonaws.com/${self:custom.name}:latest
+      command: climatedb.lambda.handlers.controller_handler

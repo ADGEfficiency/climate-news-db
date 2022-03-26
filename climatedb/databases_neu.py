@@ -63,6 +63,8 @@ class JSONFile:
 #  sqlite stuff
 
 
+print(f"creating database connection at {db_uri}")
+print(f"creating database connection at [green]{db_uri}[/]")
 engine = create_engine(db_uri)
 SQLModel.metadata.create_all(engine)
 

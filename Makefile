@@ -88,5 +88,5 @@ IMAGENAME=climatedb-$(STAGE)
 docker:
 	./build-docker-image.sh $(ACCOUNTNUM) $(IMAGENAME) ./Dockerfile $(AWSPROFILE)
 
-infra: sls-setup #docker
+infra: sls-setup docker
 	npx serverless deploy -s $(STAGE) --param account=$(ACCOUNTNUM) --verbose

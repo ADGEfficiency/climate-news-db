@@ -26,18 +26,19 @@ async def call_lambda(function_name, event, invocation_type="RequestResponse"):
         #  just during dev
         print("error")
 
+from climatedb.search import search
 
 def search_handler(
     event: dict, context: types.Union[dict, None]
 ) -> types.Dict[str, str]:
     print(event)
     print(context)
-    return event
+    return search(event['newspaper'], 5)
 
 
 async def main_async(newspapers):
     routines = [
-        call_lambda("search_handler", {"paper": newspaper.name})
+        call_lambda("search_handler", {"newspaper": newspaper.name})
         for newspaper in newspapers[:3]
     ]
     await asyncio.gather(*routines)
@@ -49,7 +50,11 @@ def controller_handler(
     print("controller handler")
     loop = asyncio.get_event_loop()
     newspapers = find_all_papers()
-    loop.run_until_complete(main_async(newspapers))
+    out = loop.run_until_complete(main_async(newspapers))
+    return {
+        "msg": f"ran {len(newspapers)} newspapers"
+        "loop-out": str(out)
+    }
 
 
 if __name__ == "__main__":
