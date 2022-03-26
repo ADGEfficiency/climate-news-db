@@ -17,6 +17,14 @@ setup:
 	pip install -r requirements.txt -q
 	pip install --editable . -q
 
+setup-neu: poetry
+	poetry config virtualenvs.create false --local
+	poetry install
+
+$(HOME)/.poetry/bin:
+	curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+poetry: $(HOME)/.poetry/bin
+
 $(DATA_HOME)/urls.csv: $(DATA_HOME)/urls.jsonl scripts/create_urls_csv.py
 	python3 scripts/create_urls_csv.py
 
