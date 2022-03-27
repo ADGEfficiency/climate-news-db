@@ -40,7 +40,7 @@ db: setup scrapy
 #  APP
 
 app:
-	uvicorn neuapp:app --reload
+	uvicorn app:app --reload
 
 #  S3
 

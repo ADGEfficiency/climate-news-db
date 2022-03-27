@@ -1,163 +1,107 @@
-from random import randint
+from fastapi.responses import FileResponse
 
-from flask import Flask, render_template, request, jsonify
-import pandas as pd
+"""
+Want to:
 
-from climatedb.analytics import (
-    create_article_df,
-    groupby_newspaper,
-    groupby_years_and_newspaper,
+- render home page
+- with all article as list of json
+- that come from sqlite
+"""
+
+from climatedb.databases_neu import (
+    find_all_articles,
+    find_all_papers,
+    find_article,
+    find_random_article,
+    find_articles_by_newspaper,
 )
-from climatedb.config import DBHOME
-from climatedb import services, databases
+from fastapi.staticfiles import StaticFiles
 
-from climatedb.registry import get_newspaper, registry
+from typing import Optional
 
-app = Flask("climate-news-db")
+from fastapi import FastAPI, Request
 
-# registry = pd.DataFrame(registry)
-# registry = registry.set_index("newspaper_id")
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
 
-# db = databases.ArticlesFolders()
-# db = databases.ArticlesSQLite()
-# articles = services.get_all_articles(db)
-
-#  make sqlite model w/ sql alchemy
-
-from flask import Flask
-from sqlalchemy.ext.declarative import declarative_base
-
-from config import data_home as home
-from config import db_uri
-
-from sqlalchemy import create_engine, MetaData, Table
-from scripts.create_sqlite import articles_table, meta, engine
-
-# with engine.connect() as con:
-#     articles = con.execute(articles_table.select())
-#     articles = con.execute(articles_table.select(articles_table.c.article_id == "id"))
+from datetime import datetime
+from climatedb.config import data_home
 
 
-@app.route("/article")
-def show_one_article():
-    article_id = request.args.get("article_id")
-    article_id = "climate-crisis-alarm-at-record-breaking-heatwave-in-siberia"
-    article = find_article_from_article_id(article_id, engine)
-    return render_template("article.html", article=article)
+articles = find_all_articles()
+papers = find_all_papers()
+app = FastAPI()
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 
 
-@app.route("/newspaper")
-def show_one_newspaper():
-    newspaper_id = request.args.get("newspaper_id")
-    # articles = services.get_all_articles_from_newspaper(db, newspaper_id)
-    newspaper_id = "guardian"
-    articles = find_articles_by_newspaper(newspaper_id, engine)
-    articles = pd.DataFrame(articles)
-    articles = articles.sort_values("date_published", ascending=False)
-    articles = articles.reset_index(drop=True)
-    articles = articles.to_dict(orient="records")
-    newspaper = get_newspaper(newspaper_id)
-    return render_template("newspaper.html", newspaper=newspaper, articles=articles)
+def datetimeformat(value, fmt="%Y-%m-%d"):
+    try:
+        dt = str(value).replace("Z", "")
+        return datetime.fromisoformat(dt).strftime(fmt)
+    except:
+        return ""
 
 
-@app.route("/papers.json")
-def paper_json():
-    """groupby paper, calculate statistics"""
-    articles = services.get_all_articles(db)
-
-    df = create_article_df(articles)
-    group = groupby_newspaper(df)
-    group = group.set_index("newspaper_id")
-
-    papers = pd.concat([group, registry], axis=1)
-    papers.loc[:, "newspaper_id"] = papers.index
-    papers = papers.sort_index()
-    papers = papers.reset_index(drop=True)
-    papers = papers.fillna(0)
-    return papers.to_dict(orient="records")
+templates.env.filters["datetimeformat"] = datetimeformat
 
 
-@app.route("/years.json")
-def year_json():
-    """groupby paper and by year"""
-    articles = services.get_all_articles(db)
-    df = create_article_df(articles)
-    return groupby_years_and_newspaper(df)
-
-
-@app.route("/year-chart")
-def year_chart():
-    return render_template("year_chart.html")
-
-
-def get_latest_articles(articles, key="date_uploaded", num=8):
-    articles = services.get_all_articles(db)
-    df = create_article_df(articles)
-    df = df.sort_values(key, ascending=False)
-    return df.head(num).to_dict(orient="records")
-
-
-@app.route("/")
-def home():
-    papers = paper_json()
+@app.get("/")
+async def read_root(request: Request):
     data = {"n_articles": len(articles), "articles": articles, "n_papers": len(papers)}
-    return render_template(
-        "home.html",
-        data=data,
-        papers=papers,
+    return templates.TemplateResponse(
+        "home.html", {"request": request, "data": data, "papers": papers}
     )
 
 
-@app.route("/latest")
-def latest():
-    df = create_article_df(articles)
-    latest = get_latest_articles(articles, "date_published")
-    scrape = get_latest_articles(articles, "date_uploaded")
-    return render_template("latest.html", latest=latest, scrape=scrape)
+@app.get("/article/{article_id}", response_class=HTMLResponse)
+async def read_article(request: Request, article_id: int):
+    """show one article by article id"""
+    article = find_article(article_id)
+    return templates.TemplateResponse(
+        "article.html", {"request": request, "article": article}
+    )
 
 
-@app.route("/random")
-def show_random_article():
-    idx = randint(0, len(articles) - 1)
-    article = articles[idx]
-    return render_template("article.html", article=article)
+@app.get("/newspaper/{newspaper_id}", response_class=HTMLResponse)
+async def read_newspaper_articles(request: Request, newspaper_id: int):
+    """show one article by article id"""
+    articles, newspaper = find_articles_by_newspaper(newspaper_id)
+
+    return templates.TemplateResponse(
+        "newspaper.html",
+        {"request": request, "articles": articles, "newspaper": newspaper},
+    )
 
 
-@app.route("/logs")
-def show_logs():
-    toggle = request.args.get("toggle")
-    if toggle is None:
-        toggle = "error"
-
-    from climatedb.logger import load_logs
-
-    logs = load_logs()
-    if toggle == "error":
-        logs = [l for l in logs if "error" in l["msg"]]
-
-    logs = logs
-    logs = pd.DataFrame(logs)
-    logs = logs.sort_values("time", ascending=False)
-    logs = logs.to_dict(orient="records")
-    return render_template("logs.html", logs=logs, toggle=toggle)
+@app.get("/random", response_class=HTMLResponse)
+async def read_random_article(request: Request):
+    """show a random article"""
+    article = find_random_article()
+    return templates.TemplateResponse(
+        "article.html", {"request": request, "article": article}
+    )
 
 
-from flask import send_file
+@app.get("/latest", response_class=HTMLResponse)
+async def read_latest(request: Request):
+    """show the latest articles"""
+
+    #  sort by date_published
+    from scripts.create_sqlite import load_latest
+
+    latest, scrape = load_latest()
+
+    return templates.TemplateResponse(
+        "latest.html", {"request": request, "latest": latest, "scrape": scrape}
+    )
 
 
-@app.route("/download")
-def download():
-    return send_file("data/climate-news-db-dataset.zip", as_attachment=True)
-
-
-from datetime import datetime
-
-
-@app.template_filter("datetimeformat")
-def datetimeformat(value, fmt="%Y-%m-%d"):
-    dt = str(value).replace("Z", "")
-    return datetime.fromisoformat(dt).strftime(fmt)
-
-
-if __name__ == "__main__":
-    app.run(debug=True)
+@app.get("/download", response_class=HTMLResponse)
+def download(request: Request):
+    return FileResponse(
+        path=f"{data_home}/climate-news-db-dataset.zip",
+        filename="climate-new-db-dataset.zip",
+        media_type="zip",
+    )
