@@ -34,7 +34,12 @@ functions:
       uri: ${self:custom.account}.dkr.ecr.ap-southeast-2.amazonaws.com/${self:custom.name}:latest
       command: climatedb.lambda.handlers.search_handler
 
-  controller:
+  controller_async:
+    image:
+      uri: ${self:custom.account}.dkr.ecr.ap-southeast-2.amazonaws.com/${self:custom.name}:latest
+      command: climatedb.lambda.handlers.controller_async_handler
+
+  controller_serial:
     image:
       uri: ${self:custom.account}.dkr.ecr.ap-southeast-2.amazonaws.com/${self:custom.name}:latest
       command: climatedb.lambda.handlers.controller_handler

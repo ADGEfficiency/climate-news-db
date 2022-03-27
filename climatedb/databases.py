@@ -1,111 +1,187 @@
-from itertools import chain
-
+from climatedb.config import data_home as home
+from climatedb.config import db_uri
+from datetime import datetime
+from fastapi.templating import Jinja2Templates
+from pathlib import Path
+from pydantic import constr
+from rich import print
+from sqlalchemy import select
+from sqlmodel import Field, Session, SQLModel, create_engine
+from typing import List
+from typing import Optional
+import json
 import pandas as pd
 
-from climatedb.engines import JSONFolder, SQLiteEngine, JSONLinesFile
-from climatedb.config import DBHOME
+
+def get_urls_for_paper(paper: str) -> List[str]:
+    """
+    Gets all urls for a newspaper from $(DATA_HOME) / urls.csv
+    """
+    raw = pd.read_csv(f"{home}/urls.csv")
+    mask = raw["name"] == paper
+    data = raw[mask]
+    urls = data["url"].values.tolist()
+
+    #  here we can filter out what we already have
+    existing = home / "articles" / f"{paper}.jsonlines"
+    if existing.is_file():
+        jl = JSONLines(existing)
+        existing = jl.read()
+        existing = [a["article_url"] for a in existing]
+
+        #  last one is '' - TODO do this properly
+        dispatch = set(urls).difference(set(existing))
+    else:
+        dispatch = urls
+        existing = []
+
+    print(
+        f"{paper}, all_urls {raw.shape[0]}, urls {len(urls)}, existing {len(existing)}, dispatch {len(dispatch)}"
+    )
+
+    return list(dispatch)
 
 
-class URLs:
-    def __init__(self, name, key="url", schema=None, engine="jsonl"):
-        self.engine = JSONLinesFile(name, key, schema)
+class JSONLines:
+    def __init__(self, path):
+        self.path = Path(path)
 
-    def add(self, batch):
-        for data in batch:
-            if not self.engine.exists(data["url"]):
-                self.engine.add(batch)
-
-    def get(self, num=0):
-        data = self.engine.get()
-        return data[-num:]
-
-    def __len__(self):
-        return len(self.engine)
-
-    def exists(self, key):
-        return self.engine.exists(key)
+    def read(self):
+        data = self.path.read_text().split("\n")[:-1]
+        return [json.loads(a) for a in data]
+        return data
 
 
-class ArticlesFolders:
-    """nested folders of JSON files, one folder per newspaper"""
+class JSONFile:
+    def __init__(self, path):
+        self.path = Path(path)
 
-    def __init__(
-        self,
-        name="final",
-        folder_key="newspaper_id",
-        file_key="article_id",
-    ):
-        self.folder_key = folder_key
-        self.file_key = file_key
-
-        self.home = DBHOME / "articles" / name
-        self.home.mkdir(exist_ok=True, parents=True)
-
-        #  newspapers each live in their own folder
-        folders = [p for p in self.home.iterdir() if p.is_dir()]
-
-        self.folders = {p.name: JSONFolder(p, key=self.file_key) for p in folders}
-
-    def add(self, batch):
-        if isinstance(batch, dict):
-            batch = (batch,)
-
-        for article in batch:
-            folder = article[self.folder_key]
-
-            #  if we don't have folder for article yet
-            if folder not in self.folders.keys():
-                self.folders[folder] = JSONFolder(folder, key=self.file_key)
-
-            self.folders[folder].add(article)
-
-    def get(self):
-        articles = list(chain(*[fldr.get() for fldr in self.folders.values()]))
-        print(f" loaded {len(articles)} from {len(self.folders)} folders")
-        return articles
-
-    def filter(self, key, value):
-        articles = self.get()
-        return [r for r in articles if r[key] == value]
-
-    def exists(self, key, value):
-        #  bool(0) -> False
-        return bool(len(self.filter(key, value)))
+    def read(self):
+        return json.loads(self.path.read_text())
 
 
-article_schema = [
-    ("newspaper", "TEXT"),
-    ("newspaper_id", "TEXT"),
-    ("newspaper_url", "TEXT"),
-    ("body", "TEXT"),
-    ("headline", "TEXT"),
-    ("article_url", "TEXT"),
-    ("article_id", "TEXT"),
-    ("date_published", "TEXT"),
-    ("date_uploaded", "TEXT"),
-    ("color", "TEXT"),
-]
+#  sqlite stuff
 
 
-class ArticlesSQLite:
-    def __init__(
-        self, db="climatedb.sqlite", schema=article_schema, index="article_id"
-    ):
-        self.engine = SQLiteEngine(table="final", schema=schema, db=db, index=index)
-
-    def get(self):
-        return self.engine.get()
-
-    def filter(self, key, value):
-        return self.engine.filter(key, value)
-
-    def add(self, batch):
-        return self.engine.add(batch)
+print(f"creating database connection at {db_uri}")
+print(f"creating database connection at [green]{db_uri}[/]")
+engine = create_engine(db_uri)
+SQLModel.metadata.create_all(engine)
 
 
-databases = {"folders": ArticlesFolders, "sqlite": ArticlesSQLite}
+def save_html(paper, article, response):
+    """used by spiders"""
+    fi = (
+        Path.home() / "climate-news-db" / "data-reworked" / "articles" / paper / article
+    )
+    fi.parent.mkdir(exist_ok=True, parents=True)
+    fi.with_suffix(".html").write_bytes(response.body)
 
 
-if __name__ == "__main__":
-    db = ArticlesSQLite()
-    print(db.get())
+class Newspaper(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str
+    fancy_name: str
+    newspaper_url: str
+    color: str
+
+    article_count: Optional[int]
+    average_article_length: Optional[int]
+
+
+from sqlalchemy import UniqueConstraint
+
+
+class Article(SQLModel, table=True):
+    __table_args__ = (UniqueConstraint("article_name"),)
+    id: Optional[int] = Field(default=None, primary_key=True)
+    body: constr(min_length=64)
+    headline: constr(min_length=8)
+    article_name: constr(min_length=4)
+    article_url: str
+    date_published: Optional[datetime]
+    date_uploaded: datetime
+    newspaper_id: int
+
+    article_length: int
+
+
+class AppTable(SQLModel, table=True):
+    #  article
+    body: constr(min_length=64)
+    headline: str
+    article_id: int = Field(primary_key=True)
+    article_url: str
+    date_published: Optional[datetime]
+    date_uploaded: datetime
+    #  newspaper
+    newspaper_id: int
+    fancy_name: str
+
+
+def find_id_for_newspaper(newspaper: str):
+    with Session(engine) as s:
+        st = select(Newspaper.id).where(Newspaper.name == newspaper)
+        return s.exec(st).first()[0]
+
+
+def find_all_articles():
+    """used by app"""
+    with Session(engine) as s:
+        st = select(Article)
+        articles = s.exec(st).fetchall()
+        return [a[0] for a in articles]
+
+
+def find_all_papers():
+    """used by app"""
+    with Session(engine) as s:
+        st = select(Newspaper)
+        data = s.exec(st).fetchall()
+
+        papers = []
+        for paper in data:
+            paper = paper[0]
+            if paper.article_count is None:
+                paper.article_count = 0
+            if paper.average_article_length is None:
+                paper.average_article_length = 0
+
+            papers.append(paper)
+
+        return papers
+
+
+def find_article(article_id: int):
+    """used by app"""
+    with Session(engine) as s:
+        st = select(AppTable).where(AppTable.article_id == article_id)
+        return s.exec(st).first()[0]
+
+
+def find_random_article():
+    """used by app"""
+    from sqlalchemy.sql.expression import func, select
+
+    with Session(engine) as s:
+        st = select(AppTable).order_by(func.random())
+        return s.exec(st).first()[0]
+
+
+def find_articles_by_newspaper(newspaper_id):
+    """used by app"""
+
+    with Session(engine) as s:
+        st = (
+            select(AppTable)
+            .where(AppTable.newspaper_id == newspaper_id)
+            .order_by(AppTable.date_published.desc())
+        )
+        articles = s.exec(st).all()
+        articles = [a[0] for a in articles]
+
+    with Session(engine) as s:
+        st = select(Newspaper).where(Newspaper.id == newspaper_id)
+        newspaper = s.exec(st).first()[0]
+
+    return articles, newspaper
