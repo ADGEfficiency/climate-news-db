@@ -43,12 +43,9 @@ functions:
       uri: ${self:custom.account}.dkr.ecr.ap-southeast-2.amazonaws.com/${self:custom.name}:latest
       command: climatedb.lambda.handlers.controller_handler
     events:
-      # - schedule: rate(24 hours)
-
       - schedule:
-          name: your-scheduled-rate-event-name
-          description: 'your scheduled rate event description'
+          name: daily-url-search
           rate: rate(24 hours)
           input:
-            s3_bucket: bu
-            s3_key: ke
+            s3_bucket: climatedb-dev
+            s3_key: data-neu/urls.jsonl
