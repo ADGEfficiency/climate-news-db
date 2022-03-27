@@ -16,6 +16,15 @@ provider:
     DB_URI: sqlite:////var/task/data-neu/db.sqlite
   timeout: 900
 
+  iam:
+    role:
+      statements:
+        - Effect: 'Allow'
+          Action:
+            - 's3:*'
+          Resource:
+            - '*'
+
 resources:
   Resources:
     bucket:
@@ -29,17 +38,17 @@ resources:
         RepositoryName: ${self:custom.name}
 
 functions:
-  search:
-    image:
-      uri: ${self:custom.account}.dkr.ecr.ap-southeast-2.amazonaws.com/${self:custom.name}:latest
-      command: climatedb.lambda.handlers.search_handler
-
-  controller_async:
-    image:
-      uri: ${self:custom.account}.dkr.ecr.ap-southeast-2.amazonaws.com/${self:custom.name}:latest
-      command: climatedb.lambda.handlers.controller_async_handler
-
-  controller_serial:
+  controller:
     image:
       uri: ${self:custom.account}.dkr.ecr.ap-southeast-2.amazonaws.com/${self:custom.name}:latest
       command: climatedb.lambda.handlers.controller_handler
+    events:
+      # - schedule: rate(24 hours)
+
+      - schedule:
+          name: your-scheduled-rate-event-name
+          description: 'your scheduled rate event description'
+          rate: rate(24 hours)
+          input:
+            s3_bucket: bu
+            s3_key: ke

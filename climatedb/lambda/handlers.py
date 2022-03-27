@@ -6,8 +6,33 @@ from rich import print
 
 from climatedb.search import search
 from climatedb import types
-from climatedb import databases as dbs
-from climatedb.databases_neu import find_all_papers
+
+# from climatedb import databases as dbs
+from climatedb.databases import find_all_papers
+from climatedb.config import data_home, s3_bucket, s3_prefix
+
+from climatedb import files
+
+
+def controller_handler(
+    event: dict, context: types.Union[dict, None] = None
+) -> types.Dict[str, str]:
+    """
+    Could use the search lambda here, or just the handler here
+    """
+
+    bucket = event.get("s3_bucket", s3_bucket)
+    key = event.get("s3_key", s3_prefix + "/urls.jsonl")
+
+    urls_db = files.S3JSONLines(event["s3_bucket"], event["s3_key"])
+
+    pkg = []
+    for np in find_all_papers():
+        urls = search(np, 5)
+        urls_db.write(urls)
+        pkg.extend(urls)
+
+    return pkg
 
 
 async def call_lambda(function_name, event, invocation_type="RequestResponse"):
@@ -34,18 +59,6 @@ def search_handler(
     return results
 
 
-def controller_handler(
-    event: dict, context: types.Union[dict, None] = None
-) -> types.Dict[str, str]:
-    """
-    Could use the search lambda here, or just the handler here
-    """
-    urls_db = dbs.JSONLines("urls/urls.jsonl")
-    for np in find_all_papers():
-        urls = search(np.newspaper, 5)
-        urls_db.insert(urls)
-
-
 async def main_async(newspapers):
     routines = [
         call_lambda("climatedb-dev-search", {"newspaper": newspaper.name})
@@ -67,4 +80,4 @@ def controller_async_handler(
 
 
 if __name__ == "__main__":
-    controller_handler({})
+    controller_handler({"s3_bucket": s3_bucket, "s3_key": s3_prefix + "/urls.jsonl"})

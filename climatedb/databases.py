@@ -1,3 +1,4 @@
+from sqlalchemy import UniqueConstraint
 from climatedb.config import data_home as home
 from climatedb.config import db_uri
 from datetime import datetime
@@ -9,8 +10,11 @@ from sqlalchemy import select
 from sqlmodel import Field, Session, SQLModel, create_engine
 from typing import List
 from typing import Optional
-import json
 import pandas as pd
+
+from climatedb import types
+
+from climatedb.types import Newspaper
 
 
 def get_urls_for_paper(paper: str) -> List[str]:
@@ -42,29 +46,10 @@ def get_urls_for_paper(paper: str) -> List[str]:
     return list(dispatch)
 
 
-class JSONLines:
-    def __init__(self, path):
-        self.path = Path(path)
-
-    def read(self):
-        data = self.path.read_text().split("\n")[:-1]
-        return [json.loads(a) for a in data]
-        return data
-
-
-class JSONFile:
-    def __init__(self, path):
-        self.path = Path(path)
-
-    def read(self):
-        return json.loads(self.path.read_text())
-
-
 #  sqlite stuff
 
 
-print(f"creating database connection at {db_uri}")
-print(f"creating database connection at [green]{db_uri}[/]")
+print(f"database connection: [green]{db_uri}[/]")
 engine = create_engine(db_uri)
 SQLModel.metadata.create_all(engine)
 
@@ -76,20 +61,6 @@ def save_html(paper, article, response):
     )
     fi.parent.mkdir(exist_ok=True, parents=True)
     fi.with_suffix(".html").write_bytes(response.body)
-
-
-class Newspaper(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    name: str
-    fancy_name: str
-    newspaper_url: str
-    color: str
-
-    article_count: Optional[int]
-    average_article_length: Optional[int]
-
-
-from sqlalchemy import UniqueConstraint
 
 
 class Article(SQLModel, table=True):

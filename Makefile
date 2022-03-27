@@ -90,3 +90,6 @@ docker:
 
 infra: sls-setup docker
 	npx serverless deploy -s $(STAGE) --param account=$(ACCOUNTNUM) --verbose
+
+copy_urls_from_old:
+	aws s3 cp s3://climate-news-db/data-old/urls/urls.jsonl s3://climatedb-dev/data-neu/urls.jsonl
