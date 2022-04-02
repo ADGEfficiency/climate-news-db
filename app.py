@@ -8,7 +8,7 @@ Want to:
 - that come from sqlite
 """
 
-from climatedb.databases_neu import (
+from climatedb.databases import (
     find_all_articles,
     find_all_papers,
     find_article,

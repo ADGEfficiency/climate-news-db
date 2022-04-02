@@ -177,3 +177,36 @@ using the dataset - first.py
 
 
 Let's start our project with scraping a single sample - 
+
+---
+
+brew tap heroku/brew && brew install heroku
+
+```
+heroku login
+heroku create
+
+generate req.txt (use poetry for this)
+```
+uvicorn==0.12.3
+aiofiles==0.6.0
+python-multipart==0.0.5
+jinja2==2.11.2
+
+```
+generate runtime.txt (python-3.8.12)
+
+git push heroku main
+heroku open
+```
+
+---
+docker bit
+
+build:
+  docker:
+    web: docker/app.Dockerfile
+
+heroku stack:set container
+
+git push heroku master

@@ -1,0 +1,8 @@
+setup:
+  config:
+    S3_BUCKET: climatedb-dev
+
+build:
+  docker:
+    web: docker/app.Dockerfile
+    scraper: docker/lambda.Dockerfile

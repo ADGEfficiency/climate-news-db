@@ -85,11 +85,14 @@ sls-setup: ./node_modules/serverless/README.md
 AWSPROFILE=adg
 IMAGENAME=climatedb-$(STAGE)
 
-docker:
-	./build-docker-image.sh $(ACCOUNTNUM) $(IMAGENAME) ./Dockerfile $(AWSPROFILE)
+#  hmmm
+# docker:
+# 	./build-docker-image.sh $(ACCOUNTNUM) $(IMAGENAME) ./docker/lambda.Dockerfile $(AWSPROFILE)
+
+docker-local:
+	docker build -t climatedb-app-local . -f docker/app.Dockerfile
+docker-run:
+	docker run -d --name climatedb-app-local -p 80:80 climatedb-app-local
 
 infra: sls-setup docker
 	npx serverless deploy -s $(STAGE) --param account=$(ACCOUNTNUM) --verbose
-
-copy_urls_from_old:
-	aws s3 cp s3://climate-news-db/data-old/urls/urls.jsonl s3://climatedb-dev/data-neu/urls.jsonl
