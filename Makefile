@@ -96,3 +96,7 @@ docker-run:
 
 infra: sls-setup docker
 	npx serverless deploy -s $(STAGE) --param account=$(ACCOUNTNUM) --verbose
+
+deploy-herouku:
+	poetry export --output requirements.txt
+	# git push heroku main
