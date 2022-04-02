@@ -30,6 +30,7 @@ resources:
     bucket:
       Type: AWS::S3::Bucket
       Properties:
+        AccessControl: PublicRead
         BucketName: ${self:service}-${opt:stage}
 
     ecr:

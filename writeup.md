@@ -220,3 +220,35 @@ docker push registry.heroku.com/climate-news-db/web
 
 heroku container:release web
 
+---
+
+full deploy
+
+- pull s3
+- make database
+- push s3
+- make heroku docker
+
+
+public bucket 
+
+{
+    "Version": "2008-10-17",
+    "Statement": [
+        {
+            "Sid": "AllowPublicRead",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "*"
+            },
+            "Action": [
+                "s3:GetObject",
+                "s3:ListBucket"
+            ],
+            "Resource": [
+                "arn:aws:s3:::climatedb-dev/*",
+                "arn:aws:s3:::climatedb-dev"
+            ]
+        }
+    ]
+}

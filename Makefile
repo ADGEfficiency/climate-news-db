@@ -86,13 +86,20 @@ AWSPROFILE=adg
 IMAGENAME=climatedb-$(STAGE)
 
 docker-local:
-	docker build -t climatedb-app-local . -f app.Dockerfile
+	docker build -t climatedb-app-local . -f Dockerfile.web
 docker-run:
 	docker run -d --name climatedb-app-local -p 80:80 climatedb-app-local
 
-infra: sls-setup docker
+docker-heroku:
+	docker tag climatedb-app-local registry.heroku.com/climate-news-db/web
+	docker push registry.heroku.com/climate-news-db/web
+	heroku container:push web
+
+infra: sls-setup
 	npx serverless deploy -s $(STAGE) --param account=$(ACCOUNTNUM) --verbose
 
-deploy-herouku:
-	poetry export --output requirements.txt
-	git push heroku main
+deploy-neu: pulls3
+	#  make database
+	#  make dataset zip
+	make pushs3
+
