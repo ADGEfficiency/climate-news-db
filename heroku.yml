@@ -5,4 +5,3 @@ setup:
 build:
   docker:
     web: docker/app.Dockerfile
-    scraper: docker/lambda.Dockerfile

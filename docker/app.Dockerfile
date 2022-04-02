@@ -3,8 +3,8 @@ FROM python:3.9
 WORKDIR /code
 
 COPY ./requirements.txt /code/requirements.txt
-COPY pyproject.toml /code/pyproject.toml
-COPY poetry.lock /code/poetry.lock
+COPY ./pyproject.toml /code/pyproject.toml
+COPY ./poetry.lock /code/poetry.lock
 
 RUN pip install poetry
 RUN poetry config virtualenvs.create false && poetry install --no-interaction --no-ansi
