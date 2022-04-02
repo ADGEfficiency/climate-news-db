@@ -210,3 +210,13 @@ build:
 heroku stack:set container
 
 git push heroku master
+
+---
+
+heroku container:login
+
+docker tag climatedb-app-local registry.heroku.com/climate-news-db/web
+docker push registry.heroku.com/climate-news-db/web
+
+heroku container:release web
+
