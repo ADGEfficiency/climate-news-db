@@ -81,9 +81,6 @@ docker-run:
 	docker run -d --name climatedb-app-local -p 80:80 climatedb-app-local
 
 docker-heroku:
-	# docker tag climatedb-app-local registry.heroku.com/climate-news-db/web
-	# docker push registry.heroku.com/climate-news-db/web
-	# heroku container:push web
 	git add -u
 	git commit -m 'heroku deploy'
 	git push heroku tech/feb-2022-rebuild:main
