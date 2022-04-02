@@ -99,4 +99,4 @@ infra: sls-setup docker
 
 deploy-herouku:
 	poetry export --output requirements.txt
-	# git push heroku main
+	git push heroku main
