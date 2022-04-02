@@ -85,12 +85,8 @@ sls-setup: ./node_modules/serverless/README.md
 AWSPROFILE=adg
 IMAGENAME=climatedb-$(STAGE)
 
-#  hmmm
-# docker:
-# 	./build-docker-image.sh $(ACCOUNTNUM) $(IMAGENAME) ./docker/lambda.Dockerfile $(AWSPROFILE)
-
 docker-local:
-	docker build -t climatedb-app-local . -f docker/app.Dockerfile
+	docker build -t climatedb-app-local . -f app.Dockerfile
 docker-run:
 	docker run -d --name climatedb-app-local -p 80:80 climatedb-app-local
 

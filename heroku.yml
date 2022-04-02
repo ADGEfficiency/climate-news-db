@@ -4,4 +4,4 @@ setup:
 
 build:
   docker:
-    web: docker/app.Dockerfile
+    web: app.Dockerfile
