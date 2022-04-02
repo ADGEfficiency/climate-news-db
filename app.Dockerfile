@@ -9,7 +9,8 @@ COPY ./poetry.lock /code/poetry.lock
 RUN pip install poetry
 RUN poetry config virtualenvs.create false && poetry install --no-interaction --no-ansi
 
-COPY ./data-neu /code/data-neu
+COPY ./data-neu/db.sqlite /code/data-neu/db.sqlite
+COPY ./data-neu/newspapers.json /code/data-neu/newspapers.json
 
 ENV DB_URI sqlite:////code/data-neu/db.sqlite
 
