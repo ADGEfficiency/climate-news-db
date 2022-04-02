@@ -24,6 +24,17 @@ provider:
             - 's3:*'
           Resource:
             - '*'
+        - Effect: 'Allow'
+          Action:
+            - 'logs*'
+          Resource:
+            - 'arn:aws:logs:*:*:*'
+        - Effect: 'Allow'
+          Action:
+            - 'ec2:Start*'
+            - 'ec2:Stop*'
+          Resource:
+            - '*'
 
 resources:
   Resources:

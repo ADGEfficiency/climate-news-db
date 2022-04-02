@@ -252,3 +252,22 @@ public bucket
         }
     ]
 }
+
+---
+
+Components of this system:
+
+1. search - daily lambda running,
+2. scrape - ec2 running once per day,
+3. web application - heroku, rebuilt once per day (where?)
+
+---
+
+spin up ec2
+
+git clone git@github.com:ADGEfficiency/climate-news-db.git
+
+install heroku, awscli
+
+copied aws creds into machine
+
