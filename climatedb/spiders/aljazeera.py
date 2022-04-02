@@ -1,10 +1,10 @@
 import json
-from climatedb.databases_neu import get_urls_for_paper, JSONLines, save_html
+from climatedb.databases import get_urls_for_paper, save_html
 from pathlib import Path
 
+from climatedb import parsing_utils
 from climatedb.parsing_utils import get_app_json, get_body
-from climatedb.databases_neu import Article
-from climatedb.utils import form_article_id
+from climatedb.databases import Article
 from climatedb.spiders.base import ClimateDBSpider
 
 
@@ -13,7 +13,7 @@ class AljazeeraSpider(ClimateDBSpider):
     start_urls = get_urls_for_paper(name)
 
     def parse(self, response):
-        article_name = form_article_id(response.url, -1)
+        article_name = parsing_utils.form_article_id(response.url, -1)
 
         body = get_body(response)
         body = body.replace("Follow Al Jazeera English:", "")

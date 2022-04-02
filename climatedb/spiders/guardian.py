@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from climatedb.spiders.base import ClimateDBSpider
-from climatedb.databases_neu import get_urls_for_paper, JSONLines, Article, save_html
+from climatedb.databases import get_urls_for_paper, JSONLines, Article, save_html
 from climatedb.parsing_utils import get_title, get_date
 
 

@@ -1,6 +1,6 @@
 import scrapy
 from rich import print
-from climatedb.databases_neu import Article, save_html
+from climatedb.databases import Article, save_html
 
 import datetime
 

@@ -25,3 +25,10 @@ def get_app_json(response) -> dict:
 def get_body(response):
     body = response.xpath("//p/descendant-or-self::*/text()").getall()
     return "".join(body)
+
+
+def form_article_id(url, idx=-1):
+    url = url.strip("/")
+    url = url.split("?")[0]
+    article_id = url.split("/")[idx]
+    return article_id.replace(".html", "")

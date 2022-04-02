@@ -4,12 +4,12 @@ from multiprocessing import Pool
 import json
 import pandas as pd
 
-from climatedb.databases_neu import JSONFile
+from climatedb.files import JSONFile
 
 
 def find_newspaper_from_url(url):
 
-    papers = JSONFile(home / "newspapers.json").read()
+    papers = JSONFile(Path(home) / "newspapers.json").read()
 
     for paper in papers.values():
         if paper["newspaper_url"] in url:
@@ -19,7 +19,8 @@ def find_newspaper_from_url(url):
 
 
 if __name__ == "__main__":
-    fi = home / "urls.jsonl"
+    from pathlib import Path
+    fi = Path(home) / "urls.jsonl"
     urls = fi.read_text().split("\n")[:-1]
     urls = [json.loads(u)["url"] for u in urls]
     print(f"loaded {len(urls)} urls")

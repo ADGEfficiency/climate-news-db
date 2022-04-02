@@ -1,7 +1,7 @@
-from climatedb.databases_neu import get_urls_for_paper, save_html, Article
+from climatedb.databases import get_urls_for_paper, save_html, Article
 from climatedb.parsing_utils import get_body
 from climatedb.spiders.base import ClimateDBSpider
-from climatedb.utils import form_article_id
+from climatedb.parsing_utils import form_article_id
 
 
 class StuffSpider(ClimateDBSpider):
