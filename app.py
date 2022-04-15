@@ -105,3 +105,10 @@ def download(request: Request):
         filename="climate-new-db-dataset.zip",
         media_type="zip",
     )
+
+
+@app.get("papers.json")
+def papers_json(request: Request):
+    return {
+        "stub": 0
+    }

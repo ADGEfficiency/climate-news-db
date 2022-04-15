@@ -9,30 +9,35 @@ PAPERS:=$(shell cat $(DATA_HOME)/newspapers.json | jq 'keys[]')
 
 all: app
 
+
 #  S3
 
-pushs3: setup
-	aws s3 sync $(DATA_HOME) $(S3_DIR) --exclude 'logs/*' --exclude 'temp/*' --exclude 'article_body/*'
-pulls3: setup
+pulls3:
 	aws s3 sync $(S3_DIR) $(DATA_HOME) --exclude 'raw/*' --exclude 'temp/*' --exclude 'article_body/*'
+pushs3:
+	aws s3 sync $(DATA_HOME) $(S3_DIR) --exclude 'logs/*' --exclude 'temp/*' --exclude 'article_body/*'
+
 
 #  DATA PIPELINE
 
 setup:
 	pip install poetry -q
 	poetry config virtualenvs.create false --local
-	poetry install
+	poetry install -q
 
 $(DATA_HOME)/urls.csv: $(DATA_HOME)/urls.jsonl scripts/create_urls_csv.py
 	python3 scripts/create_urls_csv.py
+create_urls: $(DATA_HOME)/urls.csv
 
-scrape-pipe: $(DATA_HOME)/urls.csv
+scrapy: $(DATA_HOME)/urls.csv
 	cat ./data-neu/newspapers.json | jq 'keys[]' | xargs -n 1 -I {} scrapy crawl {} -o $(DATA_HOME)/articles/{}.jsonlines -L INFO
 
-db: pulls3 scrape-pipe
+db: scrape-pipe
 	rm -rf $(DB_FI)
 	python3 scripts/create_sqlite.py
-	make pushs3
+
+scrape: pulls3 setup create_urls scrapy db pushs3
+
 
 #  APP
 
@@ -70,8 +75,6 @@ ACCOUNTNUM=$(shell aws sts get-caller-identity --query "Account" --output text)
 	npm install serverless
 sls-setup: ./node_modules/serverless/README.md
 
-# .SILENT: infra
-
 AWSPROFILE=adg
 IMAGENAME=climatedb-$(STAGE)
 
@@ -90,3 +93,11 @@ docker-heroku:
 
 infra: sls-setup
 	npx serverless deploy -s $(STAGE) --param account=$(ACCOUNTNUM) --verbose
+
+docker-setup:
+	sudo snap install docker
+	sudo snap install --classic heroku
+
+docker-push:
+	sudo heroku container:push web -a climate-news-db --recursive
+	heroku container:release web -a climate-news-db
