@@ -1,31 +1,23 @@
+from datetime import datetime
+from typing import Optional
+
+from fastapi.staticfiles import StaticFiles
+
 from fastapi.responses import FileResponse
+from fastapi import FastAPI, Request
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse, JSONResponse
 
-"""
-Want to:
-
-- render home page
-- with all article as list of json
-- that come from sqlite
-"""
-
+from climatedb.config import data_home
 from climatedb.databases import (
     find_all_articles,
     find_all_papers,
     find_article,
     find_random_article,
     find_articles_by_newspaper,
+    load_latest,
+    group_newspapers_by_year,
 )
-from fastapi.staticfiles import StaticFiles
-
-from typing import Optional
-
-from fastapi import FastAPI, Request
-
-from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
-
-from datetime import datetime
-from climatedb.config import data_home
 
 
 articles = find_all_articles()
@@ -88,11 +80,7 @@ async def read_random_article(request: Request):
 async def read_latest(request: Request):
     """show the latest articles"""
 
-    #  sort by date_published
-    from scripts.create_sqlite import load_latest
-
     latest, scrape = load_latest()
-
     return templates.TemplateResponse(
         "latest.html", {"request": request, "latest": latest, "scrape": scrape}
     )
@@ -107,8 +95,9 @@ def download(request: Request):
     )
 
 
-@app.get("papers.json")
-def papers_json(request: Request):
-    return {
-        "stub": 0
-    }
+@app.get("/years.json")
+def years_json(request: Request):
+    """used by JS.charts on home page"""
+
+    data = group_newspapers_by_year()
+    return JSONResponse(content=data)
