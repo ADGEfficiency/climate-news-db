@@ -6,10 +6,12 @@ from sqlalchemy import func
 from sqlalchemy import select
 from sqlalchemy.dialects.sqlite import insert
 from sqlmodel import Field, Session, SQLModel, create_engine
-
-from climatedb.databases_neu import (
+from pathlib import Path
+from climatedb.files import (
     JSONLines,
     JSONFile,
+)
+from climatedb.databases import (
     Newspaper,
     Article,
     AppTable,
@@ -26,7 +28,7 @@ SQLModel.metadata.create_all(engine)
 
 
 def add_papers():
-    raw_papers = JSONFile(home / "newspapers.json").read()
+    raw_papers = JSONFile(Path(home) / "newspapers.json").read()
     papers = [Newspaper(**p) for p in raw_papers.values()]
     with Session(engine) as session:
         for p in papers:
@@ -38,7 +40,7 @@ def add_papers():
 
 
 def add_articles(newspaper):
-    articles = JSONLines(home / f"articles/{newspaper}.jsonlines").read()
+    articles = JSONLines(Path(home) / f"articles/{newspaper}.jsonlines").read()
     articles = [
         Article(**a, newspaper_id=find_id_for_newspaper(newspaper)) for a in articles
     ]

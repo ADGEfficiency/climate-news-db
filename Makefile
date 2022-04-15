@@ -9,46 +9,36 @@ PAPERS:=$(shell cat $(DATA_HOME)/newspapers.json | jq 'keys[]')
 
 all: app
 
+#  S3
+
+pushs3: setup
+	aws s3 sync $(DATA_HOME) $(S3_DIR) --exclude 'logs/*' --exclude 'temp/*' --exclude 'article_body/*'
+pulls3: setup
+	aws s3 sync $(S3_DIR) $(DATA_HOME) --exclude 'raw/*' --exclude 'temp/*' --exclude 'article_body/*'
+
 #  DATA PIPELINE
 
-pipe: db
-
 setup:
-	pip install -r requirements.txt -q
-	pip install --editable . -q
-
-setup-neu: poetry
+	pip install poetry -q
 	poetry config virtualenvs.create false --local
 	poetry install
-
-$(HOME)/.poetry/bin:
-	curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
-poetry: $(HOME)/.poetry/bin
 
 $(DATA_HOME)/urls.csv: $(DATA_HOME)/urls.jsonl scripts/create_urls_csv.py
 	python3 scripts/create_urls_csv.py
 
-$(DATA_HOME)/articles/$(PAPERS).jsonlines: $(DATA_HOME)/urls.csv
-	echo $(PAPERS) | xargs -n 1 -I {} -- scrapy crawl {} -o $(DATA_HOME)/articles/{}.jsonlines -L INFO
+scrape-pipe: $(DATA_HOME)/urls.csv
+	cat ./data-neu/newspapers.json | jq 'keys[]' | xargs -n 1 -I {} scrapy crawl {} -o $(DATA_HOME)/articles/{}.jsonlines -L INFO
 
-scrapy: $(DATA_HOME)/articles/$(PAPERS).jsonlines
-
-db: setup scrapy
+db: pulls3 scrape-pipe
 	rm -rf $(DB_FI)
 	python3 scripts/create_sqlite.py
+	make pushs3
 
 #  APP
 
 app:
 	uvicorn app:app --reload
 
-#  S3
-
-pushs3:
-	aws s3 sync $(DATA_HOME) $(S3_DIR) --exclude 'logs/*' --exclude 'temp/*' --exclude 'article_body/*'
-
-pulls3:
-	aws s3 sync $(S3_DIR) $(DATA_HOME) --exclude 'raw/*' --exclude 'temp/*' --exclude 'article_body/*'
 
 #  UTILS
 
@@ -91,15 +81,9 @@ docker-run:
 	docker run -d --name climatedb-app-local -p 80:80 climatedb-app-local
 
 docker-heroku:
-	docker tag climatedb-app-local registry.heroku.com/climate-news-db/web
-	docker push registry.heroku.com/climate-news-db/web
-	heroku container:push web
+	git add -u
+	git commit -m 'heroku deploy'
+	git push heroku tech/feb-2022-rebuild:main
 
 infra: sls-setup
 	npx serverless deploy -s $(STAGE) --param account=$(ACCOUNTNUM) --verbose
-
-deploy-neu: pulls3
-	#  make database
-	#  make dataset zip
-	make pushs3
-

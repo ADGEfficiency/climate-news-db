@@ -13,6 +13,7 @@ from typing import Optional
 import pandas as pd
 
 from climatedb import types
+from climatedb.files import JSONLines
 
 from climatedb.types import Newspaper
 
@@ -27,7 +28,7 @@ def get_urls_for_paper(paper: str) -> List[str]:
     urls = data["url"].values.tolist()
 
     #  here we can filter out what we already have
-    existing = home / "articles" / f"{paper}.jsonlines"
+    existing = Path(home) / "articles" / f"{paper}.jsonlines"
     if existing.is_file():
         jl = JSONLines(existing)
         existing = jl.read()

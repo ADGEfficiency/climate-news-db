@@ -1,7 +1,5 @@
-from climatedb.databases_neu import get_urls_for_paper, JSONLines, save_html, Article
-from climatedb.utils import form_article_id
+from climatedb.databases import get_urls_for_paper, JSONLines, save_html, Article
 from climatedb.spiders.base import ClimateDBSpider
-
 from climatedb import parsing_utils
 
 
@@ -11,7 +9,7 @@ class BBCSpider(ClimateDBSpider):
 
     def parse(self, response):
 
-        article_name = form_article_id(response.url, -1)
+        article_name = parsing_utils.form_article_id(response.url, -1)
         # body = response.xpath(
         #     '//div[@itemprop="articleBody"]/descendant-or-self::*/text()'
         # ).getall()
