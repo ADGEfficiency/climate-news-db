@@ -32,7 +32,7 @@ create_urls: $(DATA_HOME)/urls.csv
 scrapy: $(DATA_HOME)/urls.csv
 	cat ./data-neu/newspapers.json | jq 'keys[]' | xargs -n 1 -I {} scrapy crawl {} -o $(DATA_HOME)/articles/{}.jsonlines -L INFO
 
-db: scrape-pipe
+db: scrapy
 	rm -rf $(DB_FI)
 	python3 scripts/create_sqlite.py
 
