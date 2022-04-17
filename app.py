@@ -98,6 +98,5 @@ def download(request: Request):
 @app.get("/years.json")
 def years_json(request: Request):
     """used by JS.charts on home page"""
-
     data = group_newspapers_by_year()
     return JSONResponse(content=data)

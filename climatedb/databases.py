@@ -14,6 +14,7 @@ import pandas as pd
 
 from climatedb import types
 from climatedb.files import JSONLines
+from sqlalchemy.sql.expression import func, select
 
 from climatedb.types import Newspaper
 
@@ -133,7 +134,6 @@ def find_article(article_id: int):
 
 def find_random_article():
     """used by app"""
-    from sqlalchemy.sql.expression import func, select
 
     with Session(engine) as s:
         st = select(AppTable).order_by(func.random())
@@ -171,3 +171,61 @@ def load_latest():
         scrape = [l[0] for l in session.exec(query).all()]
 
     return latest, scrape
+
+
+def get_newspaper_colors():
+    with Session(engine) as session:
+        query = session.query(
+            Newspaper.fancy_name,
+            Newspaper.color,
+        )
+        data = session.exec(query).all()
+    return data
+
+
+def group_newspapers_by_year():
+    with Session(engine) as session:
+        query = (
+            session.query(
+                func.strftime("%Y", Article.date_published),
+                func.count(Article.id),
+                Newspaper.fancy_name,
+                Newspaper.color,
+            )
+            .join(Newspaper, Article.newspaper_id == Newspaper.id)
+            .group_by(func.strftime("%Y", Article.date_published), Article.newspaper_id)
+        )
+
+    data = session.exec(query).all()
+    from collections import namedtuple, defaultdict
+
+    new_data = []
+    for row in data:
+        if row[0] is not None:
+            if int(row[0]) >= 2000:
+                new_data.append(
+                    {
+                        "year": int(row[0]),
+                        "count": int(row[1]),
+                        "name": row[2],
+                    }
+                )
+
+    out = defaultdict(list)
+    new_data = pd.DataFrame(new_data)
+    new_data = new_data.sort_values(["year", "name"])
+    for row in range(new_data.shape[0]):
+        row = new_data.iloc[row, :]
+        out[row["name"]].append(int(row["count"]))
+    #     row = Row(*row)
+    #     if row.year is not None:
+    #         if int(row.year) >= 2000:
+    #             breakpoint()
+    out = dict(out)
+    years = set(new_data["year"])
+    out["years"] = list(range(min(years), max(years) + 1))
+
+    colors = get_newspaper_colors()
+    colors = {t[0]: t[1] for t in colors}
+    out["colors"] = colors
+    return out
