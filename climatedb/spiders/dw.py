@@ -22,9 +22,27 @@ class DWSpider(ClimateDBSpider):
 
         body = get_body(response)
 
+        #  <p class="accesstobeta__text">Take a look at the <strong>beta</strong> version of dw.com. We're not done yet! Your opinion can help us make it better.</p>
+
+        unwanted = [
+            "Take a look at the beta version of dw.com.",
+            "We're not done yet!",
+            "Your opinion can help us make it better.",
+            "We use cookies to improve our service for you.",
+            "You can find more information in our data protection declaration.",
+            "© 2022 Deutsche Welle",
+            "| Privacy Policy | Accessibility Statement | Legal notice | Contact | Mobile version ",
+        ]
+        for unw in unwanted:
+            body = body.replace(unw, "")
+
         #  <span class="date">11.07.2017</span>
-        date = response.xpath('//span[@class="date"]/text()').get()
-        date = datetime.strptime(li, "%d.%m.%Y")
+        try:
+            date = response.xpath('//span[@class="date"]/text()').get()
+            date = datetime.strptime(date, "%d.%m.%Y")
+        except:
+            date = None
+
         # <li><strong>Date</strong>
         # 13.04.2014
         # </li>

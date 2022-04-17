@@ -1,6 +1,5 @@
 {% extends "layout.html" %}
 {% block body %}
-{% set short_url = article.article_url.split('/')[-1].split('?')[0] %}
   <div>
       <p class="lead">{{article.headline}}</p>
       <table class="table">
@@ -14,7 +13,7 @@
             <td><a href="/newspaper?newspaper_id={{article.newspaper_id}}">{{article.fancy_name}}</a></td>
             <td>{{article.date_published|datetimeformat()}}</td>
             <td>
-              <a href="{{article.article_url}}">{{short_url}}</a>
+              <a href="{{article.article_url}}">Link</a>
             </td>
           </tr>
         </tbody>

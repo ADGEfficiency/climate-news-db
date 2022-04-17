@@ -1,3 +1,4 @@
+import unicodedata
 from climatedb.databases import get_urls_for_paper, JSONLines, save_html, Article
 from climatedb.parsing_utils import form_article_id
 from climatedb.spiders.base import ClimateDBSpider
@@ -14,8 +15,12 @@ class SkyAUSpider(ClimateDBSpider):
         body = body.split("Read More")[0]
 
         headline = response.xpath('//meta[@property="og:title"]/@content').get()
+        headline = unicodedata.normalize("NFKD", headline)
+
         subtitle = response.xpath('//meta[@property="og:description"]/@content').get()
         subtitle = subtitle.split("Image:")[0]
+        subtitle = unicodedata.normalize("NFKD", subtitle)
+
         date = response.xpath('//meta[@name="article:publicationdate"]/@content').get()
 
         meta = {

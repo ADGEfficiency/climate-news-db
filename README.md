@@ -9,18 +9,19 @@ https://ap-southeast-2.console.aws.amazon.com/ecr/repositories/private/087085368
 
 ## Data Structures
 
+data/newspapers.json
+- maintained by hand - registry of newspapers
+- could be generated from the spiders in climatedb
+
 data/urls.jsonl
 
 - text file with one (url, scrape time) per line
-- these urls are dirty
+- these urls are dirty - often have duplicates
 
 data/urls.csv
 
 - CSV with one url per line - url + newspaper info
 - has meta data from data/newspapers.json for each paper
-
-data/newspapers.json
-- maintained by hand - registry of newspapers
 
 data/articles/$(NEWSPAPER_ID)/$(ARTICLE_ID).{json,html}
 

@@ -17,14 +17,14 @@ def get_date(response) -> datetime:
     return date
 
 
-def get_app_json(response) -> dict:
-    app_json = response.xpath("//script[@type='application/ld+json']/text()").get()
-    return json.loads(app_json)
+def get_app_json(response, n=0) -> dict:
+    app_json = response.xpath("//script[@type='application/ld+json']/text()").getall()
+    return json.loads(app_json[n])
 
 
 def get_body(response):
     body = response.xpath("//p/descendant-or-self::*/text()").getall()
-    return "".join(body)
+    return " ".join(body)
 
 
 def form_article_id(url, idx=-1):
@@ -32,3 +32,8 @@ def form_article_id(url, idx=-1):
     url = url.split("?")[0]
     article_id = url.split("/")[idx]
     return article_id.replace(".html", "")
+
+
+def strip_embedded_json(body):
+
+    return body

@@ -11,7 +11,7 @@ class CNNSpider(ClimateDBSpider):
 
         article_name = parsing_utils.form_article_id(response.url, -2)
         body = response.xpath(
-            '//div[@itemprop="articleBody"]/descendant-or-self::*/text()'
+            '//*[contains(@class, "paragraph")]/descendant-or-self::*/text()'
         ).getall()
 
         for unwanted in [

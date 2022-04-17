@@ -1,3 +1,64 @@
+2022-04-17
+
+change the source text
+
+go paper by paper and fix all the nonsense
+
+done:
+alj
+
+cnn
+- Email questions to: climate [at] cnn.com. Subscribe to the "2 degrees" newsletter. Follow the project on Facebook, Twitter and Instagram.
+
+dw
+
+fox
+
+newshub
+- Watch Newshub political reporter Amelia Wade's report. Credits: Newshub
+- James Renwick for The Conversation.
+- The Conversation.   
+- Watch: Ministry of Health reveals NZ now has 28 confirmed cases of COVID-19. Credits: Video - Newshub; Image - Twitter / @helenv19 / @ikaveri
+- WATCH: As Dairy NZ's Tim Mackle explains, the Owl Farm farm project is helping dairy farmers address issues around climate change. Credits: Video: Newshub Image: Getty
+-  Newshub.
+
+skyau
+
+stuff
+- READ MORE, OPINION
+- © 2022 Stuff Limited
+
+atlantic
+
+bbc
+- Matt McGrathEnvironment correspondent@mattmcgrathbbcon Twitter
+- By Justin RowlattClimate Editor
+- © 2022 BBC. The BBC is not responsible for the content of external sites. Read about our approach to external linking.
+- By Steffan MessengerBBC Wales environment correspondent
+
+daily mail
+
+economist
+- Copyright © The Economist Newspaper Limited 2022. All rights reserved.
+
+guardian
+- | Professor Fiona Stanley | The Guardian
+
+independent
+- no datetime
+
+nytimes
+- As a subscriber, you have to give each month
+
+nzh
+- missing datetime
+
+washington post
+- missing datetime
+- Opinion |, Analysis |
+
+
+
 2022-03-12
 
 deploy new fastapi to herouku:

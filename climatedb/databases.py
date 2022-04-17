@@ -1,3 +1,4 @@
+from collections import namedtuple, defaultdict
 from sqlalchemy import UniqueConstraint
 from climatedb.config import data_home as home
 from climatedb.config import db_uri
@@ -106,10 +107,18 @@ def find_all_articles():
         return [a[0] for a in articles]
 
 
+def read_app_table():
+    """used by inspect"""
+    with Session(engine) as s:
+        st = select(AppTable)
+        articles = s.exec(st).fetchall()
+        return [a[0] for a in articles]
+
+
 def find_all_papers():
     """used by app"""
     with Session(engine) as s:
-        st = select(Newspaper)
+        st = select(Newspaper).order_by(Newspaper.fancy_name)
         data = s.exec(st).fetchall()
 
         papers = []
@@ -190,42 +199,60 @@ def group_newspapers_by_year():
                 func.strftime("%Y", Article.date_published),
                 func.count(Article.id),
                 Newspaper.fancy_name,
-                Newspaper.color,
             )
             .join(Newspaper, Article.newspaper_id == Newspaper.id)
             .group_by(func.strftime("%Y", Article.date_published), Article.newspaper_id)
         )
 
-    data = session.exec(query).all()
-    from collections import namedtuple, defaultdict
+    raw = session.exec(query).all()
 
-    new_data = []
-    for row in data:
+    year_start = 2010
+    data = []
+    for row in raw:
         if row[0] is not None:
-            if int(row[0]) >= 2000:
-                new_data.append(
+            if int(row[0]) >= year_start:
+                data.append(
                     {
                         "year": int(row[0]),
                         "count": int(row[1]),
-                        "name": row[2],
+                        "paper": row[2],
                     }
                 )
+    data = pd.DataFrame(data)
+    print(data.head(3))
+
+    def find_year_paper(year, paper, data):
+        mask = (data["year"] == year) & (data["paper"] == paper)
+        if mask.sum() == 1:
+            sub = data[mask]
+            return int(sub["count"])
+        else:
+            return 0
 
     out = defaultdict(list)
-    new_data = pd.DataFrame(new_data)
-    new_data = new_data.sort_values(["year", "name"])
-    for row in range(new_data.shape[0]):
-        row = new_data.iloc[row, :]
-        out[row["name"]].append(int(row["count"]))
-    #     row = Row(*row)
-    #     if row.year is not None:
-    #         if int(row.year) >= 2000:
-    #             breakpoint()
-    out = dict(out)
-    years = set(new_data["year"])
-    out["years"] = list(range(min(years), max(years) + 1))
+    years = range(year_start, data["year"].max() + 1)
+    for year in years:
+        for paper in list(set(data["paper"])):
+            count = find_year_paper(year, paper, data)
+            out[paper].append(count)
 
+    out["years"] = list(years)
+    # years = set(new_data["year"])
+
+    # for row in range(new_data.shape[0]):
+    #     row = new_data.iloc[row, :]
+    #     out[row["name"]].append(int(row["count"]))
+
+    # out = dict(out)
+    # out["years"] = list(range(min(years), max(years) + 1))
+    lens = [len(out[k]) for k in out.keys()]
+    assert len(set(lens)) == 1
     colors = get_newspaper_colors()
     colors = {t[0]: t[1] for t in colors}
     out["colors"] = colors
     return out
+
+
+"""
+{'The Guardian': [1, 1, 3, 8, 2, 6, 8, 18, 30, 19, 29, 32, 56, 88, 281, 198, 13], 'The Economist': [3, 2, 2, 3, 3, 3, 9, 6, 14, 5, 9, 9, 15, 5, 10, 16, 60, 55, 44, 7], 'Deutsche Welle': [1, 2, 1, 1, 2, 1, 1, 5, 3, 9, 9, 27, 39, 53, 36, 46, 1], 'The New York Times': [2, 1, 2, 5, 5, 1, 7, 3, 17, 17, 19, 24, 31, 87, 164, 166, 27], 'Al Jazeera': [2, 1, 2, 3, 6, 12, 16, 18, 14, 13, 15, 105, 88, 153, 11], 'The BBC': [1, 3, 7, 10, 4, 7, 43, 102, 151, 165, 26], 'NewsHub.co.nz': [1, 6, 14, 11, 27, 115, 86, 74, 13], 'CNN': [18, 6, 20, 36, 108, 104, 146, 8], 'Stuff.co.nz': [5, 4, 2, 29, 109, 262, 171, 31], 'Sky News Australia': [15, 166, 169, 166, 18], 'years': [2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022]}
+"""

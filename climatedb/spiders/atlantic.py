@@ -13,7 +13,10 @@ class AtlanticSpider(ClimateDBSpider):
 
         headline = response.xpath('//meta[@property="og:title"]/@content').get()
         subtitle = response.xpath('//meta[@property="og:description"]/@content').get()
-        date = response.xpath('//meta[@itemprop="datePublished"]/@content').get()
+        # date = response.xpath('//meta[@itemprop="datePublished"]/@content').get()
+
+        app_json = parsing_utils.get_app_json(response, n=2)
+        date = app_json["datePublished"]
 
         meta = {
             "headline": headline,

@@ -15,7 +15,7 @@ all: app
 pulls3:
 	aws s3 sync $(S3_DIR) $(DATA_HOME) --exclude 'raw/*' --exclude 'temp/*' --exclude 'article_body/*'
 pushs3:
-	aws s3 sync $(DATA_HOME) $(S3_DIR) --exclude 'logs/*' --exclude 'temp/*' --exclude 'article_body/*'
+	aws s3 sync $(DATA_HOME) $(S3_DIR) --exclude 'logs/*' --exclude 'temp/*' --exclude 'article_body/*' --exclude '*urls.jsonl'
 
 
 #  DATA PIPELINE
@@ -56,9 +56,6 @@ datasette:
 scrape-one:
 	scrapy crawl $(PAPER) -L DEBUG -o $(DATA_HOME)/articles/$(PAPER).jsonlines
 
-inspect:
-	echo $(PAPERS) | xargs -n 1 -I {} -- wc -l $(DATA_HOME)/articles/{}.jsonlines
-
 dbnodep:
 	rm -rf $(DB_FI)
 	python3 scripts/create_sqlite.py
@@ -98,3 +95,8 @@ docker-setup:
 docker-push:
 	sudo heroku container:push web -a climate-news-db --recursive
 	heroku container:release web -a climate-news-db
+
+inspect:
+	python3 scripts/inspect.py
+# inspect:
+# 	echo $(PAPERS) | xargs -n 1 -I {} -- wc -l $(DATA_HOME)/articles/{}.jsonlines
