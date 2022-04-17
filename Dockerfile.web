@@ -18,4 +18,4 @@ ENV DB_URI sqlite:////code/data-neu/db.sqlite
 COPY . /code
 
 #  run fastapi
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["python3", "app.py"]

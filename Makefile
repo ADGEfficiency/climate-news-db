@@ -15,7 +15,7 @@ all: app
 pulls3:
 	aws s3 sync $(S3_DIR) $(DATA_HOME) --exclude 'raw/*' --exclude 'temp/*' --exclude 'article_body/*'
 pushs3:
-	aws s3 sync $(DATA_HOME) $(S3_DIR) --exclude 'logs/*' --exclude 'temp/*' --exclude 'article_body/*' --exclude '*urls.jsonl'
+	aws s3 sync $(DATA_HOME) $(S3_DIR) --exclude 'logs/*' --exclude 'temp/*' --exclude 'article_body/*' --exclude 'urls.jsonl'
 
 
 #  DATA PIPELINE
@@ -36,7 +36,8 @@ db: scrapy
 	rm -rf $(DB_FI)
 	python3 scripts/create_sqlite.py
 
-scrape: pulls3 setup create_urls scrapy db pushs3
+#  not pulling s3 here - will put in later
+scrape: setup create_urls scrapy db pushs3
 
 
 #  APP
@@ -80,10 +81,25 @@ docker-local:
 docker-run:
 	docker run -d --name climatedb-app-local -p 80:80 climatedb-app-local
 
-docker-heroku:
+docker-heroku-git:
 	git add -u
 	git commit -m 'heroku deploy'
 	git push heroku tech/feb-2022-rebuild:main
+
+docker-heroku-cli-m1:
+	# heroku login
+	# heroku container:login
+	# heroku container:push web -a climate-news-db --recursive
+	docker buildx build --platform linux/amd64 -t climate-news-db . -f Dockerfile.web
+	docker tag climate-news-db registry.heroku.com/climate-news-db/web
+	docker push registry.heroku.com/climate-news-db/web
+	heroku container:release web -a climate-news-db
+
+docker-heroku-cli-intel:
+	heroku login
+	heroku container:login
+	heroku container:push web -a climate-news-db --recursive
+	heroku container:release web -a climate-news-db
 
 infra: sls-setup
 	npx serverless deploy -s $(STAGE) --param account=$(ACCOUNTNUM) --verbose
@@ -93,7 +109,7 @@ docker-setup:
 	sudo snap install --classic heroku
 
 docker-push:
-	sudo heroku container:push web -a climate-news-db --recursive
+	heroku container:push web -a climate-news-db --recursive
 	heroku container:release web -a climate-news-db
 
 inspect:

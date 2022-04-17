@@ -1,7 +1,9 @@
+import os
 from datetime import datetime
 from typing import Optional
 
 from fastapi.staticfiles import StaticFiles
+import uvicorn
 
 from fastapi.responses import FileResponse
 from fastapi import FastAPI, Request
@@ -100,3 +102,9 @@ def years_json(request: Request):
     """used by JS.charts on home page"""
     data = group_newspapers_by_year()
     return JSONResponse(content=data)
+
+
+if __name__ == "__main__":
+
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)

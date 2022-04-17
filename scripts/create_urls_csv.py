@@ -6,6 +6,8 @@ import pandas as pd
 
 from climatedb.files import JSONFile
 
+from pathlib import Path
+
 
 def find_newspaper_from_url(url):
 
@@ -20,13 +22,16 @@ def find_newspaper_from_url(url):
 
 if __name__ == "__main__":
     from pathlib import Path
+
     fi = Path(home) / "urls.jsonl"
     urls = fi.read_text().split("\n")[:-1]
     urls = [json.loads(u)["url"] for u in urls]
     print(f"loaded {len(urls)} urls")
+    urls = set(urls)
+    print(f"unique {len(urls)} urls")
 
     with Pool(4, maxtasksperchild=32) as pool:
-        csv_data = pool.map(find_newspaper_from_url, urls)
+        csv_data = pool.map(find_newspaper_from_url, list(urls))
 
     df = pd.DataFrame(csv_data)
     df.to_csv(f"{home}/urls.csv", index=False)
