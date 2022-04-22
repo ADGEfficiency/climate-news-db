@@ -48,8 +48,9 @@ fetchJSONFile('/years.json', (data) => {
       responsive: true,
       maintainAspectRatio: false,
       tooltips: {
-        mode: 'index',
-        intersect: false,
+        mode: 'nearest',
+        intersect: true,
+        yAlign: 'top'
       },
       legend: {
         position: 'bottom',
