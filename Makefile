@@ -37,7 +37,7 @@ db: scrapy
 	python3 scripts/create_sqlite.py
 
 #  not pulling s3 here - will put in later
-scrape: setup create_urls scrapy db pushs3 zip
+scrape: setup pulls3 create_urls scrapy db zip pushs3 docker-push
 
 
 #  APP
@@ -109,10 +109,13 @@ docker-setup:
 	sudo snap install --classic heroku
 
 docker-push:
+	# heroku auth:token | docker login --username=_ registry.heroku.com --password-stdin
 	heroku container:push web -a climate-news-db --recursive
 	heroku container:release web -a climate-news-db
 
 inspect:
 	python3 scripts/inspect.py
-# inspect:
 # 	echo $(PAPERS) | xargs -n 1 -I {} -- wc -l $(DATA_HOME)/articles/{}.jsonlines
+
+cron-scrape:
+	touch "./cron-logs/$(shell date '+%F %T')"

@@ -19,6 +19,7 @@ def get_date(response) -> datetime:
 
 def get_app_json(response, n=0) -> dict:
     app_json = response.xpath("//script[@type='application/ld+json']/text()").getall()
+    assert len(app_json) > 0, f"No application/ld+json in {response.url}"
     return json.loads(app_json[n])
 
 
@@ -32,8 +33,3 @@ def form_article_id(url, idx=-1):
     url = url.split("?")[0]
     article_id = url.split("/")[idx]
     return article_id.replace(".html", "")
-
-
-def strip_embedded_json(body):
-
-    return body

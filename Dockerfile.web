@@ -8,16 +8,18 @@ COPY ./poetry.lock /code/poetry.lock
 RUN pip install poetry
 RUN poetry config virtualenvs.create false && poetry install --no-interaction --no-ansi
 
-RUN aws --no-sign-request s3 cp s3://climatedb-dev/data-neu/newspapers.json /code/data-neu/newspapers.json
-
-RUN aws --no-sign-request s3 cp s3://climatedb-dev/data-neu/db.sqlite /code/data-neu/db.sqlite
-
-RUN aws --no-sign-request s3 cp s3://climatedb-dev/data-neu/climate-news-db-dataset.zip /code/data-neu/climate-news-db-dataset.zip
-
 ENV DB_URI sqlite:////code/data-neu/db.sqlite
 
 #  move source
 COPY . /code
+
+#  copy database & datasets
+
+#  this copy so we don't cache the s3 stuff
+COPY ./data-neu/climate-news-db-dataset.zip /code/data-neu/climate-news-db-dataset.zip
+RUN aws --no-sign-request s3 cp s3://climatedb-dev/data-neu/newspapers.json /code/data-neu/newspapers.json
+RUN aws --no-sign-request s3 cp s3://climatedb-dev/data-neu/db.sqlite /code/data-neu/db.sqlite
+RUN aws --no-sign-request s3 cp s3://climatedb-dev/data-neu/climate-news-db-dataset.zip /code/data-neu/climate-news-db-dataset.zip
 
 #  run fastapi
 CMD ["python3", "app.py"]
