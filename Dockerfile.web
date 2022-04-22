@@ -12,6 +12,8 @@ RUN aws --no-sign-request s3 cp s3://climatedb-dev/data-neu/newspapers.json /cod
 
 RUN aws --no-sign-request s3 cp s3://climatedb-dev/data-neu/db.sqlite /code/data-neu/db.sqlite
 
+RUN aws --no-sign-request s3 cp s3://climatedb-dev/data-neu/climate-news-db-dataset.zip /code/data-neu/climate-news-db-dataset.zip
+
 ENV DB_URI sqlite:////code/data-neu/db.sqlite
 
 #  move source

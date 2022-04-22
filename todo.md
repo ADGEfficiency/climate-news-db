@@ -1,9 +1,13 @@
+2022-04-22
+
+Final checklist:
+
+- setup cron job to scrape + deploy on ec2,
+- transfer DNS to heroku,
+
 2022-04-18
 
 Need to add /download - then done!
-
-colors again
-
 
 2022-04-17
 

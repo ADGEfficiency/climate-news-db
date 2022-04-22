@@ -37,7 +37,7 @@ db: scrapy
 	python3 scripts/create_sqlite.py
 
 #  not pulling s3 here - will put in later
-scrape: setup create_urls scrapy db pushs3
+scrape: setup create_urls scrapy db pushs3 zip
 
 
 #  APP
