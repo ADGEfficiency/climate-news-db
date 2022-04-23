@@ -111,7 +111,7 @@ docker-setup:
 docker-push:
 	# heroku auth:token | docker login --username=_ registry.heroku.com --password-stdin
 	mkdir -p clear-docker-cache
-	touch clear-docker-cache/$(shell date)
+	touch "clear-docker-cache/$(shell date)"
 	heroku container:push web -a climate-news-db --recursive
 	heroku container:release web -a climate-news-db
 
