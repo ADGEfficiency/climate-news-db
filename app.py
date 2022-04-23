@@ -38,7 +38,12 @@ def datetimeformat(value, fmt="%Y-%m-%d"):
         return ""
 
 
+def comma_number(x):
+    return "{0:,.0f}".format(x)
+
+
 templates.env.filters["datetimeformat"] = datetimeformat
+templates.env.filters["comma_number"] = comma_number
 
 
 @app.get("/")

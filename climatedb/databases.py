@@ -232,7 +232,7 @@ def group_newspapers_by_year():
     out = defaultdict(list)
     years = range(year_start, data["year"].max() + 1)
     for year in years:
-        for paper in list(set(data["paper"])):
+        for paper in sorted(list(set(data["paper"]))):
             count = find_year_paper(year, paper, data)
             out[paper].append(count)
 
