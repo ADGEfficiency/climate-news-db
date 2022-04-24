@@ -1,9 +1,0 @@
-setup:
-  config:
-    S3_BUCKET: climatedb-dev
-
-build:
-  docker:
-    web: Dockerfile.web
-run:
-  web: uvicorn app:app --proxy-headers --host=0.0.0.0 --port=${PORT:-5000}
