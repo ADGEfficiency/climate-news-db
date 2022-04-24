@@ -39,6 +39,9 @@ db: scrapy
 #  not pulling s3 here - will put in later
 scrape: setup pulls3 create_urls scrapy db zip pushs3 docker-push
 
+cron-scrape:
+	touch "./cron-logs/$(shell date '+%F %T')"
+
 
 #  APP
 
@@ -76,32 +79,8 @@ sls-setup: ./node_modules/serverless/README.md
 AWSPROFILE=adg
 IMAGENAME=climatedb-$(STAGE)
 
-docker-local:
-	docker build -t climatedb-app-local . -f Dockerfile.web
-docker-run:
-	docker run -d --name climatedb-app-local -p 80:80 climatedb-app-local
-
-docker-heroku-git:
-	git add -u
-	git commit -m 'heroku deploy'
-	git push heroku tech/feb-2022-rebuild:main
-
-docker-heroku-cli-m1:
-	# heroku login
-	# heroku container:login
-	# heroku container:push web -a climate-news-db --recursive
-	docker buildx build --platform linux/amd64 -t climate-news-db . -f Dockerfile.web
-	docker tag climate-news-db registry.heroku.com/climate-news-db/web
-	docker push registry.heroku.com/climate-news-db/web
-	heroku container:release web -a climate-news-db
-
-docker-heroku-cli-intel:
-	heroku login
-	heroku container:login
-	heroku container:push web -a climate-news-db --recursive
-	heroku container:release web -a climate-news-db
-
 infra: sls-setup
+	sh build-docker-image.sh $(ACCOUNTNUM) climatedb-dev lambda.Dockerfile $(AWSPROFILE)
 	npx serverless deploy -s $(STAGE) --param account=$(ACCOUNTNUM) --verbose
 
 docker-setup:
@@ -119,5 +98,3 @@ inspect:
 	python3 scripts/inspect.py
 # 	echo $(PAPERS) | xargs -n 1 -I {} -- wc -l $(DATA_HOME)/articles/{}.jsonlines
 
-cron-scrape:
-	touch "./cron-logs/$(shell date '+%F %T')"

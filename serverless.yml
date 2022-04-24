@@ -12,8 +12,8 @@ provider:
   region: ap-southeast-2
 
   environment:
-    S3_BUCKET: climate-news-db
     DB_URI: sqlite:////var/task/data-neu/db.sqlite
+
   timeout: 900
 
   iam:
@@ -26,7 +26,7 @@ provider:
             - '*'
         - Effect: 'Allow'
           Action:
-            - 'logs*'
+            - 'logs:*'
           Resource:
             - 'arn:aws:logs:*:*:*'
         - Effect: 'Allow'

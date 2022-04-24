@@ -15,8 +15,14 @@ def controller_handler(
 
     #  TODO - create a daily stamp file as simple backup (maybe)
     pkg = []
-    for np in find_all_papers():
+    papers = find_all_papers()
+    for np in papers:
         urls = search(np, 5)
+        urls_db.write(urls)
+        pkg.extend(urls)
+
+    for np in papers:
+        urls = search(np, 5, "climate crisis")
         urls_db.write(urls)
         pkg.extend(urls)
 

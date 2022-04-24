@@ -10,10 +10,10 @@ from climatedb.config import data_home
 from climatedb import types
 
 
-def search(paper: types.Newspaper, num: int) -> list:
+def search(paper: types.Newspaper, num: int, query: str = "climate change") -> list:
     """main"""
     print(f"searching {paper} for {num} results")
-    urls = google_search(paper.newspaper_url, "climate change", stop=num)
+    urls = google_search(paper.newspaper_url, query, stop=num)
     urls = [{"url": u, "search_time_utc": datetime.utcnow().isoformat()} for u in urls]
     return urls
 
