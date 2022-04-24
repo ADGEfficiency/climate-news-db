@@ -12,7 +12,7 @@
         <tr>
           <td>{{article.date_published|datetimeformat('%Y-%m-%d %H:%M')}}</td>
           <td>{{article.fancy_name}}</td>
-          <td><a href=/article?article_id={{article.article_id}}>{{article.headline}}</a></td>
+          <td><a href=/article/{{article.article_id}}>{{article.headline}}</a></td>
         </tr>
         {% endfor %}
       </tbody>
@@ -30,13 +30,10 @@
         <tr>
           <td>{{article.date_uploaded|datetimeformat('%Y-%m-%d %H:%M')}}</td>
           <td>{{article.fancy_name}}</td>
-          <td><a href=/article?article_id={{article.article_id}}>{{article.headline}}</a></td>
+          <td><a href=/article/{{article.article_id}}>{{article.headline}}</a></td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
-
-
-  <script src="static/app.js"></script>
 {% endblock %}
