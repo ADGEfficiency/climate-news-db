@@ -13,6 +13,7 @@ class SkyAUSpider(ClimateDBSpider):
         article_name = form_article_id(response.url, -1)
         body = get_body(response)
         body = body.split("Read More")[0]
+        body = body.split("Image:")[0]
 
         headline = response.xpath('//meta[@property="og:title"]/@content').get()
         headline = unicodedata.normalize("NFKD", headline)
