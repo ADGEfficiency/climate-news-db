@@ -1,5 +1,109 @@
-need to change key to newspaper_id/url
+2022-04-22
 
+Final checklist:
+
+- setup cron job to scrape + deploy on ec2,
+- transfer DNS to heroku,
+
+2022-04-18
+
+Need to add /download - then done!
+
+2022-04-17
+
+change the source text
+
+go paper by paper and fix all the nonsense
+
+done:
+alj
+
+cnn
+- Email questions to: climate [at] cnn.com. Subscribe to the "2 degrees" newsletter. Follow the project on Facebook, Twitter and Instagram.
+
+dw
+
+fox
+
+newshub
+- Watch Newshub political reporter Amelia Wade's report. Credits: Newshub
+- James Renwick for The Conversation.
+- The Conversation.   
+- Watch: Ministry of Health reveals NZ now has 28 confirmed cases of COVID-19. Credits: Video - Newshub; Image - Twitter / @helenv19 / @ikaveri
+- WATCH: As Dairy NZ's Tim Mackle explains, the Owl Farm farm project is helping dairy farmers address issues around climate change. Credits: Video: Newshub Image: Getty
+-  Newshub.
+
+skyau
+
+stuff
+- READ MORE, OPINION
+- © 2022 Stuff Limited
+
+atlantic
+
+bbc
+- Matt McGrathEnvironment correspondent@mattmcgrathbbcon Twitter
+- By Justin RowlattClimate Editor
+- © 2022 BBC. The BBC is not responsible for the content of external sites. Read about our approach to external linking.
+- By Steffan MessengerBBC Wales environment correspondent
+
+daily mail
+
+economist
+- Copyright © The Economist Newspaper Limited 2022. All rights reserved.
+
+guardian
+- | Professor Fiona Stanley | The Guardian
+
+independent
+- no datetime
+
+nytimes
+- As a subscriber, you have to give each month
+
+nzh
+- missing datetime
+
+washington post
+- missing datetime
+- Opinion |, Analysis |
+
+
+
+2022-03-12
+
+deploy new fastapi to herouku:
+
+- `data-neu`
+
+setup lambda to start searching urls:
+
+- `data-neu`
+
+
+2022-02-26
+
+need to properly manage database uri, datahome etc
+
+2022-02
+
+orchestration
+
+- build in prefect - search, parse/collect, db creation
+
+pipeline
+- rework scrapers to use scrapy
+- add a clean step
+- where to define data structures
+
+app
+- deploy flask app on elastic beanstalk
+
+draw a diagram of the system
+
+---
+
+need to change key to newspaper_id/url
 
 parse not being tested (error on )
 ```
@@ -87,62 +191,19 @@ Unit of work for collecting & parsing?
 
 Check errors being passed back into logs
 
-Should I remove urls that fail check from urls.jsonl - yes
-
----
-
-# app
-questions the app should answer
-- how many articles added in last day to urls.data
-- how many in raw not in finished, how many in urls.data not in db etc
-
-add most recent article on home page
-- add a num articles added in last 5 days column to home page
-
-put a line at the bottom before the footer
-See latest added
-
-Sorting by date
-- or ability to sort by column on the tables
-
-shortcut to downolad entire database as file
-
-add number of urls onto homepage (or onto an admin page?)
-
-add ability to access log (last 50 entries)
-
-make the app work with no newspapers
-
-formatting of datetime
-
-most recent & oldest for each newspaper
-
-graph of articles per year / month for newspaper pages
+Should I remove urls that fail check from urls.jsonl - yes - don't do yet
 
 
-
-# next time
-
-- ability to parse a url from commandline 
-- multiprocess the downloading
-
-Cleaning
+## Cleaning
 - carbon dioxide, CO2
 - degree standardization?
 - not getting twitter stuff - https://www.nzherald.co.nz/sport/news/article.cfm?c_id=4&objectid=12301148
 
-## integrate other datasets
+## integrate other datasets / improve search / urls.jsonl
 
 https://blog.gdeltproject.org/a-new-contextual-dataset-for-exploring-climate-change-narratives-6-3m-english-news-urls-with-contextual-snippets-2015-2020/
 
 https://climatefeedback.org/
-
-## improving the search (where to get list of urls from)
-
-search for "climate crisis"
-
-429 Error from google search
-
 
 ## analytics
 

@@ -1,132 +1,214 @@
-from itertools import chain
+from collections import namedtuple, defaultdict
+from datetime import datetime
+from typing import List
 
+from fastapi.templating import Jinja2Templates
+from pathlib import Path
+from rich import print
+from sqlalchemy.sql.expression import func, select
+from sqlmodel import Session, SQLModel, create_engine
 import pandas as pd
 
-from climatedb.engines import JSONFolder, SQLiteEngine, JSONLinesFile
-from climatedb.config import DBHOME
+from climatedb.config import data_home as home
+from climatedb.config import db_uri
+from climatedb.files import JSONLines
+from climatedb.types import Article, AppTable, Newspaper
 
 
-class URLs():
-    def __init__(
-        self,
-        name,
-        key='url',
-        schema=None,
-        engine='jsonl'
-    ):
-        self.engine = JSONLinesFile(name, key, schema)
+def get_urls_for_paper(paper: str) -> List[str]:
+    """
+    Gets all urls for a newspaper from $(DATA_HOME) / urls.csv
+    """
+    raw = pd.read_csv(f"{home}/urls.csv")
+    mask = raw["name"] == paper
+    data = raw[mask]
+    urls = data["url"].values.tolist()
 
-    def add(self, batch):
-        for data in batch:
-            if not self.engine.exists(data['url']):
-                self.engine.add(batch)
+    #  here we can filter out what we already have
+    existing = Path(home) / "articles" / f"{paper}.jsonlines"
+    if existing.is_file():
+        jl = JSONLines(existing)
+        existing = jl.read()
+        existing = [a["article_url"] for a in existing]
 
-    def get(self, num=0):
-        data = self.engine.get()
-        return data[-num:]
+        #  last one is '' - TODO do this properly
+        dispatch = set(urls).difference(set(existing))
+    else:
+        dispatch = urls
+        existing = []
 
-    def __len__(self):
-        return len(self.engine)
+    print(
+        f"{paper}, all_urls {raw.shape[0]}, urls {len(urls)}, existing {len(existing)}, dispatch {len(dispatch)}"
+    )
 
-    def exists(self, key):
-        return self.engine.exists(key)
-
-
-class ArticlesFolders():
-    """nested folders of JSON files, one folder per newspaper"""
-    def __init__(
-        self,
-        name='final',
-        folder_key='newspaper_id',
-        file_key='article_id',
-    ):
-        self.folder_key = folder_key
-        self.file_key = file_key
-
-        self.home = DBHOME / 'articles' / name
-        self.home.mkdir(exist_ok=True, parents=True)
-
-        #  newspapers each live in their own folder
-        folders = [p for p in self.home.iterdir() if p.is_dir()]
-
-        self.folders = {
-            p.name: JSONFolder(p, key=self.file_key)
-            for p in folders
-        }
-
-    def add(self, batch):
-        if isinstance(batch, dict):
-            batch = (batch,)
-
-        for article in batch:
-            folder = article[self.folder_key]
-
-            #  if we don't have folder for article yet
-            if folder not in self.folders.keys():
-                self.folders[folder] = JSONFolder(folder, key=self.file_key)
-
-            self.folders[folder].add(article)
-
-    def get(self):
-        articles = list(chain(
-            *[fldr.get() for fldr in self.folders.values()]
-        ))
-        print(f' loaded {len(articles)} from {len(self.folders)} folders')
-        return articles
-
-    def filter(self, key, value):
-        articles = self.get()
-        return [r for r in articles if r[key] == value]
-
-    def exists(self, key, value):
-        #  bool(0) -> False
-        return bool(len(self.filter(key, value)))
+    return list(dispatch)
 
 
-article_schema = [
-    ("newspaper", "TEXT"),
-    ("newspaper_id", "TEXT"),
-    ("newspaper_url", "TEXT"),
-    ("body", "TEXT"),
-    ("headline", "TEXT"),
-    ("article_url", "TEXT"),
-    ("article_id", "TEXT"),
-    ("date_published", "TEXT"),
-    ("date_uploaded", "TEXT"),
-    ("color", "TEXT"),
-]
+#  sqlite stuff
 
 
-class ArticlesSQLite():
-    def __init__(
-        self,
-        db='climatedb.sqlite',
-        schema=article_schema,
-        index='article_id'
-    ):
-        self.engine = SQLiteEngine(
-            table='final',
-            schema=schema,
-            db=db,
-            index=index
+print(f"database connection: [green]{db_uri}[/]")
+engine = create_engine(db_uri)
+SQLModel.metadata.create_all(engine)
+
+
+def save_html(paper, article, response):
+    """used by spiders"""
+    fi = (
+        Path.home() / "climate-news-db" / "data-reworked" / "articles" / paper / article
+    )
+    fi.parent.mkdir(exist_ok=True, parents=True)
+    fi.with_suffix(".html").write_bytes(response.body)
+
+
+def find_id_for_newspaper(newspaper: str):
+    with Session(engine) as s:
+        st = select(Newspaper.id).where(Newspaper.name == newspaper)
+        return s.exec(st).first()[0]
+
+
+def find_all_articles():
+    """used by app"""
+    with Session(engine) as s:
+        st = select(Article)
+        articles = s.exec(st).fetchall()
+        return [a[0] for a in articles]
+
+
+def read_app_table():
+    """used by inspect"""
+    with Session(engine) as s:
+        st = select(AppTable)
+        articles = s.exec(st).fetchall()
+        return [a[0] for a in articles]
+
+
+def find_all_papers():
+    """used by app"""
+    with Session(engine) as s:
+        st = select(Newspaper).order_by(Newspaper.fancy_name)
+        data = s.exec(st).fetchall()
+
+        papers = []
+        for paper in data:
+            paper = paper[0]
+            if paper.article_count is None:
+                paper.article_count = 0
+            if paper.average_article_length is None:
+                paper.average_article_length = 0
+
+            papers.append(paper)
+
+        return papers
+
+
+def find_article(article_id: int):
+    """used by app"""
+    with Session(engine) as s:
+        st = select(AppTable).where(AppTable.article_id == article_id)
+        return s.exec(st).first()[0]
+
+
+def find_random_article():
+    """used by app"""
+
+    with Session(engine) as s:
+        st = select(AppTable).order_by(func.random())
+        return s.exec(st).first()[0]
+
+
+def find_articles_by_newspaper(newspaper_id):
+    """used by app"""
+
+    with Session(engine) as s:
+        st = (
+            select(AppTable)
+            .where(AppTable.newspaper_id == newspaper_id)
+            .order_by(AppTable.date_published.desc())
         )
+        articles = s.exec(st).all()
+        articles = [a[0] for a in articles]
 
-    def get(self):
-        return self.engine.get()
+    with Session(engine) as s:
+        st = select(Newspaper).where(Newspaper.id == newspaper_id)
+        newspaper = s.exec(st).first()[0]
 
-    def filter(self, key, value):
-        return self.engine.filter(key, value)
-
-    def add(self, batch):
-        return self.engine.add(batch)
-
-
-databases = {
-    'folders': ArticlesFolders,
-    'sqlite': ArticlesSQLite
-}
+    return articles, newspaper
 
 
-if __name__ == '__main__':
-    db = ArticlesSQLite()
-    print(db.get())
+def load_latest():
+    with Session(engine) as session:
+        query = (
+            session.query(AppTable).order_by(AppTable.date_published.desc()).limit(5)
+        )
+        latest = [l[0] for l in session.exec(query).all()]
+
+    with Session(engine) as session:
+        query = session.query(AppTable).order_by(AppTable.date_uploaded.desc()).limit(5)
+        scrape = [l[0] for l in session.exec(query).all()]
+
+    return latest, scrape
+
+
+def get_newspaper_colors():
+    with Session(engine) as session:
+        query = session.query(
+            Newspaper.fancy_name,
+            Newspaper.color,
+        )
+        data = session.exec(query).all()
+    return data
+
+
+def find_year_paper(year, paper, data):
+    """helper for group_newspapers_by_year"""
+    mask = (data["year"] == year) & (data["paper"] == paper)
+    if mask.sum() == 1:
+        sub = data[mask]
+        return int(sub["count"])
+    else:
+        return 0
+
+
+def group_newspapers_by_year():
+    with Session(engine) as session:
+        query = (
+            session.query(
+                func.strftime("%Y", Article.date_published),
+                func.count(Article.id),
+                Newspaper.fancy_name,
+            )
+            .join(Newspaper, Article.newspaper_id == Newspaper.id)
+            .group_by(func.strftime("%Y", Article.date_published), Article.newspaper_id)
+        )
+    raw = session.exec(query).all()
+
+    year_start = 2010
+    data = []
+    for row in raw:
+        if row[0] is not None:
+            if int(row[0]) >= year_start:
+                data.append(
+                    {
+                        "year": int(row[0]),
+                        "count": int(row[1]),
+                        "paper": row[2],
+                    }
+                )
+    data = pd.DataFrame(data)
+
+    out = defaultdict(list)
+    years = range(year_start, data["year"].max() + 1)
+    for year in years:
+        for paper in sorted(list(set(data["paper"]))):
+            count = find_year_paper(year, paper, data)
+            out[paper].append(count)
+
+    out["years"] = list(years)
+
+    lens = [len(out[k]) for k in out.keys()]
+    assert len(set(lens)) == 1
+    colors = get_newspaper_colors()
+    colors = {t[0]: t[1] for t in colors}
+    out["colors"] = colors
+    return out

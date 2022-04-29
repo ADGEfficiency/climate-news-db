@@ -16,7 +16,9 @@ function fetchJSONFile(path, callback) {
 //   it is available
 fetchJSONFile('/years.json', (data) => {
   const years = Array.from(data.years);
+  const colors = data.colors;
   delete data.years;
+  delete data.colors;
 
   // now need to create a list of objects
   const datasets = [];
@@ -25,7 +27,8 @@ fetchJSONFile('/years.json', (data) => {
     console.log(`${key}: ${value}`);
     const ds = {};
     ds.label = key;
-    ds.backgroundColor = 'red';
+    ds.backgroundColor = colors[key];
+    // ds.backgroundColor = 'red';
     ds.data = value;
 
     datasets.push(ds);
@@ -45,8 +48,9 @@ fetchJSONFile('/years.json', (data) => {
       responsive: true,
       maintainAspectRatio: false,
       tooltips: {
-        mode: 'index',
-        intersect: false,
+        mode: 'nearest',
+        intersect: true,
+        yAlign: 'top'
       },
       legend: {
         position: 'bottom',

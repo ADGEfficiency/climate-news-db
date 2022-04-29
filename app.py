@@ -1,144 +1,115 @@
-from random import randint
-
-from flask import Flask, render_template, request, jsonify
-import pandas as pd
-
-from climatedb.analytics import create_article_df, groupby_newspaper, groupby_years_and_newspaper
-from climatedb.config import DBHOME
-from climatedb import services, databases
-
-from climatedb.registry import get_newspaper, registry
-
-
-app = Flask("climate-news-db")
-registry = pd.DataFrame(registry)
-registry = registry.set_index("newspaper_id")
-
-# db = databases.ArticlesFolders()
-db = databases.ArticlesSQLite()
-articles = services.get_all_articles(db)
-
-
-@app.route("/newspaper")
-def show_one_newspaper():
-    newspaper_id = request.args.get("newspaper_id")
-    articles = services.get_all_articles_from_newspaper(db, newspaper_id)
-    articles = pd.DataFrame(articles)
-    articles = articles.sort_values('date_published', ascending=False)
-    articles = articles.reset_index(drop=True)
-    articles = articles.to_dict(orient="records")
-    newspaper = get_newspaper(newspaper_id)
-    return render_template("newspaper.html", newspaper=newspaper, articles=articles)
-
-
-@app.route("/article")
-def show_one_article():
-    article_id = request.args.get("article_id")
-    article = services.get_article_from_article_id(db, article_id)
-    return render_template("article.html", article=article)
-
-
-@app.route("/papers.json")
-def paper_json():
-    """groupby paper, calculate statistics"""
-    articles = services.get_all_articles(db)
-
-    df = create_article_df(articles)
-    group = groupby_newspaper(df)
-    group = group.set_index("newspaper_id")
-
-    papers = pd.concat([group, registry], axis=1)
-    papers.loc[:, "newspaper_id"] = papers.index
-    papers = papers.sort_index()
-    papers = papers.reset_index(drop=True)
-    papers = papers.fillna(0)
-    return papers.to_dict(orient="records")
-
-
-@app.route("/years.json")
-def year_json():
-    """groupby paper and by year"""
-    articles = services.get_all_articles(db)
-    df = create_article_df(articles)
-    return groupby_years_and_newspaper(df)
-
-
-@app.route("/year-chart")
-def year_chart():
-    return render_template('year_chart.html')
-
-
-def get_latest_articles(articles, key='date_uploaded', num=8):
-    articles = services.get_all_articles(db)
-    df = create_article_df(articles)
-    df = df.sort_values(key, ascending=False)
-    return df.head(num).to_dict(orient="records")
-
-
-@app.route("/")
-def home():
-    papers = paper_json()
-
-    data = {
-        "n_articles": len(articles),
-        "articles": articles,
-        "n_papers": len(papers)
-    }
-    return render_template(
-        "home.html",
-        data=data,
-        papers=papers,
-    )
-
-
-@app.route("/latest")
-def latest():
-    df = create_article_df(articles)
-    latest = get_latest_articles(articles, 'date_published')
-    scrape = get_latest_articles(articles, 'date_uploaded')
-    return render_template(
-        "latest.html", latest=latest, scrape=scrape
-    )
-
-
-@app.route("/random")
-def show_random_article():
-    idx = randint(0, len(articles) - 1)
-    article = articles[idx]
-    return render_template("article.html", article=article)
-
-
-@app.route("/logs")
-def show_logs():
-    toggle = request.args.get("toggle")
-    if toggle is None:
-        toggle = 'error'
-
-    from climatedb.logger import load_logs
-    logs = load_logs()
-    if toggle == 'error':
-       logs = [l for l in logs if 'error' in l['msg']]
-
-    logs = logs
-    logs = pd.DataFrame(logs)
-    logs = logs.sort_values('time', ascending=False)
-    logs = logs.to_dict(orient="records")
-    return render_template("logs.html", logs=logs, toggle=toggle)
-
-
-from flask import send_file
-@app.route("/download")
-def download():
-    return send_file('data/climate-news-db-dataset.zip', as_attachment=True)
-
-
+import os
 from datetime import datetime
-@app.template_filter('datetimeformat')
-def datetimeformat(value, fmt='%Y-%m-%d'):
-    dt = str(value).replace('Z', '')
-    return datetime.fromisoformat(dt).strftime(fmt)
+from typing import Optional
 
+from fastapi.staticfiles import StaticFiles
+import uvicorn
+
+from fastapi.responses import FileResponse
+from fastapi import FastAPI, Request
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse, JSONResponse
+
+from climatedb.config import data_home
+from climatedb.databases import (
+    find_all_articles,
+    find_all_papers,
+    find_article,
+    find_random_article,
+    find_articles_by_newspaper,
+    load_latest,
+    group_newspapers_by_year,
+)
+
+
+articles = find_all_articles()
+papers = find_all_papers()
+app = FastAPI()
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
+
+
+def datetimeformat(value, fmt="%Y-%m-%d"):
+    try:
+        dt = str(value).replace("Z", "")
+        return datetime.fromisoformat(dt).strftime(fmt)
+    except:
+        return ""
+
+
+def comma_number(x):
+    return "{0:,.0f}".format(x)
+
+
+templates.env.filters["datetimeformat"] = datetimeformat
+templates.env.filters["comma_number"] = comma_number
+
+
+@app.get("/")
+async def read_root(request: Request):
+    data = {"n_articles": len(articles), "articles": articles, "n_papers": len(papers)}
+    return templates.TemplateResponse(
+        "home.html", {"request": request, "data": data, "papers": papers}
+    )
+
+
+@app.get("/article/{article_id}", response_class=HTMLResponse)
+async def read_article(request: Request, article_id: int):
+    """show one article by article id"""
+    article = find_article(article_id)
+    return templates.TemplateResponse(
+        "article.html", {"request": request, "article": article}
+    )
+
+
+@app.get("/newspaper/{newspaper_id}", response_class=HTMLResponse)
+async def read_newspaper_articles(request: Request, newspaper_id: int):
+    """show one article by article id"""
+    articles, newspaper = find_articles_by_newspaper(newspaper_id)
+
+    return templates.TemplateResponse(
+        "newspaper.html",
+        {"request": request, "articles": articles, "newspaper": newspaper},
+    )
+
+
+@app.get("/random", response_class=HTMLResponse)
+async def read_random_article(request: Request):
+    """show a random article"""
+    article = find_random_article()
+    return templates.TemplateResponse(
+        "article.html", {"request": request, "article": article}
+    )
+
+
+@app.get("/latest", response_class=HTMLResponse)
+async def read_latest(request: Request):
+    """show the latest articles"""
+
+    latest, scrape = load_latest()
+    return templates.TemplateResponse(
+        "latest.html", {"request": request, "latest": latest, "scrape": scrape}
+    )
+
+
+@app.get("/download", response_class=HTMLResponse)
+def download(request: Request):
+    return FileResponse(
+        path=f"{data_home}/climate-news-db-dataset.zip",
+        filename="climate-new-db-dataset.zip",
+        media_type="zip",
+    )
+
+
+@app.get("/years.json")
+def years_json(request: Request):
+    """used by JS.charts on home page"""
+    data = group_newspapers_by_year()
+    return JSONResponse(content=data)
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
