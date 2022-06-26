@@ -4,16 +4,13 @@ export
 #  these come from .env
 S3_DIR = s3://$(S3_BUCKET)/$(DATA_DIR)
 
-#  gets the keys of newspapers.json as a list
-PAPERS:=$(shell cat $(DATA_HOME)/newspapers.json | jq 'keys[]')
-
 all: app
-
 
 #  S3
 
 pulls3:
-	aws s3 sync $(S3_DIR) $(DATA_HOME) --exclude 'raw/*' --exclude 'temp/*' --exclude 'article_body/*'
+	aws --no-sign-request --region ap-southeast-2 s3 sync $(S3_DIR) $(DATA_HOME) --exclude 'raw/*' --exclude 'temp/*' --exclude 'article_body/*'
+
 pushs3:
 	aws s3 sync $(DATA_HOME) $(S3_DIR) --exclude 'logs/*' --exclude 'temp/*' --exclude 'article_body/*' --exclude 'urls.jsonl'
 
@@ -43,7 +40,7 @@ cron-scrape:
 	touch "./cron-logs/$(shell date '+%F %T')"
 
 
-#  APP
+#  WEBAPP
 
 app:
 	uvicorn app:app --reload
@@ -88,13 +85,8 @@ docker-setup:
 	sudo snap install --classic heroku
 
 docker-push:
-	# heroku auth:token | docker login --username=_ registry.heroku.com --password-stdin
+	sudo heroku auth:token | sudo docker login --username=_ registry.heroku.com --password-stdin
 	mkdir -p clear-docker-cache
 	touch "clear-docker-cache/$(shell date)"
-	heroku container:push web -a climate-news-db --recursive
-	heroku container:release web -a climate-news-db
-
-inspect:
-	python3 scripts/inspect.py
-# 	echo $(PAPERS) | xargs -n 1 -I {} -- wc -l $(DATA_HOME)/articles/{}.jsonlines
-
+	sudo heroku container:push web -a climate-news-db --recursive
+	sudo heroku container:release web -a climate-news-db

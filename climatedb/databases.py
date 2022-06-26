@@ -139,12 +139,12 @@ def find_articles_by_newspaper(newspaper_id):
 def load_latest():
     with Session(engine) as session:
         query = (
-            session.query(AppTable).order_by(AppTable.date_published.desc()).limit(5)
+            session.query(AppTable).order_by(AppTable.date_published.desc()).limit(12)
         )
         latest = [l[0] for l in session.exec(query).all()]
 
     with Session(engine) as session:
-        query = session.query(AppTable).order_by(AppTable.date_uploaded.desc()).limit(5)
+        query = session.query(AppTable).order_by(AppTable.date_uploaded.desc()).limit(12)
         scrape = [l[0] for l in session.exec(query).all()]
 
     return latest, scrape
