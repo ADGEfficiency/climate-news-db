@@ -2,7 +2,10 @@
 
 A database of climate change news articles - [use the dataset here](http://www.climate-news-db.com/).
 
-## Dataset Description
+The goal of the `climate-news-db` is to provide a dataset for NLP and climate change media researchers.
+
+
+## Dataset
 
 The database is made up of a number of data structures (such as JSONLines text files or a SQLite database).
 
