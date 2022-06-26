@@ -73,7 +73,7 @@ A single line of a newspaper JSONLines file:
 `db.sqlite`
 
 - SQLite database,
-- uses data directly from the newspaper JSOLines files,
+- uses data directly from the newspaper JSONLines files,
 - used by the `fastapi` webapp.
 
 `climate-news-db-dataset.zip`
