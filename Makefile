@@ -88,11 +88,11 @@ docker-setup:
 	sudo snap install --classic heroku
 
 docker-push:
-	heroku auth:token | docker login --username=_ registry.heroku.com --password-stdin
+	sudo heroku auth:token | sudo docker login --username=_ registry.heroku.com --password-stdin
 	mkdir -p clear-docker-cache
 	touch "clear-docker-cache/$(shell date)"
-	heroku container:push web -a climate-news-db --recursive
-	heroku container:release web -a climate-news-db
+	sudo heroku container:push web -a climate-news-db --recursive
+	sudo heroku container:release web -a climate-news-db
 
 inspect:
 	python3 scripts/inspect.py
