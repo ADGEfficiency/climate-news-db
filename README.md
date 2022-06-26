@@ -1,9 +1,17 @@
 # climate-news-db
 
-Database of climate change news articles - [see the dataset here](http://www.climate-news-db.com/).
+A database of climate change news articles - [use the dataset here](http://www.climate-news-db.com/).
 
 
 ## Data Structures
+
+The database is made up of a number of data structures (such as JSONLines text files or a SQLite database).
+
+You can grab a copy of all the data from a public S3 bucket using:
+
+```shell
+$ make pulls3
+```
 
 data/newspapers.json
 - maintained by hand - registry of newspapers
@@ -24,39 +32,3 @@ data/articles/$(NEWSPAPER_ID)/$(ARTICLE_ID).{json,html}
 - stage = [raw, processed]
 - newspaper_id
 - article_id
-
-
-
-## Newspapers Spiders
-
-```python
-from climatedb.databases_neu import get_urls_for_paper
-from climatedb.parsing_utils import get_body
-from climatedb.spiders.base import ClimateDBSpider
-from climatedb.utils import form_article_id
-
-
-class Template(ClimateDBSpider):
-    """just for dev"""
-
-    name = "name"
-    start_urls = get_urls_for_paper(name)
-
-    def parse(self, response):
-        article_name = form_article_id(response.url, -1)
-        body = get_body(response)
-
-        headline = response.xpath('//meta[@property="og:title"]/@content').get()
-        subtitle = response.xpath('//meta[@property="og:description"]/@content').get()
-        date = response.xpath('//meta[@itemprop="datePublished"]/@content').get()
-
-        meta = {
-            "headline": headline,
-            "subtitle": subtitle,
-            "body": body,
-            "article_url": response.url,
-            "date_published": date,
-            "article_name": article_name,
-        }
-        return self.tail(response, meta)
-```
