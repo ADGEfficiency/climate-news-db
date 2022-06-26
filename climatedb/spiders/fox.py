@@ -17,10 +17,17 @@ class FoxSpider(ClimateDBSpider):
             '//div[@class="article-body"]/descendant-or-self::p/text()'
         ).getall()
         body = "".join(body)
-        body = body.replace(
+
+        unwanted = [
+            "Fox News Flash top headlines are here.",
+            "Check out what's clicking on Foxnews.com.",
             "Fox News Flash top entertainment and celebrity headlines are here. Check out what's clicking today in entertainment.",
-            "",
-        )
+        ]
+        for unw in unwanted:
+            body = body.replace(
+                unw,
+                "",
+            )
 
         headline = response.xpath('//meta[@property="og:title"]/@content').get()
         subtitle = response.xpath('//meta[@property="og:description"]/@content').get()
