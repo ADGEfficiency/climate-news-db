@@ -11,6 +11,11 @@ class IndependentSpider(ClimateDBSpider):
         article_name = parsing_utils.form_article_id(response.url, -1)
         body = parsing_utils.get_body(response)
 
+        body = body.replace(
+            "Please refresh the page or navigate to another page on the site to be automatically logged in Please refresh your browser to be logged in",
+            ""
+        )
+
         headline = response.xpath('//meta[@property="og:title"]/@content').get()
         subtitle = response.xpath('//meta[@property="og:description"]/@content').get()
 
