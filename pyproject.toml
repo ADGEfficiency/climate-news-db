@@ -7,7 +7,7 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.8"
-Scrapy = "^2.6.1"
+Scrapy = "^2.6.2"
 fastapi = "^0.75.0"
 sqlmodel = "^0.0.6"
 python-dotenv = "^0.20.0"

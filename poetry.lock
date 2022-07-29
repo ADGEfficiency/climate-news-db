@@ -176,7 +176,7 @@ optional = false
 python-versions = "*"
 
 [package.extras]
-test = ["flake8 (==3.7.8)", "hypothesis (==3.55.3)"]
+test = ["hypothesis (==3.55.3)", "flake8 (==3.7.8)"]
 
 [[package]]
 name = "constantly"
@@ -630,7 +630,7 @@ crt = ["botocore[crt] (>=1.20.29,<2.0a.0)"]
 
 [[package]]
 name = "scrapy"
-version = "2.6.1"
+version = "2.6.2"
 description = "A high-level Web Crawling and Web Scraping framework"
 category = "main"
 optional = false
@@ -892,7 +892,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "011aa29459cd339fff402ea745137a1b39ef173605995ea6b62646acc2c81db2"
+content-hash = "54d3dd1b9896d478b51ecf812cd16c3b4115b496cdc3c3bdf31fe3aa5e2ee140"
 
 [metadata.files]
 anyio = [
@@ -1447,8 +1447,8 @@ s3transfer = [
     {file = "s3transfer-0.5.2.tar.gz", hash = "sha256:95c58c194ce657a5f4fb0b9e60a84968c808888aed628cd98ab8771fe1db98ed"},
 ]
 scrapy = [
-    {file = "Scrapy-2.6.1-py2.py3-none-any.whl", hash = "sha256:e977f57d4e828f25d2702e8c2212e8abcd7d6ce45be560f1830a39432a494c09"},
-    {file = "Scrapy-2.6.1.tar.gz", hash = "sha256:56fd55a59d0f329ce752892358abee5a6b50b4fc55a40420ea317dc617553827"},
+    {file = "Scrapy-2.6.2-py2.py3-none-any.whl", hash = "sha256:53528bcaf8c2c77aca359af11f349dec5dad98845a13d4c0bb9abd07f302298d"},
+    {file = "Scrapy-2.6.2.tar.gz", hash = "sha256:55e21181165f25337105fff1efc8393296375cea7de699a7e703bbd265595f26"},
 ]
 service-identity = [
     {file = "service-identity-21.1.0.tar.gz", hash = "sha256:6e6c6086ca271dc11b033d17c3a8bea9f24ebff920c587da090afc9519419d34"},
