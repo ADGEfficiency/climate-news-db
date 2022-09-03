@@ -1,15 +1,14 @@
 # climate-news-db
 
-A database of climate change news articles - [use the dataset here](http://www.climate-news-db.com/).
+[A database of climate change news articles](http://www.climate-news-db.com/).
 
 The goal of the `climate-news-db` is to provide a dataset for NLP and climate change media researchers.
 
+# Dataset Artifacts
 
-## Dataset
+The database is made up of a number of data artifacts (JSON, JSONL & CSV text files & SQLite database).
 
-The database is made up of a number of data structures (such as JSONLines text files or a SQLite database).
-
-You can [download all the data](https://www.climate-news-db.com/download) using the webapp.
+[You can download all the data using the webapp](https://www.climate-news-db.com/download).
 
 ```
 $ tree data-neu
@@ -73,7 +72,7 @@ A single line of a newspaper JSONLines file:
 `db.sqlite`
 
 - SQLite database,
-- uses data directly from the newspaper JSONLines files,
+- uses data directly from the newspaper JSOLines files,
 - used by the `fastapi` webapp.
 
 `climate-news-db-dataset.zip`
