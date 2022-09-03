@@ -4,11 +4,11 @@
 
 The goal of the `climate-news-db` is to provide a dataset for NLP and climate change media researchers.
 
-## Dataset
+# Dataset Artifacts
 
-The database is made up of a number of data structures (such as JSONLines text files or a SQLite database).
+The database is made up of a number of data artifacts (JSON, JSONL & CSV text files & SQLite database).
 
-You can [download all the data](https://www.climate-news-db.com/download) using the webapp.
+[You can download all the data using the webapp](https://www.climate-news-db.com/download).
 
 ```
 $ tree data-neu
@@ -38,19 +38,12 @@ data-neu
 ```
 
 `urls.jsonl`
->>>>>>> f0e973d6dd0a7593cea001bde988ce83d36c2241
 
 - text file with one JSON (url, scrape time) per line,
 - these urls are raw & dirty - often have duplicates,
 - each day a serverless function on AWS Lambda searches all newspapers for the terms `climate change` and `climate crisis`,
 - search result URLs are appended to `urls.jsonl`.
 
-<<<<<<< HEAD
-db.sqlite
-
-climate-news-db-dataset.zip
-
-=======
 `urls.csv`
 
 - CSV with one url per line - URL + newspaper metadata,
@@ -79,10 +72,9 @@ A single line of a newspaper JSONLines file:
 `db.sqlite`
 
 - SQLite database,
-- uses data directly from the newspaper JSONLines files,
+- uses data directly from the newspaper JSOLines files,
 - used by the `fastapi` webapp.
 
 `climate-news-db-dataset.zip`
 
 - created during webapp deployment - available at `https://www.climate-news-db.com/download`.
->>>>>>> f0e973d6dd0a7593cea001bde988ce83d36c2241
