@@ -24,18 +24,18 @@ def get_urls_for_paper(paper: str) -> List[str]:
     data = raw[mask]
     urls = data["url"].values.tolist()
 
-    #  here we can filter out what we already have
+    #  filter out articles we already have successfully parsed
     existing = Path(home) / "articles" / f"{paper}.jsonlines"
     if existing.is_file():
         jl = JSONLines(existing)
         existing = jl.read()
         existing = [a["article_url"] for a in existing]
-
-        #  last one is '' - TODO do this properly
         dispatch = set(urls).difference(set(existing))
     else:
         dispatch = urls
         existing = []
+
+    #  filter
 
     print(
         f"{paper}, all_urls {raw.shape[0]}, urls {len(urls)}, existing {len(existing)}, dispatch {len(dispatch)}"

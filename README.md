@@ -1,15 +1,17 @@
 # climate-news-db
 
-A database of climate change news articles - [use the dataset here](http://www.climate-news-db.com/).
+[A climate change news article dataset](http://www.climate-news-db.com/).
 
-The goal of the `climate-news-db` is to provide a dataset for NLP and climate change media researchers.
+The goal of the `climate-news-db` is to provide data for NLP and climate change media researchers.
+
+The goal of the `climate-news-db` is to provide data for NLP and climate change media researchers.
 
 
 ## Dataset
 
 The database is made up of a number of data structures (such as JSONLines text files or a SQLite database).
 
-You can [download all the data](https://www.climate-news-db.com/download) using the webapp.
+You can download the entire dataset [using the app](http://www.climate-news-db.com/).
 
 ```
 $ tree data-neu
@@ -79,3 +81,12 @@ A single line of a newspaper JSONLines file:
 `climate-news-db-dataset.zip`
 
 - created during webapp deployment - available at `https://www.climate-news-db.com/download`.
+
+
+## Development
+
+Scrape one newspaper:
+
+```shell-session
+$ make scrape-one PAPER=aljazeera
+```

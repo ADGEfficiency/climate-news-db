@@ -12,10 +12,12 @@ class JSONLines:
         self.path = Path(path)
 
     def read(self):
+        print(f" reading JSONLines from: {self.path}")
         data = self.path.read_text().split("\n")[:-1]
         return [json.loads(a) for a in data]
 
     def write(self, data: types.List[dict], mode="w"):
+        print(f" writing JSONLines to: {self.path}")
         #  write data into a list of strings
         #  separated by new lines
         data = [json.dumps(d) + "\n" for d in data]
@@ -37,9 +39,8 @@ class S3JSONLines:
         self.client = self.session.client("s3")
         self.obj = self.resource.Object(self.bucket, self.key)
 
-        print(f"s3 jsonl: key: {self.key}, bucket: {self.bucket}")
-
     def read(self) -> types.List[dict]:
+        print(f" reading JSONLines from s3: {self.bucket, self.key}")
         obj = self.client.get_object(Bucket=self.bucket, Key=self.key)
         #  this will be a big string
         data = obj["Body"].read().decode("UTF-8")
@@ -48,14 +49,15 @@ class S3JSONLines:
         return [json.loads(d) for d in data]
 
     def write(self, data: types.List[dict], mode="w"):
+        print(f" writing JSONLines to s3: {self.bucket, self.key}")
         #  write data into a list of strings
         #  separated by new lines
         existing = self.read()
 
-        print(f"joining {len(data)} urls onto {len(existing)} existing urls")
+        #  can actually use the jsonlines package here probably...
+        print(f" joining {len(data)} urls onto {len(existing)} existing urls")
         existing = "".join([json.dumps(d) + "\n" for d in existing])
         data = "".join([json.dumps(d) + "\n" for d in data])
-
         pkg = existing + data
         self.obj.put(Body=bytes(pkg.encode("UTF-8")))
 
