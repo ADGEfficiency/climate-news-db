@@ -23,15 +23,15 @@ setup:
 	poetry install -q
 
 $(DATA_HOME)/urls.csv: $(DATA_HOME)/urls.jsonl scripts/create_urls_csv.py
-	python3 scripts/create_urls_csv.py
+	python3 -m climatedb scripts/create_urls_csv.py
 create_urls: $(DATA_HOME)/urls.csv
 
 scrapy: $(DATA_HOME)/urls.csv
-	cat ./data-neu/newspapers.json | jq 'keys[]' | xargs -n 1 -I {} scrapy crawl {} -o $(DATA_HOME)/articles/{}.jsonlines -L INFO
+	cat ./data-neu/newspapers.json | jq 'keys[]' | xargs -n 1 -I {} /home/ubuntu/.pyenv/shims/scrapy crawl {} -o $(DATA_HOME)/articles/{}.jsonlines -L INFO
 
 db: scrapy
 	rm -rf $(DB_FI)
-	python3 scripts/create_sqlite.py
+	python3 -m climatedb scripts/create_sqlite.py
 
 #  not pulling s3 here - will put in later
 scrape: setup pulls3 create_urls scrapy db zip pushs3 docker-push
