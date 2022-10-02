@@ -97,7 +97,7 @@ async def read_latest(request: Request):
 def download(request: Request):
     return FileResponse(
         path=f"{data_home}/climate-news-db-dataset.zip",
-        filename="climate-new-db-dataset.zip",
+        filename="climate-news-db-dataset.zip",
         media_type="zip",
     )
 
