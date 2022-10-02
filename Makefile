@@ -36,6 +36,9 @@ db: scrapy
 #  not pulling s3 here - will put in later
 scrape: setup pulls3 create_urls scrapy db zip pushs3 docker-push
 
+cron-scrape:
+	touch "./cron-logs/$(shell date '+%F %T')"
+
 
 #  WEBAPP
 
@@ -64,17 +67,14 @@ zip:
 
 #  INFRA
 
+ACCOUNTNUM=$(shell aws sts get-caller-identity --query "Account" --output text)
+
 ./node_modules/serverless/README.md:
 	npm install serverless
 sls-setup: ./node_modules/serverless/README.md
 
 AWSPROFILE=adg
 IMAGENAME=climatedb-$(STAGE)
-
-ACCOUNTNUM=$(shell aws sts get-caller-identity --query "Account" --output text)
-
-check:
-	npx serverless package -s $(STAGE) --param account=$(ACCOUNTNUM) --verbose
 
 infra: sls-setup
 	sh build-docker-image.sh $(ACCOUNTNUM) climatedb-dev lambda.Dockerfile $(AWSPROFILE)
