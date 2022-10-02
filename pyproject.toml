@@ -15,13 +15,14 @@ uvicorn = "^0.17.6"
 pandas = "^1.4.1"
 pydantic = "^1.9.0"
 rich = "^12.0.1"
-boto3 = "*"
-awscli = "*"
 google = "^3.0.0"
 Jinja2 = "^3.1.1"
-aws = "^0.2.5"
 black = "^22.8.0"
 isort = "^5.10.1"
+prefect = "^2.3.2"
+prefect-shell = "^0.1.1"
+awscli = "^1.25.71"
+boto3 = "^1.24.70"
 
 [tool.poetry.dev-dependencies]
 

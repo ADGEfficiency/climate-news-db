@@ -71,8 +71,12 @@ sls-setup: ./node_modules/serverless/README.md
 AWSPROFILE=adg
 IMAGENAME=climatedb-$(STAGE)
 
+ACCOUNTNUM=$(shell aws sts get-caller-identity --query "Account" --output text)
+
+check:
+	npx serverless package -s $(STAGE) --param account=$(ACCOUNTNUM) --verbose
+
 infra: sls-setup
-	ACCOUNTNUM=$(shell aws sts get-caller-identity --query "Account" --output text)
 	sh build-docker-image.sh $(ACCOUNTNUM) climatedb-dev lambda.Dockerfile $(AWSPROFILE)
 	npx serverless deploy -s $(STAGE) --param account=$(ACCOUNTNUM) --verbose
 

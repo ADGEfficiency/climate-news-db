@@ -9,9 +9,9 @@ from sqlalchemy.sql.expression import func, select
 from sqlmodel import Session, SQLModel, create_engine
 import pandas as pd
 
+from climatedb import files
 from climatedb.config import data_home as home
 from climatedb.config import db_uri
-from climatedb.files import JSONLines
 from climatedb.types import Article, AppTable, Newspaper
 
 
@@ -24,21 +24,24 @@ def get_urls_for_paper(paper: str) -> List[str]:
     data = raw[mask]
     urls = data["url"].values.tolist()
 
-    #  filter out articles we already have successfully parsed
-    existing = Path(home) / "articles" / f"{paper}.jsonlines"
-    if existing.is_file():
-        jl = JSONLines(existing)
-        existing = jl.read()
-        existing = [a["article_url"] for a in existing]
-        dispatch = set(urls).difference(set(existing))
-    else:
-        dispatch = urls
-        existing = []
+    #  default dispatch on all urls
+    dispatch = urls
 
-    #  filter
+    #  filter out articles we already have successfully parsed
+    existing = files.JSONLines(Path(home) / "articles" / f"{paper}.jsonlines")
+    if existing.exists():
+        existing_urls = [a["article_url"] for a in existing.read()]
+        dispatch = set(urls).difference(set(existing_urls))
+
+    #  filter out articles we have already failed to parse
+    rejected = files.JSONLines(Path(home) / "rejected.jsonlines")
+    if rejected.exists():
+        #  note the different key here... is that bad? TODO
+        rejected_urls = [a["url"] for a in rejected.read()]
+        dispatch = set(dispatch).difference(set(rejected_urls))
 
     print(
-        f"{paper}, all_urls {raw.shape[0]}, urls {len(urls)}, existing {len(existing)}, dispatch {len(dispatch)}"
+        f"{paper}, all_urls {raw.shape[0]}, urls {len(urls)}, existing {len(existing_urls)}, rejected {len(rejected_urls)} dispatch {len(dispatch)}"
     )
 
     return list(dispatch)
@@ -144,7 +147,9 @@ def load_latest():
         latest = [l[0] for l in session.exec(query).all()]
 
     with Session(engine) as session:
-        query = session.query(AppTable).order_by(AppTable.date_uploaded.desc()).limit(12)
+        query = (
+            session.query(AppTable).order_by(AppTable.date_uploaded.desc()).limit(12)
+        )
         scrape = [l[0] for l in session.exec(query).all()]
 
     return latest, scrape

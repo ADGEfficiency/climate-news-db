@@ -28,6 +28,9 @@ class JSONLines:
         with open(self.path, mode) as fp:
             fp.writelines(data)
 
+    def exists(self):
+        return self.path.is_file()
+
 
 class S3JSONLines:
     def __init__(self, bucket, key):

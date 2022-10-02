@@ -90,3 +90,14 @@ Scrape one newspaper:
 ```shell-session
 $ make scrape-one PAPER=aljazeera
 ```
+
+```
+prefect profile use 'cloud'
+
+only once
+prefect -p 'cloud' config view
+```
+
+
+also add to github
+prefect cloud login -k API_KEY
