@@ -55,10 +55,6 @@ datasette:
 scrape-one:
 	scrapy crawl $(PAPER) -L DEBUG -o $(DATA_HOME)/articles/$(PAPER).jsonlines
 
-dbnodep:
-	rm -rf $(DB_FI)
-	python3 scripts/create_sqlite.py
-
 zip:
 	cd $(DATA_HOME); zip -r ./climate-news-db-dataset.zip ./*
 

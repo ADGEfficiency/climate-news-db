@@ -103,6 +103,7 @@ def download(request: Request):
 def years_json(request: Request):
     """used by JS.charts on home page"""
     data = group_newspapers_by_year()
+    breakpoint()  # fmt: skip
     return JSONResponse(content=data)
 
 
