@@ -1,8 +1,6 @@
 echo "url counts"
-wc -l data/urls/urls.data
-wc -l data/urls/urls.jsonl
+wc -l data-neu/urls.jsonl
+wc -l data-neu/urls.csv
 
-echo "raw html files"
-find data/articles/raw -name '*.html' | wc -l
 echo "article json files"
-find data/articles/final -name '*.json' | wc -l
+find data-neu/articles/ -name '*.jsonlines' | xargs -n 1 -I {} wc -l {}
