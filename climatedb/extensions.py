@@ -15,12 +15,21 @@ class RejectRegister(object):
         return ext
 
     def spider_error(self, failure, response, spider):
-        #  now want to append this to a rejected file
-        #  which means next time we won't try to
-        #  reprocess them again
+        """
+        Append failed URL to a `rejected.jsonlines` file so we don't try to parse again
+        """
         db = files.JSONLines(f"{data_home}/rejected.jsonlines")
+
+        #  if we get redirected, use the original url we search for
+        url = response.request.headers.get("Referer", None)
+
+        if url is None:
+            url = response.url
+        else:
+            url = url.decode("utf-8")
+
         pkg = {
-            "url": response.url,
+            "url": url,
             "error": str(failure.value),
             "search_time_utc": datetime.utcnow().isoformat(),
         }
