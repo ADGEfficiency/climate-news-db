@@ -4,20 +4,9 @@ from multiprocessing import Pool
 import json
 import pandas as pd
 
-from climatedb.files import JSONFile
-
 from pathlib import Path
 
-
-def find_newspaper_from_url(url):
-
-    papers = JSONFile(Path(home) / "newspapers.json").read()
-
-    for paper in papers.values():
-        if paper["newspaper_url"] in url:
-            return {"url": url, **paper}
-
-    return {"name": "UNKNOWN"}
+from climatedb.databases import find_newspaper_from_url
 
 
 if __name__ == "__main__":

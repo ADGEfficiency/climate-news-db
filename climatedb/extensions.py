@@ -1,7 +1,10 @@
-from scrapy import signals
 from datetime import datetime
+
 from climatedb import files
 from climatedb.config import data_home
+
+from rich import print
+from scrapy import signals
 
 
 class RejectRegister(object):
@@ -12,7 +15,6 @@ class RejectRegister(object):
         return ext
 
     def spider_error(self, failure, response, spider):
-        print(f"[red]failed[/] {response.url} {failure}")
         #  now want to append this to a rejected file
         #  which means next time we won't try to
         #  reprocess them again
@@ -22,10 +24,5 @@ class RejectRegister(object):
             "error": str(failure.value),
             "search_time_utc": datetime.utcnow().isoformat(),
         }
-        print(pkg)
-        #  TODO - files.JSONLines should be able to take a single dict as input
-        db.write(
-            [
-                pkg,
-            ]
-        )
+        print(f"[red]REJECTED[/] {response.url} {failure}\n {pkg}")
+        db.write([pkg])

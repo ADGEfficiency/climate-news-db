@@ -15,10 +15,24 @@ from climatedb.config import db_uri
 from climatedb.types import Article, AppTable, Newspaper
 
 
+from climatedb.files import JSONFile
+
+assert home is not None
+
+
+def find_newspaper_from_url(url):
+    papers = JSONFile(Path(home) / "newspapers.json").read()
+    for paper in papers.values():
+        if paper["newspaper_url"] in url:
+            return {"url": url, **paper}
+    return {"name": "UNKNOWN"}
+
+
 def get_urls_for_paper(paper: str) -> List[str]:
     """
     Gets all urls for a newspaper from $(DATA_HOME) / urls.csv
     """
+    print(f"[green]getting urls[/] for {paper}")
     raw = pd.read_csv(f"{home}/urls.csv")
     mask = raw["name"] == paper
     data = raw[mask]
@@ -26,22 +40,33 @@ def get_urls_for_paper(paper: str) -> List[str]:
 
     #  default dispatch on all urls
     dispatch = urls
+    print(f" found {len(dispatch)} urls to dispatch on for {paper}")
 
     #  filter out articles we already have successfully parsed
     existing = files.JSONLines(Path(home) / "articles" / f"{paper}.jsonlines")
     if existing.exists():
         existing_urls = [a["article_url"] for a in existing.read()]
         dispatch = set(urls).difference(set(existing_urls))
+        print(f" have {len(dispatch)} urls after removing existing")
 
     #  filter out articles we have already failed to parse
     rejected = files.JSONLines(Path(home) / "rejected.jsonlines")
     if rejected.exists():
         #  note the different key here... is that bad? TODO
-        rejected_urls = [a["url"] for a in rejected.read()]
-        dispatch = set(dispatch).difference(set(rejected_urls))
+        rejected_urls = [a for a in rejected.read()]
+        rejected_urls = set(
+            [
+                a["url"]
+                for a in rejected_urls
+                if find_newspaper_from_url(a["url"])["name"] == paper
+            ]
+        )
+        print(f" {len(rejected_urls)} rejected urls")
+        dispatch = set(dispatch).difference(rejected_urls)
+        print(f" have {len(dispatch)} urls after removing existing & rejected")
 
     print(
-        f"{paper}, all_urls {raw.shape[0]}, urls {len(urls)}, existing {len(existing_urls)}, rejected {len(rejected_urls)} dispatch {len(dispatch)}"
+        f" {paper}, all_urls {raw.shape[0]}, urls {len(urls)}, existing {len(existing_urls)}, rejected {len(rejected_urls)} dispatch {len(dispatch)}"
     )
 
     return list(dispatch)

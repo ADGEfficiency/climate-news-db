@@ -1,8 +1,9 @@
-import scrapy
-from rich import print
-from climatedb.databases import Article, save_html
-
 import datetime
+
+from rich import print
+import scrapy
+
+from climatedb.databases import Article, save_html
 
 
 class ClimateDBSpider(scrapy.Spider):

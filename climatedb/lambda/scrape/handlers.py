@@ -30,6 +30,7 @@ def run_ssm_command(instances, region):
                 "bash -c 'sh /home/ubuntu/.bashrc && cd /home/ubuntu/climate-news-db && make scrape -o setup && sudo shutdown'"
             ]
         },
+        TimeoutSeconds=24 * 60 * 60,
     )
 
 
