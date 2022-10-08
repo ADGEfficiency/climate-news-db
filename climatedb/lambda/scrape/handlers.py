@@ -1,6 +1,7 @@
-import boto3
 import time
 import typing
+
+import boto3
 from rich import print
 
 region = "ap-southeast-2"

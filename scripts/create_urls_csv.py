@@ -1,13 +1,12 @@
-from climatedb.config import data_home as home
-from rich import print
-from multiprocessing import Pool
 import json
-import pandas as pd
-
+from multiprocessing import Pool
 from pathlib import Path
 
-from climatedb.databases import find_newspaper_from_url
+import pandas as pd
+from rich import print
 
+from climatedb.config import data_home as home
+from climatedb.databases import find_newspaper_from_url
 
 if __name__ == "__main__":
     from pathlib import Path

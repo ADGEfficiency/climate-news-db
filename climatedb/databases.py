@@ -1,21 +1,19 @@
-from collections import namedtuple, defaultdict
+from collections import defaultdict, namedtuple
 from datetime import datetime
+from pathlib import Path
 from typing import List
 
+import pandas as pd
 from fastapi.templating import Jinja2Templates
-from pathlib import Path
 from rich import print
 from sqlalchemy.sql.expression import func, select
 from sqlmodel import Session, SQLModel, create_engine
-import pandas as pd
 
 from climatedb import files
 from climatedb.config import data_home as home
 from climatedb.config import db_uri
-from climatedb.types import Article, AppTable, Newspaper
-
-
 from climatedb.files import JSONFile
+from climatedb.types import AppTable, Article, Newspaper
 
 assert home is not None
 

@@ -1,13 +1,13 @@
-from datetime import datetime
-from urllib.error import HTTPError
 import random
 import time
+from datetime import datetime
+from urllib.error import HTTPError
 
 from googlesearch import search as googlesearch
 from rich import print
 
-from climatedb.config import data_home
 from climatedb import types
+from climatedb.config import data_home
 
 
 def search(paper: types.Newspaper, num: int, query: str = "climate change") -> list:

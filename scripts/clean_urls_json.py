@@ -1,10 +1,9 @@
 """runs checker on each url"""
-import climatedb.databases as db
-from climatedb.registry import find_newspaper_from_url
-
+import os
 from shutil import move
 
-import os
+import climatedb.databases as db
+from climatedb.registry import find_newspaper_from_url
 
 fi = db.URLs("urls/urls.jsonl")
 urls = fi.get()

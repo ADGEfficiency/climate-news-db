@@ -1,6 +1,7 @@
-import pytz
-from datetime import datetime
 import json
+from datetime import datetime
+
+import pytz
 
 
 def get_title(response) -> str:
@@ -26,8 +27,8 @@ def get_app_json(response, n=0) -> dict:
 def get_body(response):
     body = response.xpath("//p/descendant-or-self::*/text()").getall()
     body = " ".join(body)
-    body = body.replace('  ', ' ')
-    body = body.strip(' ')
+    body = body.replace("  ", " ")
+    body = body.strip(" ")
     return body
 
 

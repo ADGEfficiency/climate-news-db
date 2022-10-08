@@ -1,10 +1,10 @@
 from datetime import datetime
 
-from climatedb import files
-from climatedb.config import data_home
-
 from rich import print
 from scrapy import signals
+
+from climatedb import files
+from climatedb.config import data_home
 
 
 class RejectRegister(object):

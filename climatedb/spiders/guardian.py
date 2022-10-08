@@ -1,8 +1,8 @@
 from pathlib import Path
 
+from climatedb.databases import Article, get_urls_for_paper, save_html
+from climatedb.parsing_utils import get_date, get_title
 from climatedb.spiders.base import ClimateDBSpider
-from climatedb.databases import get_urls_for_paper, Article, save_html
-from climatedb.parsing_utils import get_title, get_date
 
 
 class GuardianSpider(ClimateDBSpider):

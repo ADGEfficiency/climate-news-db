@@ -1,11 +1,10 @@
 import json
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
-from climatedb.databases import get_urls_for_paper, save_html
 from climatedb import parsing_utils
+from climatedb.databases import Article, get_urls_for_paper, save_html
 from climatedb.parsing_utils import get_app_json, get_body
-from climatedb.databases import Article
 from climatedb.spiders.base import ClimateDBSpider
 
 

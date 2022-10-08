@@ -10,6 +10,7 @@ def find_newspaper_from_url(url):
 
 
 from multiprocessing import Pool
+
 import pandas as pd
 
 if __name__ == "__main__":

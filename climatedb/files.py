@@ -1,7 +1,7 @@
-import boto3
+import json
 from pathlib import Path
 
-import json
+import boto3
 
 from climatedb import types
 from climatedb.config import region

@@ -1,7 +1,7 @@
 import datetime
 
-from rich import print
 import scrapy
+from rich import print
 
 from climatedb.databases import Article, save_html
 
