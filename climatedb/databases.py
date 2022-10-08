@@ -40,29 +40,31 @@ def get_urls_for_paper(paper: str) -> List[str]:
     """
     Gets all urls for a newspaper from $(DATA_HOME) / urls.csv
     """
-    print(f"[green]getting urls[/] for {paper}")
+    assert home is not None
+
     raw = pd.read_csv(f"{home}/urls.csv")
     mask = raw["name"] == paper
     data = raw[mask]
     urls = data["url"].values.tolist()
+    urls = [a for a in urls if find_newspaper_from_url(a)["name"]]
 
     #  default dispatch on all urls
     dispatch = urls
-    print(f" found {len(dispatch)} urls to dispatch on for {paper}")
+    print(f"[green]FOUND[/] {len(dispatch)} urls for {paper}")
 
     #  filter out articles we already have successfully parsed
+    #  already filtered by newspaper
     existing = files.JSONLines(Path(home) / "articles" / f"{paper}.jsonlines")
     if existing.exists():
-        existing_urls = [
-            a.get("article_start_url", "article_url") for a in existing.read()
-        ]
+        existing_urls = set(
+            [a.get("article_start_url", a["article_url"]) for a in existing.read()]
+        )
         dispatch = set(urls).difference(set(existing_urls))
-        print(f" have {len(dispatch)} urls after removing existing")
+        print(f" {len(dispatch)} urls after removing {len(existing_urls)} existing")
 
     #  filter out articles we have already failed to parse
     rejected = files.JSONLines(Path(home) / "rejected.jsonlines")
     if rejected.exists():
-        #  note the different key here... is that bad? TODO
         rejected_urls = [a for a in rejected.read()]
         rejected_urls = set(
             [
@@ -71,13 +73,8 @@ def get_urls_for_paper(paper: str) -> List[str]:
                 if find_newspaper_from_url(a["url"])["name"] == paper
             ]
         )
-        print(f" {len(rejected_urls)} rejected urls")
+        print(f" {len(dispatch)} urls after removing {len(rejected_urls)} rejected")
         dispatch = set(dispatch).difference(rejected_urls)
-        print(f" have {len(dispatch)} urls after removing existing & rejected")
-
-    print(
-        f" {paper}, all_urls {raw.shape[0]}, urls {len(urls)}, existing {len(existing_urls)}, rejected {len(rejected_urls)} dispatch {len(dispatch)}"
-    )
 
     return list(dispatch)
 
@@ -252,3 +249,12 @@ def group_newspapers_by_year():
     colors = {t[0]: t[1] for t in colors}
     out["colors"] = colors
     return out
+
+
+if __name__ == "__main__":
+    papers = JSONFile(Path(home) / "newspapers.json").read()
+
+    get_urls_for_paper("guardian")
+
+    for paper in papers.keys():
+        get_urls_for_paper(paper)
