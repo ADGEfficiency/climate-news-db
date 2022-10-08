@@ -18,6 +18,16 @@ from climatedb.types import AppTable, Article, Newspaper
 assert home is not None
 
 
+def find_start_url(response):
+    #  if we get redirected, use the original url we search for
+    url = response.request.headers.get("Referer", None)
+    if url is None:
+        url = response.url
+    else:
+        url = url.decode("utf-8")
+    return url
+
+
 def find_newspaper_from_url(url):
     papers = JSONFile(Path(home) / "newspapers.json").read()
     for paper in papers.values():
@@ -43,7 +53,9 @@ def get_urls_for_paper(paper: str) -> List[str]:
     #  filter out articles we already have successfully parsed
     existing = files.JSONLines(Path(home) / "articles" / f"{paper}.jsonlines")
     if existing.exists():
-        existing_urls = [a["article_url"] for a in existing.read()]
+        existing_urls = [
+            a.get("article_start_url", "article_url") for a in existing.read()
+        ]
         dispatch = set(urls).difference(set(existing_urls))
         print(f" have {len(dispatch)} urls after removing existing")
 

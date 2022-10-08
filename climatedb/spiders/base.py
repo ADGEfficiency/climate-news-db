@@ -3,7 +3,7 @@ import datetime
 import scrapy
 from rich import print
 
-from climatedb.databases import Article, save_html
+from climatedb.databases import Article, save_html, find_start_url
 
 
 class ClimateDBSpider(scrapy.Spider):
@@ -15,6 +15,8 @@ class ClimateDBSpider(scrapy.Spider):
 
     def tail(self, response, meta):
         meta = Article(**meta).dict(exclude_unset=True)
+        #  maybe a TODO here to bring these arguments into the Article type?
         meta["article_length"] = len(meta["body"])
         meta["date_uploaded"] = datetime.datetime.now().isoformat()
+        meta["article_start_url"] = find_start_url(response)
         return meta

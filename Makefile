@@ -26,8 +26,10 @@ $(DATA_HOME)/urls.csv: $(DATA_HOME)/urls.jsonl scripts/create_urls_csv.py
 	python3 scripts/create_urls_csv.py
 create_urls: $(DATA_HOME)/urls.csv
 
+LOG := INFO
+
 scrapy: create_urls
-	cat ./data-neu/newspapers.json | jq 'keys[]' | xargs -n 1 -I {} scrapy crawl {} -o $(DATA_HOME)/articles/{}.jsonlines -L INFO
+	cat ./data-neu/newspapers.json | jq 'keys[]' | xargs -n 1 -I {} scrapy crawl {} -o $(DATA_HOME)/articles/{}.jsonlines -L $(LOG)
 
 db: scrapy
 	rm -rf $(DB_FI)

@@ -5,6 +5,7 @@ from scrapy import signals
 
 from climatedb import files
 from climatedb.config import data_home
+from climatedb.databases import find_start_url
 
 
 class RejectRegister(object):
@@ -20,13 +21,7 @@ class RejectRegister(object):
         """
         db = files.JSONLines(f"{data_home}/rejected.jsonlines")
 
-        #  if we get redirected, use the original url we search for
-        url = response.request.headers.get("Referer", None)
-
-        if url is None:
-            url = response.url
-        else:
-            url = url.decode("utf-8")
+        url = find_start_url(response)
 
         pkg = {
             "url": url,
