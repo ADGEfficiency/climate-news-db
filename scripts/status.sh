@@ -1,8 +1,9 @@
 echo "url counts"
-wc -l data/urls/urls.data
-wc -l data/urls/urls.jsonl
+wc -l data-neu/urls.jsonl
+wc -l data-neu/urls.csv
+wc -l data-neu/rejected.jsonlines
 
-echo "raw html files"
-find data/articles/raw -name '*.html' | wc -l
-echo "article json files"
-find data/articles/final -name '*.json' | wc -l
+echo "\narticle json files"
+find data-neu/articles/ -name '*.jsonlines' | xargs -n 1 -I {} wc -l {}
+
+python ./inspect_db.py

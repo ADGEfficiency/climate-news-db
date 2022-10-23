@@ -1,27 +1,23 @@
 from datetime import datetime
+from pathlib import Path
 from typing import Optional
 
 from rich import print
-from sqlalchemy import func
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.dialects.sqlite import insert
 from sqlmodel import Field, Session, SQLModel, create_engine
-from pathlib import Path
-from climatedb.files import (
-    JSONLines,
-    JSONFile,
-)
-from climatedb.databases import (
-    Newspaper,
-    Article,
-    AppTable,
-    find_id_for_newspaper,
-    find_all_articles,
-    find_all_papers,
-)
+
 from climatedb.config import data_home as home
 from climatedb.config import db_uri
-
+from climatedb.databases import (
+    AppTable,
+    Article,
+    Newspaper,
+    find_all_articles,
+    find_all_papers,
+    find_id_for_newspaper,
+)
+from climatedb.files import JSONFile, JSONLines
 
 engine = create_engine(db_uri)
 SQLModel.metadata.create_all(engine)

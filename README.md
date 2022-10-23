@@ -1,18 +1,14 @@
 # climate-news-db
 
-[A database of climate change news articles](http://www.climate-news-db.com/).
+The goal of the [climate-news-db](http://www.climate-news-db.com/) is to provide a dataset for NLP and climate change media researchers.
 
-The goal of the `climate-news-db` is to provide a dataset for NLP and climate change media researchers.
+# Dataset
 
-# Dataset Artifacts
-
-The database is made up of a number of data artifacts (JSON, JSONL & CSV text files & SQLite database).
-
-[You can download all the data using the webapp](https://www.climate-news-db.com/download).
+The dataset is made up of a number of data artifacts (JSON, JSONL & CSV text files & SQLite database) ([you can download all the data using the webapp](https://www.climate-news-db.com/download)):
 
 ```
-$ tree data-neu
-data-neu
+$ tree climate-news-db-dataset
+climate-news-db-dataset
 ├── articles
 │   ├── aljazeera.jsonlines
 │   ├── atlantic.jsonlines
@@ -37,25 +33,10 @@ data-neu
 └── urls.jsonl
 ```
 
-`urls.jsonl`
-
-- text file with one JSON (url, scrape time) per line,
-- these urls are raw & dirty - often have duplicates,
-- each day a serverless function on AWS Lambda searches all newspapers for the terms `climate change` and `climate crisis`,
-- search result URLs are appended to `urls.jsonl`.
-
-`urls.csv`
-
-- CSV with one url per line - URL + newspaper metadata,
-- cleaner version of `urls.jsonl` - no duplicate URLs,
-- created from `urls.jsonl`.
-
 `articles/{$NEWSPAPERID}.jsonlines`
 
 - text file with one JSON (article body, headline, published data),
 - contains clean & processed data of the newspaper article.
-
-A single line of a newspaper JSONLines file:
 
 ```
 {
@@ -69,12 +50,50 @@ A single line of a newspaper JSONLines file:
 }
 ```
 
+`climate-news-db-dataset.zip`
+
+- created during webapp deployment - available at `https://www.climate-news-db.com/download`.
+
 `db.sqlite`
 
 - SQLite database,
 - uses data directly from the newspaper JSOLines files,
 - used by the `fastapi` webapp.
 
-`climate-news-db-dataset.zip`
+`newspapers.json`
 
-- created during webapp deployment - available at `https://www.climate-news-db.com/download`.
+- JSON text file,
+- metadata for newspapers - URLs, fancy names, colors.
+
+```json
+  "guardian": {
+    "name": "guardian",
+    "fancy_name": "The Guardian",
+    "newspaper_url": "theguardian.com",
+    "color": "#052962"
+  },
+```
+
+`urls.csv`
+
+- CSV with one url per line - URL + newspaper metadata,
+- cleaner version of `urls.jsonl` - no duplicate URLs,
+- created from `urls.jsonl`.
+
+```txt
+$ head -n 2 data-neu/urls.csv
+url,name,fancy_name,newspaper_url,color
+https://www.theguardian.com/environment/climate-consensus-97-per-cent/2017/oct/18/clifi-a-new-way-to-talk-about-climate-change,guardian,The Guardian,theguardian.com,#052962
+```
+
+`urls.jsonl`
+
+- text file with one JSON (url, scrape time) per line,
+- these urls are raw & dirty - often have duplicates,
+- each day a serverless function on AWS Lambda searches all newspapers for the terms `climate change` and `climate crisis`,
+- search result URLs are appended to `urls.jsonl`.
+
+```json
+{"url": "https://www.newshub.co.nz/home/shows/2019/02/poll-does-climate-change-scare-you.html", "search_time_UTC": "01/01/2021 01:16:17"}
+{"url": "https://www.theatlantic.com/science/archive/2015/12/what-old-weather-reports-dont-reveal-about-climate-change/419850/", "search_time_UTC": "01/01/2021 01:16:17"}
+```

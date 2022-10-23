@@ -3,7 +3,6 @@ from pathlib import Path
 
 from dotenv import dotenv_values
 
-
 de = dotenv_values()
 data_home = os.environ.get("DATA_HOME", de["DATA_HOME"])
 s3_prefix = os.environ.get("S3_PREFIX", de["S3_PREFIX"])

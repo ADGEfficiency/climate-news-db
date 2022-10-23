@@ -23,21 +23,19 @@ setup:
 	poetry install -q
 
 $(DATA_HOME)/urls.csv: $(DATA_HOME)/urls.jsonl scripts/create_urls_csv.py
-	python3 -m climatedb scripts/create_urls_csv.py
+	python3 scripts/create_urls_csv.py
 create_urls: $(DATA_HOME)/urls.csv
 
-scrapy: $(DATA_HOME)/urls.csv
-	cat ./data-neu/newspapers.json | jq 'keys[]' | xargs -n 1 -I {} /home/ubuntu/.pyenv/shims/scrapy crawl {} -o $(DATA_HOME)/articles/{}.jsonlines -L INFO
+LOG := INFO
+
+scrapy: create_urls
+	cat ./data-neu/newspapers.json | jq 'keys[]' | xargs -n 1 -I {} scrapy crawl {} -o $(DATA_HOME)/articles/{}.jsonlines -L $(LOG)
 
 db: scrapy
 	rm -rf $(DB_FI)
-	python3 -m climatedb scripts/create_sqlite.py
+	python3 scripts/create_sqlite.py
 
-#  not pulling s3 here - will put in later
 scrape: setup pulls3 create_urls scrapy db zip pushs3 docker-push
-
-cron-scrape:
-	touch "./cron-logs/$(shell date '+%F %T')"
 
 
 #  WEBAPP
@@ -57,10 +55,6 @@ datasette:
 scrape-one:
 	scrapy crawl $(PAPER) -L DEBUG -o $(DATA_HOME)/articles/$(PAPER).jsonlines
 
-dbnodep:
-	rm -rf $(DB_FI)
-	python3 scripts/create_sqlite.py
-
 zip:
 	cd $(DATA_HOME); zip -r ./climate-news-db-dataset.zip ./*
 
@@ -68,13 +62,12 @@ zip:
 #  INFRA
 
 ACCOUNTNUM=$(shell aws sts get-caller-identity --query "Account" --output text)
+AWSPROFILE=default
+IMAGENAME=climatedb-$(STAGE)
 
 ./node_modules/serverless/README.md:
 	npm install serverless
 sls-setup: ./node_modules/serverless/README.md
-
-AWSPROFILE=adg
-IMAGENAME=climatedb-$(STAGE)
 
 infra: sls-setup
 	sh build-docker-image.sh $(ACCOUNTNUM) climatedb-dev lambda.Dockerfile $(AWSPROFILE)

@@ -1,9 +1,6 @@
-
-from climatedb.databases import get_urls_for_paper, save_html, Article
-from climatedb.parsing_utils import get_app_json
-
+from climatedb.databases import Article, get_urls_for_paper, save_html
+from climatedb.parsing_utils import form_article_id, get_app_json
 from climatedb.spiders.base import ClimateDBSpider
-from climatedb.parsing_utils import form_article_id
 
 
 class NYTimesSpider(ClimateDBSpider):

@@ -1,10 +1,10 @@
-from climatedb import types, files
+from climatedb import files, types
 from climatedb.config import data_home, s3_bucket, s3_prefix
 from climatedb.databases import find_all_papers
 from climatedb.search import search
 
 
-def controller_handler(
+def search_controller(
     event: dict, context: types.Union[dict, None] = None
 ) -> types.Dict[str, str]:
     """Searches all newspapers for climate articles, saves to urls.jsonl"""

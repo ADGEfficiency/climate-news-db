@@ -1,10 +1,10 @@
 import json
-from climatedb.databases import get_urls_for_paper, save_html
+from datetime import datetime
 from pathlib import Path
 
 from climatedb import parsing_utils
+from climatedb.databases import Article, get_urls_for_paper, save_html
 from climatedb.parsing_utils import get_app_json, get_body
-from climatedb.databases import Article
 from climatedb.spiders.base import ClimateDBSpider
 
 
@@ -28,7 +28,6 @@ class AljazeeraSpider(ClimateDBSpider):
             #  maybe always do this ??? idk
             headline = response.xpath('//meta[@property="og:title"]/@content').get()
             date = response.xpath('//span[@class="date"]/text()').get()
-            from datetime import datetime
 
             # <span class="date">September 6, 2013</span>
             date = datetime.strptime(date, "%B %d, %Y")

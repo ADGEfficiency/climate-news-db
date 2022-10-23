@@ -1,10 +1,10 @@
-from typing import *
 from datetime import datetime
+from typing import *
 from typing import Optional
 
 from pydantic import constr
-from sqlmodel import SQLModel, Field
 from sqlalchemy import UniqueConstraint
+from sqlmodel import Field, SQLModel
 
 
 class Article(SQLModel, table=True):

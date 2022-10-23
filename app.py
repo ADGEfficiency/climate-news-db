@@ -2,25 +2,22 @@ import os
 from datetime import datetime
 from typing import Optional
 
-from fastapi.staticfiles import StaticFiles
 import uvicorn
-
-from fastapi.responses import FileResponse
 from fastapi import FastAPI, Request
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, JSONResponse
 
 from climatedb.config import data_home
 from climatedb.databases import (
     find_all_articles,
     find_all_papers,
     find_article,
-    find_random_article,
     find_articles_by_newspaper,
-    load_latest,
+    find_random_article,
     group_newspapers_by_year,
+    load_latest,
 )
-
 
 articles = find_all_articles()
 papers = find_all_papers()
@@ -97,7 +94,7 @@ async def read_latest(request: Request):
 def download(request: Request):
     return FileResponse(
         path=f"{data_home}/climate-news-db-dataset.zip",
-        filename="climate-new-db-dataset.zip",
+        filename="climate-news-db-dataset.zip",
         media_type="zip",
     )
 

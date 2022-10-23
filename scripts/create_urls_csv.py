@@ -1,24 +1,12 @@
-from climatedb.config import data_home as home
-from rich import print
-from multiprocessing import Pool
 import json
-import pandas as pd
-
-from climatedb.files import JSONFile
-
+from multiprocessing import Pool
 from pathlib import Path
 
+import pandas as pd
+from rich import print
 
-def find_newspaper_from_url(url):
-
-    papers = JSONFile(Path(home) / "newspapers.json").read()
-
-    for paper in papers.values():
-        if paper["newspaper_url"] in url:
-            return {"url": url, **paper}
-
-    return {"name": "UNKNOWN"}
-
+from climatedb.config import data_home as home
+from climatedb.databases import find_newspaper_from_url
 
 if __name__ == "__main__":
     from pathlib import Path

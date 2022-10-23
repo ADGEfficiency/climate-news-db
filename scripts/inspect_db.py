@@ -1,7 +1,7 @@
 import pandas as pd
+from rich import print
 
 from climatedb import databases
-from rich import print
 
 print("\n[red]urls.jsonl[/]")
 """

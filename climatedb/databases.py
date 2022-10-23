@@ -1,45 +1,80 @@
-from collections import namedtuple, defaultdict
+from collections import defaultdict, namedtuple
 from datetime import datetime
+from pathlib import Path
 from typing import List
 
+import pandas as pd
 from fastapi.templating import Jinja2Templates
-from pathlib import Path
 from rich import print
 from sqlalchemy.sql.expression import func, select
 from sqlmodel import Session, SQLModel, create_engine
-import pandas as pd
 
+from climatedb import files
 from climatedb.config import data_home as home
 from climatedb.config import db_uri
-from climatedb.files import JSONLines
-from climatedb.types import Article, AppTable, Newspaper
+from climatedb.files import JSONFile
+from climatedb.types import AppTable, Article, Newspaper
+
+assert home is not None
+
+
+def find_start_url(response):
+    #  if we get redirected, use the original url we search for
+    url = response.request.headers.get("Referer", None)
+    if url is None:
+        url = response.url
+    else:
+        url = url.decode("utf-8")
+    return url
+
+
+def find_newspaper_from_url(url):
+    papers = JSONFile(Path(home) / "newspapers.json").read()
+    for paper in papers.values():
+        if paper["newspaper_url"] in url:
+            return {"url": url, **paper}
+    return {"name": "UNKNOWN"}
 
 
 def get_urls_for_paper(paper: str) -> List[str]:
     """
     Gets all urls for a newspaper from $(DATA_HOME) / urls.csv
     """
+    assert home is not None
+
     raw = pd.read_csv(f"{home}/urls.csv")
     mask = raw["name"] == paper
     data = raw[mask]
     urls = data["url"].values.tolist()
+    urls = [a for a in urls if find_newspaper_from_url(a)["name"]]
 
-    #  here we can filter out what we already have
-    existing = Path(home) / "articles" / f"{paper}.jsonlines"
-    if existing.is_file():
-        jl = JSONLines(existing)
-        existing = jl.read()
-        existing = [a["article_url"] for a in existing]
+    #  default dispatch on all urls
+    dispatch = urls
+    print(f"[green]FOUND[/] {len(dispatch)} urls for {paper}")
 
-        #  last one is '' - TODO do this properly
-        dispatch = set(urls).difference(set(existing))
-    else:
-        dispatch = urls
-        existing = []
+    #  filter out articles we already have successfully parsed
+    #  already filtered by newspaper
+    existing = files.JSONLines(Path(home) / "articles" / f"{paper}.jsonlines")
+    if existing.exists():
+        existing_urls = set(
+            [a.get("article_start_url", a["article_url"]) for a in existing.read()]
+        )
+        dispatch = set(urls).difference(set(existing_urls))
+        print(f" {len(dispatch)} urls after removing {len(existing_urls)} existing")
 
-    print(
-        f"{paper}, all_urls {raw.shape[0]}, urls {len(urls)}, existing {len(existing)}, dispatch {len(dispatch)}"
-    )
+    #  filter out articles we have already failed to parse
+    rejected = files.JSONLines(Path(home) / "rejected.jsonlines")
+    if rejected.exists():
+        rejected_urls = [a for a in rejected.read()]
+        rejected_urls = set(
+            [
+                a["url"]
+                for a in rejected_urls
+                if find_newspaper_from_url(a["url"])["name"] == paper
+            ]
+        )
+        print(f" {len(dispatch)} urls after removing {len(rejected_urls)} rejected")
+        dispatch = set(dispatch).difference(rejected_urls)
 
     return list(dispatch)
 
@@ -144,7 +179,9 @@ def load_latest():
         latest = [l[0] for l in session.exec(query).all()]
 
     with Session(engine) as session:
-        query = session.query(AppTable).order_by(AppTable.date_uploaded.desc()).limit(12)
+        query = (
+            session.query(AppTable).order_by(AppTable.date_uploaded.desc()).limit(12)
+        )
         scrape = [l[0] for l in session.exec(query).all()]
 
     return latest, scrape
@@ -212,3 +249,12 @@ def group_newspapers_by_year():
     colors = {t[0]: t[1] for t in colors}
     out["colors"] = colors
     return out
+
+
+if __name__ == "__main__":
+    papers = JSONFile(Path(home) / "newspapers.json").read()
+
+    get_urls_for_paper("guardian")
+
+    for paper in papers.keys():
+        get_urls_for_paper(paper)

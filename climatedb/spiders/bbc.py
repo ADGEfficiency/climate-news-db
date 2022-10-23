@@ -1,6 +1,6 @@
-from climatedb.databases import get_urls_for_paper, JSONLines, save_html, Article
-from climatedb.spiders.base import ClimateDBSpider
 from climatedb import parsing_utils
+from climatedb.databases import Article, get_urls_for_paper, save_html
+from climatedb.spiders.base import ClimateDBSpider
 
 
 class BBCSpider(ClimateDBSpider):

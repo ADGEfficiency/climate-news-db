@@ -1,6 +1,6 @@
-from climatedb.databases import get_urls_for_paper, save_html, Article
-from climatedb.spiders.base import ClimateDBSpider
 from climatedb import parsing_utils
+from climatedb.databases import Article, get_urls_for_paper, save_html
+from climatedb.spiders.base import ClimateDBSpider
 
 
 class IndependentSpider(ClimateDBSpider):
@@ -17,7 +17,6 @@ class IndependentSpider(ClimateDBSpider):
         ]
         for unw in unwanted:
             body = body.replace(unw, "")
-
 
         headline = response.xpath('//meta[@property="og:title"]/@content').get()
         subtitle = response.xpath('//meta[@property="og:description"]/@content').get()

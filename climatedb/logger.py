@@ -1,5 +1,4 @@
 import logging
-
 from pathlib import Path
 
 from climatedb.config import DBHOME
@@ -32,27 +31,32 @@ def make_logger(log_file=None):
     return logger
 
 
-def load_logs(log_file='logs/logger.log'):
+def load_logs(log_file="logs/logger.log"):
     from climatedb.config import DBHOME
+
     fi = DBHOME / log_file
-    with fi.open('r') as file:
+    with fi.open("r") as file:
         logs = file.read()
 
-    logs = logs.split('\n')
+    logs = logs.split("\n")
     out = []
     for log in logs:
-        msg = log.split(' - ')[-1]
+        msg = log.split(" - ")[-1]
         import json
+
         try:
             import pandas as pd
-            out.append({
-                **json.loads(msg),
-                'time': pd.to_datetime(log.split(' - ')[0]).isoformat()
-            })
+
+            out.append(
+                {
+                    **json.loads(msg),
+                    "time": pd.to_datetime(log.split(" - ")[0]).isoformat(),
+                }
+            )
         except:
             pass
     return out
 
-if __name__ == '__main__':
-    logs = load_logs()
 
+if __name__ == "__main__":
+    logs = load_logs()
