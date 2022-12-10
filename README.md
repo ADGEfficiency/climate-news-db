@@ -97,3 +97,11 @@ https://www.theguardian.com/environment/climate-consensus-97-per-cent/2017/oct/1
 {"url": "https://www.newshub.co.nz/home/shows/2019/02/poll-does-climate-change-scare-you.html", "search_time_UTC": "01/01/2021 01:16:17"}
 {"url": "https://www.theatlantic.com/science/archive/2015/12/what-old-weather-reports-dont-reveal-about-climate-change/419850/", "search_time_UTC": "01/01/2021 01:16:17"}
 ```
+
+
+## Automation
+
+```crontab
+SHELL=/bin/bash
+@reboot bash -l -c '/home/ubuntu/climate-news-db/cron-tmux.sh'
+```

@@ -1,4 +1,5 @@
 include .env
+-include .env.secret
 export
 
 #  these come from .env
