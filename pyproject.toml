@@ -26,6 +26,9 @@ boto3 = "^1.24.70"
 
 [tool.poetry.dev-dependencies]
 
+[tool.poetry.group.develop.dependencies]
+ipython = "^8.7.0"
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"

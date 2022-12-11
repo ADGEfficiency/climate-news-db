@@ -62,6 +62,8 @@ zip:
 
 #  INFRA
 
+STAGE ?= dev
+
 ACCOUNTNUM=$(shell aws sts get-caller-identity --query "Account" --output text)
 AWSPROFILE=default
 IMAGENAME=climatedb-$(STAGE)
