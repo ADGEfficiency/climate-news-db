@@ -14,6 +14,7 @@ class GuardianSpider(ClimateDBSpider):
 
         #  title
         headline = get_title(response)
+        headline = headline.split("|")[0]
 
         #  body
         body = response.xpath(

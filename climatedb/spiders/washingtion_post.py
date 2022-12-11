@@ -11,8 +11,10 @@ class WashingtonPostSpider(ClimateDBSpider):
     def parse(self, response):
         article_name = parsing_utils.form_article_id(response.url, -1)
         body = get_body(response)
+        body = body.replace("This article was published more than  1 year ago ", "")
 
         headline = response.xpath('//meta[@property="og:title"]/@content').get()
+        headline = headline.split("|")[-1]
         subtitle = response.xpath('//meta[@property="og:description"]/@content').get()
 
         app_json = parsing_utils.get_app_json(response, n=0)

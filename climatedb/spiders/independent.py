@@ -19,6 +19,7 @@ class IndependentSpider(ClimateDBSpider):
             body = body.replace(unw, "")
 
         headline = response.xpath('//meta[@property="og:title"]/@content').get()
+        headline = headline.split("|")[0]
         subtitle = response.xpath('//meta[@property="og:description"]/@content').get()
 
         app_json = parsing_utils.get_app_json(response, n=1)
