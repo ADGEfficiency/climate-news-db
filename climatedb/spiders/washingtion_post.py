@@ -13,6 +13,7 @@ class WashingtonPostSpider(ClimateDBSpider):
         body = get_body(response)
 
         headline = response.xpath('//meta[@property="og:title"]/@content').get()
+        headline = headline.split("|")[-1]
         subtitle = response.xpath('//meta[@property="og:description"]/@content').get()
 
         app_json = parsing_utils.get_app_json(response, n=0)
