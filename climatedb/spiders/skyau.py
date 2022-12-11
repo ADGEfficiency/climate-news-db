@@ -17,6 +17,8 @@ class SkyAUSpider(ClimateDBSpider):
 
         headline = response.xpath('//meta[@property="og:title"]/@content').get()
         headline = unicodedata.normalize("NFKD", headline)
+        headline = headline.replace("&#8216;", "")
+        headline = headline.replace("&#8217;", "")
 
         subtitle = response.xpath('//meta[@property="og:description"]/@content').get()
         subtitle = subtitle.split("Image:")[0]

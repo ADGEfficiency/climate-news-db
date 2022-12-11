@@ -49,48 +49,21 @@ resources:
       Properties:
         RepositoryName: ${self:custom.name}
 
-    ec2:
-      Type: AWS::EC2::Instance
-      Properties:
-        ImageId: pickAnImageOrUseYourOwn
-        KeyName: adam-aws-may-2020.pem
-        InstanceType: t2.small
-        SecurityGroupIds:
-          - Fn::GetAtt:
-            - sg
-            - GroupId
-        UserData: !file userdata.sh
-
-    sg:
-      Type: AWS::EC2::SecurityGroup
-      Properties:
-        GroupDescription: "allow ssh"
-        SecurityGroupEgress:
-          - IpProtocol: tcp
-            FromPort: 22
-            ToPort: 22
-            CidrIp: 0.0.0.0/0
-        SecurityGroupIngress:
-          - IpProtocol: tcp
-            FromPort: 22
-            ToPort: 22
-            CidrIp: 0.0.0.0/0
-
 functions:
-  controller:
+  search:
     image:
       uri: ${self:custom.account}.dkr.ecr.ap-southeast-2.amazonaws.com/${self:custom.name}:latest
       command:
       - climatedb.lambda.search.handlers.search_controller
     events:
       - schedule:
-          name: daily-url-search
-          rate: rate(24 hours)
+          name: daily-search
+          rate: cron(0 0 * * ? *)
           input:
             s3_bucket: climatedb-dev
             s3_key: data-neu/urls.jsonl
 
-  scraper:
+  scrape:
     image:
       uri: ${self:custom.account}.dkr.ecr.ap-southeast-2.amazonaws.com/${self:custom.name}:latest
       command:
@@ -98,4 +71,4 @@ functions:
     events:
       - schedule:
           name: daily-scrape
-          rate: rate(24 hours)
+          rate: cron(0 3 * * ? *)
