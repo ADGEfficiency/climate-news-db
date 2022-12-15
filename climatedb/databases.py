@@ -1,7 +1,7 @@
 from collections import defaultdict, namedtuple
 from datetime import datetime
 from pathlib import Path
-from typing import List
+from typing import List, Tuple
 
 import pandas as pd
 from fastapi.templating import Jinja2Templates
@@ -31,20 +31,20 @@ def find_start_url(response):
 def find_newspaper_from_url(url):
     papers = JSONFile(Path(home) / "newspapers.json").read()
     for paper in papers.values():
-        if paper["newspaper_url"] in url:
-            return {"url": url, **paper}
+        if paper["newspaper_url"] in url["url"]:
+            return {**url, **paper}
     return {"name": "UNKNOWN"}
 
 
-def get_urls_for_paper(paper: str) -> List[str]:
+def get_urls_for_paper(paper: str, return_all=False) -> List[str]:
     """Gets all urls for a newspaper from $(DATA_HOME) / urls.csv"""
     assert home is not None
 
     raw = pd.read_csv(f"{home}/urls.csv")
     mask = raw["name"] == paper
     data = raw[mask]
-    urls = data["url"].values.tolist()
-    urls = [a for a in urls if find_newspaper_from_url(a)["name"]]
+    urls = [{"url": u} for u in data["url"].values.tolist()]
+    urls = [a["url"] for a in urls if find_newspaper_from_url(a)["name"]]
 
     #  default dispatch on all urls
     dispatch = urls
@@ -68,16 +68,16 @@ def get_urls_for_paper(paper: str) -> List[str]:
             [
                 a["url"]
                 for a in rejected_urls
-                if find_newspaper_from_url(a["url"])["name"] == paper
+                if find_newspaper_from_url(a)["name"] == paper
             ]
         )
         print(f" {len(dispatch)} urls after removing {len(rejected_urls)} rejected")
         dispatch = set(dispatch).difference(rejected_urls)
 
-    return list(dispatch)
-
-
-#  sqlite stuff
+    if return_all:
+        return list(dispatch), list(existing_urls), list(rejected_urls)
+    else:
+        return list(dispatch)
 
 
 print(f"database connection: [green]{db_uri}[/]")

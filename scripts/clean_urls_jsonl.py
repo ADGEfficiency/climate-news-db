@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from climatedb.files import JSONLines
 from climatedb.search import format_timestamp
 
-urls_jsonl = JSONLines("./data-neu/urls.jsonl").read()
+urls_jsonl = JSONLines("./data-neu/urls.jsonl.bak").read()
 import pandas as pd
 
 clean = []

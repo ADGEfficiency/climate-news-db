@@ -56,9 +56,10 @@ class DWSpider(ClimateDBSpider):
 
         #  <time aria-hidden="true">06/13/2021</time>
         if date is None:
+            breakpoint()  # fmt: skip
             try:
                 date = response.xpath("//time/text()").get()
-                date = datetime.strptime(date, "%d/%m/%Y")
+                date = datetime.strptime(date[0], "%d/%m/%Y")
             except:
                 date = None
 
