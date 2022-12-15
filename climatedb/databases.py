@@ -37,9 +37,7 @@ def find_newspaper_from_url(url):
 
 
 def get_urls_for_paper(paper: str) -> List[str]:
-    """
-    Gets all urls for a newspaper from $(DATA_HOME) / urls.csv
-    """
+    """Gets all urls for a newspaper from $(DATA_HOME) / urls.csv"""
     assert home is not None
 
     raw = pd.read_csv(f"{home}/urls.csv")
@@ -251,10 +249,5 @@ def group_newspapers_by_year():
     return out
 
 
-if __name__ == "__main__":
-    papers = JSONFile(Path(home) / "newspapers.json").read()
-
-    get_urls_for_paper("guardian")
-
-    for paper in papers.keys():
-        get_urls_for_paper(paper)
+def load_newspapers_json():
+    return JSONFile(Path(home) / "newspapers.json").read()

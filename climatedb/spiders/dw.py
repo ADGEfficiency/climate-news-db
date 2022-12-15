@@ -54,6 +54,14 @@ class DWSpider(ClimateDBSpider):
                 except:
                     pass
 
+        #  <time aria-hidden="true">06/13/2021</time>
+        if date is None:
+            try:
+                date = response.xpath("//time/text()").get()
+                date = datetime.strptime(date, "%d/%m/%Y")
+            except:
+                date = None
+
         date = date.isoformat()
 
         meta = {
