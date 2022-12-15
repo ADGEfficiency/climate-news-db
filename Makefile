@@ -13,7 +13,7 @@ pulls3:
 	aws --no-sign-request --region ap-southeast-2 s3 sync $(S3_DIR) $(DATA_HOME) --exclude 'raw/*' --exclude 'temp/*' --exclude 'article_body/*'
 
 pushs3:
-	aws s3 sync $(DATA_HOME) $(S3_DIR) --exclude 'logs/*' --exclude 'temp/*' --exclude 'article_body/*' --exclude 'urls.jsonl'
+	aws s3 sync $(DATA_HOME) $(S3_DIR) --exclude 'logs/*' --exclude 'temp/*' --exclude 'article_body/*'
 
 
 #  DATA PIPELINE

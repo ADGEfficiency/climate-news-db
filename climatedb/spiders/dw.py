@@ -58,7 +58,10 @@ class DWSpider(ClimateDBSpider):
         if date is None:
             try:
                 date = response.xpath("//time/text()").get()
-                date = datetime.strptime(date, "%d/%m/%Y")
+                if isinstance(date, str):
+                    date = datetime.strptime(date, "%d/%M/%Y")
+                else:
+                    date = datetime.strptime(date[0], "%d/%M/%Y")
             except:
                 date = None
 
