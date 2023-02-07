@@ -18,6 +18,6 @@ then
 else
   echo "building intel - aws profile $AWSPROFILE - dockerfile $DOCKERFILE"
   aws ecr get-login-password --profile $AWSPROFILE | docker login --username AWS --password-stdin $ACCOUNTNUM.dkr.ecr.ap-southeast-2.amazonaws.com
-  docker build -t $ACCOUNTNUM.dkr.ecr.ap-southeast-2.amazonaws.com/$IMAGENAME:latest -f $DOCKERFILE .
+  docker build --no-cache -t $ACCOUNTNUM.dkr.ecr.ap-southeast-2.amazonaws.com/$IMAGENAME:latest -f $DOCKERFILE .
   docker push $ACCOUNTNUM.dkr.ecr.ap-southeast-2.amazonaws.com/$IMAGENAME:latest
 fi
