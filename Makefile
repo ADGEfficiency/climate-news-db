@@ -12,16 +12,18 @@ all: app
 pulls3:
 	aws --no-sign-request --region ap-southeast-2 s3 sync $(S3_DIR) $(DATA_HOME) --exclude 'raw/*' --exclude 'temp/*' --exclude 'article_body/*'
 
+pulls3-urls:
+	aws --no-sign-request --region ap-southeast-2 s3 cp $(S3_DIR)/urls.jsonl $(DATA_HOME)/urls.jsonl --exclude 'raw/*' --exclude 'temp/*' --exclude 'article_body/*'
+
 pushs3:
 	aws s3 sync $(DATA_HOME) $(S3_DIR) --exclude 'logs/*' --exclude 'temp/*' --exclude 'article_body/*'
-
 
 #  DATA PIPELINE
 
 setup:
-	pip install poetry -q
+	pip install poetry
 	poetry config virtualenvs.create false --local
-	poetry install -q
+	poetry install
 
 $(DATA_HOME)/urls.csv: $(DATA_HOME)/urls.jsonl scripts/create_urls_csv.py
 	python3 scripts/create_urls_csv.py
@@ -34,14 +36,16 @@ scrapy: create_urls
 
 db: scrapy
 	rm -rf $(DB_FI)
-	python3 scripts/create_sqlite.py
+	python3 scripts/create_sqlite_papers.py
+	cat ./data-neu/newspapers.json | jq 'keys[]' | xargs -n 1 -I {} python ./scripts/create_sqlite_one.py {}
+	python3 scripts/create_sqlite_app.py
 
 scrape: setup pulls3 create_urls scrapy db zip pushs3 docker-push
 
 
 #  WEBAPP
 
-app:
+app: setup
 	uvicorn app:app --reload
 
 
