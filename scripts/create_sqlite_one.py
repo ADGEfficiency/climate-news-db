@@ -1,6 +1,7 @@
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
+import sys
 
 from rich import print
 from sqlalchemy import func, select
@@ -43,8 +44,6 @@ def add_articles(newspaper):
 
 
 def main():
-    #  think this is important!
-    import sys
     paper = sys.argv[1]
     add_articles(paper)
 

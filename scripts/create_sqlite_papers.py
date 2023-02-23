@@ -34,8 +34,8 @@ def add_papers():
     print(f"added {len(papers)} newspapers to {db_uri}")
     return raw_papers
 
+
 def main():
-    #  think this is important!
     add_papers()
 
 
