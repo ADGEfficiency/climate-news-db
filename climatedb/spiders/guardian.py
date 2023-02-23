@@ -15,6 +15,8 @@ class GuardianSpider(ClimateDBSpider):
         #  title
         headline = get_title(response)
         headline = headline.split("|")[0]
+        headline = headline.strip(" ")
+        assert "|" not in headline
 
         #  body
         body = response.xpath(
