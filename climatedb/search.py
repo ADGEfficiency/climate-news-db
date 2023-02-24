@@ -52,12 +52,12 @@ if __name__ == "__main__":
     from climatedb.types import Newspaper
 
     papers = load_newspapers_json()
-    paper = Newspaper(**papers["daily_post_nigeria"])
+    paper = Newspaper(**papers["daily_nation"])
     print(paper)
 
     db = JSONLines("./data-neu/urls.jsonl")
 
-    urls = search(paper, 100, "climate change")
+    urls = search(paper, 200, "climate change")
     db.write(urls)
-    urls = search(paper, 100, "climate crisis")
+    urls = search(paper, 200, "climate crisis")
     db.write(urls)

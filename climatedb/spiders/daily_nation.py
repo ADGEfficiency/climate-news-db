@@ -5,12 +5,12 @@ from scrapy.http.response.html import HtmlResponse
 
 from climatedb import parsing_utils
 from climatedb.databases import Article, get_urls_for_paper, save_html
-from climatedb.parsing_utils import get_body
+from climatedb.parsing_utils import clean_body
 from climatedb.spiders.base import ClimateDBSpider
 
 
-class DailyPostSpider(ClimateDBSpider):
-    name = "daily_post_nigeria"
+class DailyNationSpider(ClimateDBSpider):
+    name = "daily_nation"
     start_urls = get_urls_for_paper(name)
 
     def parse(self, response: HtmlResponse) -> dict:
@@ -20,19 +20,18 @@ class DailyPostSpider(ClimateDBSpider):
         subtitle = response.xpath('//meta[@property="og:description"]/@content').get()
 
         date = response.xpath(
-            '//meta[@property="article:published_time"]/@content'
+            '//meta[@property="og:article:published_time"]/@content'
         ).get()
+        date = date.replace("Z", "+00:00")
         date = datetime.fromisoformat(date)
 
-        """
-        find all p tags below
-        <div id="mvp-content-main" class="left relative">
-        """
-        div = response.xpath('//div[@id="mvp-content-main"]')
-        p_tags = div.xpath(".//p/text()").getall()
-        body = " ".join(p_tags)
-
-        body = unicodedata.normalize("NFKD", body).encode("ASCII", "ignore").decode()
+        body = response.xpath(
+            '//div[contains(@class, "paragraph-wrapper") and not(.//em)]'
+        )
+        body = " ".join(
+            [paragraph.xpath("normalize-space(p//text())").get() for paragraph in body]
+        )
+        body = clean_body(body)
 
         meta = {
             "headline": headline,

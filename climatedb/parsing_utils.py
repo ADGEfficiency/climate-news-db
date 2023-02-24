@@ -1,4 +1,5 @@
 import json
+import unicodedata
 from datetime import datetime
 
 import pytz
@@ -27,8 +28,13 @@ def get_app_json(response, n=0) -> dict:
 def get_body(response):
     body = response.xpath("//p/descendant-or-self::*/text()").getall()
     body = " ".join(body)
+    return clean_body(body)
+
+
+def clean_body(body: str) -> str:
     body = body.replace("  ", " ")
     body = body.strip(" ")
+    body = unicodedata.normalize("NFKD", body).encode("ASCII", "ignore").decode()
     return body
 
 

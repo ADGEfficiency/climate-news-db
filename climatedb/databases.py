@@ -38,6 +38,10 @@ def find_newspaper_from_url(url):
 
 def get_urls_for_paper(paper: str, return_all=False) -> List[str]:
     """Gets all urls for a newspaper from $(DATA_HOME) / urls.csv"""
+    return [
+        "https://nation.africa/kenya/health/can-we-climb-out-of-this-hole-the-climate-crisis-of-our-times-4003530",
+        "https://nation.africa/kenya/blogs-opinion/editorials/intensify-efforts-to-fight-climate-change-crisis-4050092",
+    ]
 
     assert home is not None
 
@@ -250,5 +254,6 @@ def group_newspapers_by_year():
     return out
 
 
-def load_newspapers_json():
+def load_newspapers_json() -> JSONFile:
+    """Read `newspapers.json` from the dataset."""
     return JSONFile(Path(home) / "newspapers.json").read()
