@@ -23,9 +23,8 @@ setup:
 	poetry config virtualenvs.create false --local
 	poetry install -q
 
-$(DATA_HOME)/urls.csv: $(DATA_HOME)/urls.jsonl scripts/create_urls_csv.py
+create_urls:
 	python3 scripts/create_urls_csv.py
-create_urls: $(DATA_HOME)/urls.csv
 
 LOG := INFO
 

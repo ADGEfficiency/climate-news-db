@@ -38,6 +38,7 @@ def find_newspaper_from_url(url):
 
 def get_urls_for_paper(paper: str, return_all=False) -> List[str]:
     """Gets all urls for a newspaper from $(DATA_HOME) / urls.csv"""
+
     assert home is not None
 
     raw = pd.read_csv(f"{home}/urls.csv")

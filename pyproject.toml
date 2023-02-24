@@ -6,7 +6,7 @@ authors = ["Adam Green <adam.green@adgefficiency.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.8.1"
 Scrapy = "^2.6.1"
 fastapi = "^0.75.0"
 sqlmodel = "^0.0.6"
@@ -28,6 +28,13 @@ boto3 = "^1.24.70"
 
 [tool.poetry.group.develop.dependencies]
 ipython = "^8.7.0"
+
+
+[tool.poetry.group.dev.dependencies]
+pyright = "^1.1.295"
+isort = "^5.12.0"
+flake8 = "^6.0.0"
+jedi = "^0.18.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
