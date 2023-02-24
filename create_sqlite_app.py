@@ -23,37 +23,6 @@ engine = create_engine(db_uri)
 SQLModel.metadata.create_all(engine)
 
 
-def add_papers():
-    raw_papers = JSONFile(Path(home) / "newspapers.json").read()
-    papers = [Newspaper(**p) for p in raw_papers.values()]
-    with Session(engine) as session:
-        for p in papers:
-            session.add(p)
-        session.commit()
-
-    print(f"added {len(papers)} newspapers to {db_uri}")
-    return raw_papers
-
-
-def add_articles(newspaper):
-    articles = JSONLines(Path(home) / f"articles/{newspaper}.jsonlines").read()
-    articles = [
-        Article(**a, newspaper_id=find_id_for_newspaper(newspaper)) for a in articles
-    ]
-
-    with Session(engine) as session:
-        count = 0
-        for art in articles:
-            try:
-                st = insert(Article).values(art.dict())
-                session.execute(st)
-                count += 1
-            except Exception as err:
-                print(err)
-            session.commit()
-    print(f"added {count} from {len(articles)} articles to {db_uri} for {newspaper}")
-
-
 def add_app_table():
 
     #  group articles by newspaper
@@ -106,15 +75,6 @@ def add_app_table():
 
 
 def main():
-    #  think this is important!
-    papers = add_papers()
-
-    for paper in papers.keys():
-        try:
-            add_articles(paper)
-        except FileNotFoundError:
-            print(f"no JSONLines for {paper}")
-
     add_app_table()
 
 
