@@ -40,6 +40,11 @@ def get_urls_for_paper(paper: str, return_all=False) -> List[str]:
     """Gets all urls for a newspaper from $(DATA_HOME) / urls.csv"""
     assert home is not None
 
+    return [
+        "https://www1.folha.uol.com.br/internacional/en/scienceandhealth/2022/07/climate-change-has-increased-rainfall-in-the-northeast.shtml",
+        "https://www1.folha.uol.com.br/internacional/en/scienceandhealth/2023/01/lula-administration-to-seek-climate-justice-in-brazil.shtml"
+    ]
+
     raw = pd.read_csv(f"{home}/urls.csv")
     mask = raw["name"] == paper
     data = raw[mask]

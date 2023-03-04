@@ -2,6 +2,8 @@ include .env
 -include .env.secret
 export
 
+scrape: setup pulls3 create_urls scrapy db zip pushs3 docker-push
+
 #  these come from .env
 S3_DIR = s3://$(S3_BUCKET)/$(DATA_DIR)
 
@@ -34,9 +36,6 @@ scrapy: create_urls
 db: scrapy
 	rm -rf $(DB_FI)
 	python3 scripts/create_sqlite.py
-
-scrape: setup pulls3 create_urls scrapy db zip pushs3 docker-push
-
 
 #  WEBAPP
 
