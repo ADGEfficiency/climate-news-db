@@ -42,7 +42,8 @@ engine = create_engine(db_uri)
 SQLModel.metadata.create_all(engine)
 
 
-def find_id_for_newspaper(newspaper: str):
+def find_id_for_newspaper(newspaper: str) -> None:
+    """used in creating database"""
     with Session(engine) as s:
         st = select(Newspaper.id).where(Newspaper.name == newspaper)
         return s.exec(st).first()[0]
@@ -92,7 +93,6 @@ def find_article(article_id: int):
 
 def find_random_article():
     """used by app"""
-
     with Session(engine) as s:
         st = select(AppTable).order_by(func.random())
         return s.exec(st).first()[0]
@@ -100,7 +100,6 @@ def find_random_article():
 
 def find_articles_by_newspaper(newspaper_id):
     """used by app"""
-
     with Session(engine) as s:
         st = (
             select(AppTable)
@@ -118,6 +117,7 @@ def find_articles_by_newspaper(newspaper_id):
 
 
 def load_latest():
+    """used by app"""
     with Session(engine) as session:
         query = (
             session.query(AppTable).order_by(AppTable.date_published.desc()).limit(12)
@@ -134,6 +134,7 @@ def load_latest():
 
 
 def get_newspaper_colors():
+    """helper for group_newspapers_by_year"""
     with Session(engine) as session:
         query = session.query(
             Newspaper.fancy_name,
@@ -154,6 +155,7 @@ def find_year_paper(year, paper, data):
 
 
 def group_newspapers_by_year():
+    """used for chart in app"""
     with Session(engine) as session:
         query = (
             session.query(
