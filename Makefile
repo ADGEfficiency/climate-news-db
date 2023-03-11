@@ -13,6 +13,9 @@ S3_DIR = s3://$(S3_BUCKET)/$(DATA_DIR)
 pulls3:
 	aws --no-sign-request --region ap-southeast-2 s3 sync $(S3_DIR) $(DATA_HOME) --exclude 'raw/*' --exclude 'temp/*' --exclude 'article_body/*'
 
+pulls3-urls:
+	aws --no-sign-request --region ap-southeast-2 s3 cp $(S3_DIR)/urls.jsonl $(DATA_HOME)/urls.jsonl --exclude 'raw/*' --exclude 'temp/*' --exclude 'article_body/*'
+
 pushs3:
 	aws s3 sync $(DATA_HOME) $(S3_DIR) --exclude 'logs/*' --exclude 'temp/*' --exclude 'article_body/*'
 
@@ -33,11 +36,13 @@ scrapy: create_urls
 
 db: scrapy
 	rm -rf $(DB_FI)
-	python3 scripts/create_sqlite.py
+	python3 scripts/create_sqlite_papers.py
+	cat ./data-neu/newspapers.json | jq 'keys[]' | xargs -n 1 -I {} python ./scripts/create_sqlite_one.py {}
+	python3 scripts/create_sqlite_app.py
 
 #  WEBAPP
 
-app:
+app: setup
 	uvicorn app:app --reload
 
 #  UTILS
