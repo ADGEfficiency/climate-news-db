@@ -19,7 +19,7 @@ pulls3-urls:
 pushs3:
 	aws s3 sync $(DATA_HOME) $(S3_DIR) --exclude 'logs/*' --exclude 'temp/*' --exclude 'article_body/*'
 
-#  DATA PIPELINE
+#  SCRAPE
 
 setup:
 	pip install poetry -q
@@ -30,7 +30,6 @@ create_urls:
 	python3 scripts/create_urls_csv.py
 
 LOG := INFO
-
 scrapy: create_urls
 	cat ./data-neu/newspapers.json | jq 'keys[]' | xargs -n 1 -I {} scrapy crawl {} -o $(DATA_HOME)/articles/{}.jsonlines -L $(LOG)
 
@@ -40,27 +39,7 @@ db: scrapy
 	cat ./data-neu/newspapers.json | jq 'keys[]' | xargs -n 1 -I {} python ./scripts/create_sqlite_one.py {}
 	python3 scripts/create_sqlite_app.py
 
-#  WEBAPP
-
-app: setup
-	uvicorn app:app --reload
-
-#  UTILS
-
-clean:
-	rm -rf $(DATA_HOME)/articles/* $(DATA_HOME)/db.sqlite $(DATA_HOME)/urls.csv
-
-datasette:
-	datasette $(DB_FI)
-
-scrape-one:
-	scrapy crawl $(PAPER) -L DEBUG -o $(DATA_HOME)/articles/$(PAPER).jsonlines
-
-zip:
-	cd $(DATA_HOME); zip -r ./climate-news-db-dataset.zip ./*
-
-
-#  INFRA
+#  SCRAPE INFRA
 
 STAGE ?= dev
 
@@ -76,6 +55,13 @@ infra: sls-setup
 	sh build-docker-image.sh $(ACCOUNTNUM) climatedb-dev lambda.Dockerfile $(AWSPROFILE)
 	npx serverless deploy -s $(STAGE) --param account=$(ACCOUNTNUM) --verbose
 
+#  WEBAPP
+
+app: setup
+	uvicorn app:app --reload
+
+#  WEBAPP INFRA
+
 docker-setup:
 	sudo snap install docker
 	sudo snap install --classic heroku
@@ -84,3 +70,17 @@ docker-push:
 	sudo heroku auth:token | sudo docker login --username=_ registry.heroku.com --password-stdin
 	sudo heroku container:push web -a climate-news-db --recursive
 	sudo heroku container:release web -a climate-news-db
+
+#  UTILS
+
+clean:
+	rm -rf $(DATA_HOME)/articles/* $(DATA_HOME)/db.sqlite $(DATA_HOME)/urls.csv
+
+datasette:
+	datasette $(DB_FI)
+
+scrape-one:
+	scrapy crawl $(PAPER) -L DEBUG -o $(DATA_HOME)/articles/$(PAPER).jsonlines
+
+zip:
+	cd $(DATA_HOME); zip -r ./climate-news-db-dataset.zip ./*
