@@ -5,12 +5,7 @@ import scrapy
 from rich import print
 
 from climatedb.config import data_home as home
-from climatedb.databases import (
-    Article,
-    find_newspaper_from_url,
-    find_start_url,
-    save_html,
-)
+from climatedb.databases import Article, find_newspaper_from_url, find_start_url
 from climatedb.files import HTMLFile
 
 

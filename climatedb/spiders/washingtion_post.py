@@ -1,5 +1,4 @@
-from climatedb import parsing_utils
-from climatedb.databases import Article, get_urls_for_paper, save_html
+from climatedb import Article, get_urls_for_paper, parsing_utils
 from climatedb.parsing_utils import get_body
 from climatedb.spiders.base import ClimateDBSpider
 
@@ -29,5 +28,4 @@ class WashingtonPostSpider(ClimateDBSpider):
             "article_name": article_name,
         }
         meta = Article(**meta).dict()
-        save_html(self.name, article_name, response)
         return self.tail(response, meta)

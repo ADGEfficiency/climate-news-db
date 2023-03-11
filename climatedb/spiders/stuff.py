@@ -1,4 +1,4 @@
-from climatedb.databases import Article, get_urls_for_paper, save_html
+from climatedb import Article, get_urls_for_paper
 from climatedb.parsing_utils import form_article_id, get_body
 from climatedb.spiders.base import ClimateDBSpider
 
@@ -24,5 +24,4 @@ class StuffSpider(ClimateDBSpider):
             "article_name": article_name,
         }
         meta = Article(**meta).dict()
-        save_html(self.name, article_name, response)
         return self.tail(response, meta)

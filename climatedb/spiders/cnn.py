@@ -1,5 +1,5 @@
 from climatedb import parsing_utils
-from climatedb.databases import Article, get_urls_for_paper, save_html
+from climatedb import Article, get_urls_for_paper
 from climatedb.spiders.base import ClimateDBSpider
 
 

@@ -1,6 +1,6 @@
 import unicodedata
 
-from climatedb.databases import Article, get_urls_for_paper, save_html
+from climatedb import Article, get_urls_for_paper
 from climatedb.parsing_utils import form_article_id, get_body
 from climatedb.spiders.base import ClimateDBSpider
 

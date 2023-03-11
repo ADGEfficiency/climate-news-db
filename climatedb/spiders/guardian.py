@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from climatedb.databases import Article, get_urls_for_paper, save_html
+from climatedb import Article, get_urls_for_paper
 from climatedb.parsing_utils import get_date, get_title
 from climatedb.spiders.base import ClimateDBSpider
 

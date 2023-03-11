@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from climatedb import parsing_utils
-from climatedb.databases import Article, get_urls_for_paper, save_html
+from climatedb import Article, get_urls_for_paper
 from climatedb.parsing_utils import get_body
 from climatedb.spiders.base import ClimateDBSpider
 

@@ -28,7 +28,8 @@ def find_start_url(response):
     return url
 
 
-def find_newspaper_from_url(url):
+def find_newspaper_from_url(url: dict) -> dict:
+    """not sure where this should live"""
     papers = JSONFile(Path(home) / "newspapers.json").read()
     for paper in papers.values():
         if paper["newspaper_url"] in url["url"]:
@@ -36,61 +37,9 @@ def find_newspaper_from_url(url):
     return {"name": "UNKNOWN"}
 
 
-def get_urls_for_paper(paper: str, return_all=False) -> List[str]:
-    """Gets all urls for a newspaper from $(DATA_HOME) / urls.csv"""
-    assert home is not None
-    raw = pd.read_csv(f"{home}/urls.csv")
-    mask = raw["name"] == paper
-    data = raw[mask]
-    urls = [{"url": u} for u in data["url"].values.tolist()]
-    urls = [a["url"] for a in urls if find_newspaper_from_url(a)["name"]]
-
-    #  default dispatch on all urls
-    dispatch = urls
-    print(f"[green]FOUND[/] {len(dispatch)} urls for {paper}")
-
-    #  filter out articles we already have successfully parsed
-    #  already filtered by newspaper
-    existing = files.JSONLines(Path(home) / "articles" / f"{paper}.jsonlines")
-    if existing.exists():
-        existing_urls = set(
-            [a.get("article_start_url", a["article_url"]) for a in existing.read()]
-        )
-        dispatch = set(urls).difference(set(existing_urls))
-        print(f" {len(dispatch)} urls after removing {len(existing_urls)} existing")
-
-    #  filter out articles we have already failed to parse
-    rejected = files.JSONLines(Path(home) / "rejected.jsonlines")
-    if rejected.exists():
-        rejected_urls = [a for a in rejected.read()]
-        rejected_urls = set(
-            [
-                a["url"]
-                for a in rejected_urls
-                if find_newspaper_from_url(a)["name"] == paper
-            ]
-        )
-        print(f" {len(dispatch)} urls after removing {len(rejected_urls)} rejected")
-        dispatch = set(dispatch).difference(rejected_urls)
-
-    if return_all:
-        return list(dispatch), list(existing_urls), list(rejected_urls)
-    else:
-        return list(dispatch)
-
-
 print(f"database connection: [green]{db_uri}[/]")
 engine = create_engine(db_uri)
 SQLModel.metadata.create_all(engine)
-
-
-def save_html(paper, article, response):
-    """used by spiders"""
-    fi = (
-        Path.home() / "climate-news-db" / "data-reworked" / "articles" / paper / article
-    )
-    fi.parent.mkdir(exist_ok=True, parents=True)
-    fi.with_suffix(".html").write_bytes(response.body)
 
 
 def find_id_for_newspaper(newspaper: str):
