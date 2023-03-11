@@ -90,6 +90,6 @@ check:
 	djlint . --extension=html --check --profile jinja
 
 format:
-	isort climatedb/**/*.py --profile black
-	black climatedb/**/*.py
-	ruff check climatedb --fix-only
+	isort . --profile black
+	black .
+	ruff check . --fix-only

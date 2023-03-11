@@ -19,7 +19,7 @@ print(f" {len(urls)} urls for {paper['name']} after filter on {start_date}")
 #  let's first see how many of these urls end up in urls.csv
 import pandas as pd
 
-urls_csv = pd.read_csv(f"./data-neu/urls.csv")
+urls_csv = pd.read_csv("./data-neu/urls.csv")
 assert all([u["url"] in urls_csv["url"].values for u in urls])
 print(" all are in urls.csv")
 

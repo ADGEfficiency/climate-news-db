@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 
 from climatedb.files import JSONLines
 from climatedb.search import format_timestamp
