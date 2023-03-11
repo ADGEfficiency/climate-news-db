@@ -1,13 +1,13 @@
 # climate-news-db
 
-The [climate-news-db](http://www.climate-news-db.com/) has two goals:
+The climate-news-db has two goals:
 
 1. provide a dataset for NLP and climate change media researchers,
-2. provide a web application to compare how newspapers are writing about climate change.
+2. provide a [web application](http://www.climate-news-db.com/) to view how newspapers are writing about climate change.
 
 # Dataset
 
-The dataset is made up of a number of data artifacts (JSON, JSONL & CSV text files & SQLite database) ([you can downloadthem here](https://www.climate-news-db.com/download)):
+The dataset is made up of a number of data artifacts (JSON, JSONL & CSV text files & SQLite database) ([you can download them here](https://www.climate-news-db.com/download)):
 
 ```
 $ tree climate-news-db-dataset
@@ -96,8 +96,7 @@ A single ZIP file is available for download `climate-news-db-dataset.zip`:
 
 - created during webapp deployment - available at `https://www.climate-news-db.com/download`.
 
-
-## Automation
+# Automation
 
 The `climate-news-db` is automated through two independent workflows:
 
