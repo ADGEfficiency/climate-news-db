@@ -3,7 +3,7 @@ import datetime
 import scrapy
 from rich import print
 
-from climatedb.databases import Article, save_html, find_start_url
+from climatedb.databases import Article, find_start_url, save_html
 
 
 class ClimateDBSpider(scrapy.Spider):

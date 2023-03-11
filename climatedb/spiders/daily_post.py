@@ -10,7 +10,7 @@ from climatedb.spiders.base import ClimateDBSpider
 
 
 class DailyPostSpider(ClimateDBSpider):
-    name = "daily_post_nigeria"
+    name = "daily_post"
     start_urls = get_urls_for_paper(name)
 
     def parse(self, response: HtmlResponse) -> dict:

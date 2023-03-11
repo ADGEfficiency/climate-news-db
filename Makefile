@@ -2,21 +2,19 @@ include .env
 -include .env.secret
 export
 
+all: app
 scrape: setup pulls3 create_urls scrapy db zip pushs3 docker-push
+
+#  S3
 
 #  these come from .env
 S3_DIR = s3://$(S3_BUCKET)/$(DATA_DIR)
-
-all: app
-
-#  S3
 
 pulls3:
 	aws --no-sign-request --region ap-southeast-2 s3 sync $(S3_DIR) $(DATA_HOME) --exclude 'raw/*' --exclude 'temp/*' --exclude 'article_body/*'
 
 pushs3:
 	aws s3 sync $(DATA_HOME) $(S3_DIR) --exclude 'logs/*' --exclude 'temp/*' --exclude 'article_body/*'
-
 
 #  DATA PIPELINE
 
@@ -41,7 +39,6 @@ db: scrapy
 
 app:
 	uvicorn app:app --reload
-
 
 #  UTILS
 

@@ -20,9 +20,7 @@ class RejectRegister(object):
         Append failed URL to a `rejected.jsonlines` file so we don't try to parse again
         """
         db = files.JSONLines(f"{data_home}/rejected.jsonlines")
-
         url = find_start_url(response)
-
         pkg = {
             "url": url,
             "error": str(failure.value),
