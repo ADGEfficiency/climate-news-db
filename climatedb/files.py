@@ -71,3 +71,13 @@ class JSONFile:
 
     def read(self):
         return json.loads(self.path.read_text())
+
+
+class HTMLFile:
+    def __init__(self, path):
+        self.path = Path(path).with_suffix(".html")
+        self.path.parent.mkdir(exist_ok=True, parents=True)
+
+    def write(self, html: str) -> None:
+        print(f" writing to {self.path}")
+        self.path.write_text(html)
