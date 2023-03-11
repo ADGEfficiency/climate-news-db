@@ -84,3 +84,12 @@ scrape-one:
 
 zip:
 	cd $(DATA_HOME); zip -r ./climate-news-db-dataset.zip ./*
+
+check:
+	ruff check .
+	djlint . --extension=html --check --profile jinja
+
+format:
+	isort climatedb/**/*.py --profile black
+	black climatedb/**/*.py
+	ruff check climatedb --fix-only

@@ -1,9 +1,6 @@
-import json
 from datetime import datetime
-from pathlib import Path
 
-from climatedb import parsing_utils
-from climatedb import Article, get_urls_for_paper
+from climatedb import get_urls_for_paper, parsing_utils
 from climatedb.parsing_utils import get_app_json, get_body
 from climatedb.spiders.base import ClimateDBSpider
 

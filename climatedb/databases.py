@@ -1,15 +1,11 @@
-from collections import defaultdict, namedtuple
-from datetime import datetime
+from collections import defaultdict
 from pathlib import Path
-from typing import List, Tuple
 
 import pandas as pd
-from fastapi.templating import Jinja2Templates
 from rich import print
 from sqlalchemy.sql.expression import func, select
 from sqlmodel import Session, SQLModel, create_engine
 
-from climatedb import files
 from climatedb.config import data_home as home
 from climatedb.config import db_uri
 from climatedb.files import JSONFile

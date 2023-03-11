@@ -1,4 +1,4 @@
-from climatedb import Article, get_urls_for_paper, parsing_utils
+from climatedb import get_urls_for_paper, parsing_utils
 from climatedb.parsing_utils import get_body
 from climatedb.spiders.base import ClimateDBSpider
 
@@ -9,7 +9,6 @@ class NZHeraldSpider(ClimateDBSpider):
 
     def parse(self, response):
         article_name = parsing_utils.form_article_id(response.url, -1)
-        breakpoint()  # fmt: skip
         body = get_body(response)
 
         headline = response.xpath('//meta[@property="og:title"]/@content').get()

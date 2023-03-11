@@ -36,6 +36,10 @@ isort = "^5.12.0"
 flake8 = "^6.0.0"
 jedi = "^0.18.2"
 
+
+[tool.poetry.group.check.dependencies]
+ruff = "^0.0.254"
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"

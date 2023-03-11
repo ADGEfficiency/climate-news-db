@@ -7,7 +7,7 @@ from googlesearch import search as googlesearch
 from rich import print
 
 from climatedb import types
-from climatedb.databases import find_all_papers, load_newspapers_json
+from climatedb.databases import load_newspapers_json
 
 
 def format_timestamp(dt: datetime) -> str:

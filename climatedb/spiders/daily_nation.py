@@ -1,10 +1,8 @@
-import unicodedata
 from datetime import datetime
 
 from scrapy.http.response.html import HtmlResponse
 
-from climatedb import parsing_utils
-from climatedb import Article, get_urls_for_paper
+from climatedb import get_urls_for_paper, parsing_utils
 from climatedb.parsing_utils import clean_body
 from climatedb.spiders.base import ClimateDBSpider
 
