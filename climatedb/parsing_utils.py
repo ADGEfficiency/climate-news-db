@@ -41,5 +41,7 @@ def clean_body(body: str) -> str:
 def form_article_id(url, idx=-1):
     url = url.strip("/")
     url = url.split("?")[0]
-    article_id = url.split("/")[idx]
+    article_id = url.split("/")
+    article_id = [u for u in url if len(url) > 0]
+    article_id = url[idx]
     return article_id.replace(".html", "")
