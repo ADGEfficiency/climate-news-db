@@ -83,7 +83,7 @@ scrape-one:
 	scrapy crawl $(PAPER) -L DEBUG -o $(DATA_HOME)/articles/$(PAPER).jsonlines
 
 zip:
-	cd $(DATA_HOME); zip -r ./climate-news-db-dataset.zip ./*
+	cd $(DATA_HOME); zip -r ./climate-news-db-dataset.zip ./* -x "./html/*"
 
 check:
 	ruff check .

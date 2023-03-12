@@ -22,6 +22,9 @@ class FolhaSpider(ClimateDBSpider):
 
         body = clean_body(body)
 
+        if "Folha de S.Paulo - Internacional - En" in headline:
+            raise ValueError("not an article")
+
         meta = {
             "headline": headline,
             "subtitle": subtitle,
