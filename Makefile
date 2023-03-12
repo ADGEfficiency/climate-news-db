@@ -51,8 +51,12 @@ IMAGENAME=climatedb-$(STAGE)
 	npm install serverless
 sls-setup: ./node_modules/serverless/README.md
 
-infra: sls-setup
+infra: docker-aws infra-aws
+
+docker-aws:
 	sh build-docker-image.sh $(ACCOUNTNUM) climatedb-dev lambda.Dockerfile $(AWSPROFILE)
+
+infra-aws: sls-setup
 	npx serverless deploy -s $(STAGE) --param account=$(ACCOUNTNUM) --verbose
 
 #  WEBAPP
