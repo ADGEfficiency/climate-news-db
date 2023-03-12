@@ -72,6 +72,7 @@ docker-setup:
 
 docker-push:
 	sudo heroku auth:token | sudo docker login --username=_ registry.heroku.com --password-stdin
+	sudo heroku container:login
 	sudo heroku container:push web -a climate-news-db --recursive
 	sudo heroku container:release web -a climate-news-db
 
