@@ -27,7 +27,7 @@ boto3 = "^1.24.70"
 [tool.poetry.dev-dependencies]
 
 [tool.poetry.group.develop.dependencies]
-ipython = "^8.7.0"
+ipython = "^8.10.0"
 
 
 [tool.poetry.group.dev.dependencies]
