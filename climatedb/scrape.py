@@ -18,6 +18,7 @@ def get_urls_for_paper(
 ]:
     """Gets all urls for a newspaper from $(DATA_HOME) / urls.csv"""
     assert home is not None
+    print(f"[blue]GET URLS[/] {paper}")
     raw = pd.read_csv(f"{home}/urls.csv")
     mask = raw["name"] == paper
     data = raw[mask]
@@ -26,15 +27,19 @@ def get_urls_for_paper(
 
     #  default dispatch on all urls
     dispatch = urls
-    print(f"[green]FOUND[/] {len(dispatch)} urls for {paper}")
+    print(f"[green] FOUND[/] {len(dispatch)} urls for {paper} in urls.csv")
 
     #  filter out articles we already have successfully parsed
     #  already filtered by newspaper
     existing = files.JSONLines(Path(home) / "articles" / f"{paper}.jsonlines")
     if existing.exists():
-        existing_urls = set(
-            [a.get("article_start_url", a["article_url"]) for a in existing.read()]
-        )
+        existing = existing.read()
+        existing_urls = set()
+        for a in existing:
+            for k in ['article_start_url', 'article_url']:
+                existing_urls.add(a.get[k])
+        # existing_urls = [a.get("article_start_url", a["article_url"]) for a in existing.read()]
+        existing_urls.remove(None)
         dispatch = set(urls).difference(set(existing_urls))
         print(f" {len(dispatch)} urls after removing {len(existing_urls)} existing")
 
@@ -56,3 +61,6 @@ def get_urls_for_paper(
         return list(dispatch), list(existing_urls), list(rejected_urls)
     else:
         return list(dispatch)
+
+if __name__ == "__main__":
+    existing = files.JSONLines(Path(home) / "articles" / f"nzherald.jsonlines")
