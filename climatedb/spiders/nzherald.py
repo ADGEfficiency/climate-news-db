@@ -1,5 +1,4 @@
-from climatedb import parsing_utils
-from climatedb.databases import Article, get_urls_for_paper, save_html
+from climatedb import get_urls_for_paper, parsing_utils
 from climatedb.parsing_utils import get_body
 from climatedb.spiders.base import ClimateDBSpider
 
@@ -18,6 +17,7 @@ class NZHeraldSpider(ClimateDBSpider):
         app_json = parsing_utils.get_app_json(response, n=0)
         date = app_json["datePublished"]
 
+        assert article_name
         meta = {
             "headline": headline,
             "subtitle": subtitle,

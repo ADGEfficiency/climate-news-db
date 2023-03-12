@@ -1,21 +1,29 @@
-from climatedb import Article, get_urls_for_paper, parsing_utils
+from scrapy.http.response.html import HtmlResponse
+
+from climatedb import get_urls_for_paper, parsing_utils
+from climatedb.parsing_utils import clean_body, get_body
 from climatedb.spiders.base import ClimateDBSpider
 
 
-class AtlanticSpider(ClimateDBSpider):
-    name = "atlantic"
+class FolhaSpider(ClimateDBSpider):
+    name = "folha"
     start_urls = get_urls_for_paper(name)
 
-    def parse(self, response):
+    def parse(self, response: HtmlResponse) -> dict:
         article_name = parsing_utils.form_article_id(response.url, -1)
-        body = parsing_utils.get_body(response)
 
         headline = response.xpath('//meta[@property="og:title"]/@content').get()
         subtitle = response.xpath('//meta[@property="og:description"]/@content').get()
-        # date = response.xpath('//meta[@itemprop="datePublished"]/@content').get()
 
-        app_json = parsing_utils.get_app_json(response, n=2)
-        date = app_json["datePublished"]
+        date = response.xpath(
+            '//meta[@property="article:published_time"]/@content'
+        ).get()
+        body = get_body(response)
+
+        body = clean_body(body)
+
+        if "Folha de S.Paulo - Internacional - En" in headline:
+            raise ValueError("not an article")
 
         meta = {
             "headline": headline,
@@ -25,5 +33,4 @@ class AtlanticSpider(ClimateDBSpider):
             "date_published": date,
             "article_name": article_name,
         }
-        meta = Article(**meta).dict()
         return self.tail(response, meta)

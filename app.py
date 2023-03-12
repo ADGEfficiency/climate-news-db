@@ -1,6 +1,5 @@
 import os
 from datetime import datetime
-from typing import Optional
 
 import uvicorn
 from fastapi import FastAPI, Request

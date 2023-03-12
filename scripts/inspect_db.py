@@ -25,5 +25,5 @@ print(f"[green]nulls in datetime[/]: {nulls.sum()}")
 
 nulls = data[nulls]
 grp = nulls.groupby("fancy_name").count().loc[:, "body"]
-print(f"[green]nulls by newspaper[/]:")
+print("[green]nulls by newspaper[/]:")
 print(grp.sort_values())

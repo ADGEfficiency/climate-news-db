@@ -7,6 +7,7 @@ from googlesearch import search as googlesearch
 from rich import print
 
 from climatedb import types
+from climatedb.databases import load_newspapers_json
 
 
 def format_timestamp(dt: datetime) -> str:
@@ -16,14 +17,6 @@ def format_timestamp(dt: datetime) -> str:
 def get_timestamp():
     stamp = datetime.now(timezone.utc)
     return format_timestamp(stamp)
-
-
-def search(paper: types.Newspaper, num: int, query: str = "climate change") -> list:
-    """main"""
-    print(f"searching {paper} for {num} results")
-    urls = google_search(paper.newspaper_url, query, stop=num)
-    urls = [{"url": u, "search_time_utc": get_timestamp()} for u in urls]
-    return urls
 
 
 def google_search(site, query, start=1, stop=10, backoff=1.0):
@@ -44,3 +37,26 @@ def google_search(site, query, start=1, stop=10, backoff=1.0):
     except HTTPError as e:
         print(f"{qry}, {e}, backoff {backoff}")
         return google_search(site, query, stop, backoff=backoff + 1)
+
+
+def search(paper: types.Newspaper, num: int, query: str = "climate change") -> list:
+    """main"""
+    print(f"searching:\n {paper.name} n: {num} query: {query}")
+    urls = google_search(paper.newspaper_url, query, stop=num)
+    urls = [{"url": u, "search_time_utc": get_timestamp()} for u in urls]
+    return urls
+
+
+if __name__ == "__main__":
+    from climatedb.files import JSONLines
+    from climatedb.types import Newspaper
+
+    papers = load_newspapers_json()
+    for paper in ["daily_post", "daily_nation", "batimes", "folha"]:
+        print(paper)
+        paper = Newspaper(**papers[paper])
+        db = JSONLines("./data-neu/urls.jsonl")
+        urls = search(paper, 10, "climate change")
+        db.write(urls)
+        urls = search(paper, 10, "climate crisis")
+        db.write(urls)

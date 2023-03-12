@@ -1,4 +1,5 @@
 import json
+import unicodedata
 from datetime import datetime
 
 import pytz
@@ -27,13 +28,21 @@ def get_app_json(response, n=0) -> dict:
 def get_body(response):
     body = response.xpath("//p/descendant-or-self::*/text()").getall()
     body = " ".join(body)
+    return clean_body(body)
+
+
+def clean_body(body: str) -> str:
     body = body.replace("  ", " ")
     body = body.strip(" ")
+    body = unicodedata.normalize("NFKD", body).encode("ASCII", "ignore").decode()
     return body
 
 
 def form_article_id(url, idx=-1):
     url = url.strip("/")
     url = url.split("?")[0]
-    article_id = url.split("/")[idx]
+    url = url.strip("/")
+    article_id = url.split("/")
+    article_id = [u for u in article_id if len(url) > 0]
+    article_id = article_id[idx]
     return article_id.replace(".html", "")
