@@ -18,6 +18,8 @@ mypy = "^1.1.1"
 pytest = "^7.2.2"
 isort = "^5.12.0"
 awscli = "^1.27.94"
+types-requests = "^2.28.11.15"
+coverage = "^7.2.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -34,3 +36,5 @@ check_untyped_defs = true
 no_implicit_optional = true
 warn_redundant_casts = true
 warn_unused_ignores = true
+#  allows doing list rather than list[str]
+disallow_any_generics = false

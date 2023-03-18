@@ -1,7 +1,9 @@
-from climatedb.spiders.china_daily import ChinaDailySpider
-import scrapy
 import datetime
+
 import requests
+import scrapy
+
+from climatedb.spiders.china_daily import ChinaDailySpider
 
 
 def test_china_daily() -> None:
@@ -17,7 +19,7 @@ def test_china_daily() -> None:
     article = spider.parse(response)
     assert article.headline == "Companies moved to take action on climate change"
     assert article.date_published == datetime.date.fromisoformat("2023-01-19")
-    assert article.datetime_uploaded
+    assert article.datetime_crawled
 
     assert article.body.startswith(
         "China will introduce more market mechanisms to encourage companies to accelerate their green, low-carbon transitions, according to the Ministry of Ecology and Environment."

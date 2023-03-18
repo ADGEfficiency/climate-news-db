@@ -13,6 +13,10 @@ static:
 test:
 	pytest tests
 
+test-ci:
+	coverage run -m pytest tests --showlocals --full-trace --tb=short --show-capture=no -v
+	coverage report -m
+
 scrape: crawl
 
 DATA_HOME = ./data-neu

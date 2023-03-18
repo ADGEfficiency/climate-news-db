@@ -12,15 +12,14 @@ def create_article_name(url: str, idx: int = -1) -> str:
     url = url.strip("/")
     article_id = url.split("/")
     article_id = [u for u in article_id if len(url) > 0]
-    article_id = article_id[idx]
-    return article_id.replace(".html", "")
+    return article_id[idx].replace(".html", "")
 
 
 def find_newspaper_from_url(url: str) -> NewspaperMeta:
     papers = files.JSONFile("./newspapers.json").read()
 
-    for paper in papers:
-        paper = NewspaperMeta(**paper)
+    for pap in papers:
+        paper = NewspaperMeta(**pap)
         if paper.newspaper_url in url:
             return paper
     raise ValueError(f"No paper found for {url}")

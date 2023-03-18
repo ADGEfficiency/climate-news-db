@@ -46,16 +46,16 @@ class InsertArticle:
         ArticleTable.metadata.create_all(self.engine)
 
     @classmethod
-    def from_crawler(cls, crawler):
+    def from_crawler(cls, crawler: scrapy.crawler.Crawler) -> scrapy.crawler.Crawler:
         return cls(crawler.settings["DB_URI"])
 
-    def open_spider(self, spider):
+    def open_spider(self, spider: scrapy.Spider) -> None:
         self.session = sqlmodel.Session(self.engine)
 
-    def close_spider(self, spider):
+    def close_spider(self, spider: scrapy.Spider) -> None:
         self.session.close()
 
-    def process_item(self, item: ArticleMeta, spider):
+    def process_item(self, item: ArticleMeta, spider: scrapy.Spider) -> ArticleMeta:
         print(f" Insert Article {item.headline} to {self.db_uri}")
         article = ArticleTable(
             headline=item.headline,
@@ -83,4 +83,4 @@ class InsertArticle:
         )
         self.session.execute(stmt)
         self.session.commit()
-        return article
+        return item

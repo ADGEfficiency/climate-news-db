@@ -21,7 +21,7 @@ class ArticleMeta:
     article_url: str
     datetime_crawled: datetime.datetime = datetime.datetime.now()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"NewspaperArticleMeta(headline={self.headline}, article_name: {self.article_name}, date_published: {self.date_published})"
 
 

@@ -4,14 +4,16 @@ import typing
 
 
 class File:
+    suffix = ""
+
     def __init__(self, path: typing.Union[str, pathlib.Path]) -> None:
         self.path = pathlib.Path(path).with_suffix(self.suffix)
         self.path.parent.mkdir(exist_ok=True, parents=True)
 
-    def read(self):
+    def read(self) -> typing.Union[list, str, dict]:
         raise NotImplementedError()
 
-    def write(self):
+    def write(self, data: typing.Union[list, str], mode: str) -> None:
         raise NotImplementedError()
 
     def exists(self) -> bool:
@@ -24,20 +26,19 @@ class JSONLines(File):
     def __init__(self, path: typing.Union[str, pathlib.Path]) -> None:
         super(JSONLines, self).__init__(path)
 
-    def read(self) -> list[dict]:
+    def read(self) -> list:
         print(f" reading JSONLines from: {self.path}")
         data = self.path.read_text().split("\n")[:-1]
         return [json.loads(a) for a in data]
 
-    def write(self, data: list[dict], mode: str = "w") -> None:
+    def write(self, data: list, mode: str = "w") -> None:  # type: ignore[override]
         print(f" writing JSONLines to: {self.path}")
-        data = [json.dumps(d) + "\n" for d in data]
 
         if self.path.is_file():
             mode = "a"
 
         with open(self.path, mode) as fp:
-            fp.writelines(data)
+            fp.writelines([json.dumps(d) + "\n" for d in data])
 
     def exists(self) -> bool:
         return self.path.is_file()
@@ -49,9 +50,9 @@ class HTMLFile(File):
     def __init__(self, path: typing.Union[str, pathlib.Path]) -> None:
         super(HTMLFile, self).__init__(path)
 
-    def write(self, html: str) -> None:
+    def write(self, data: str) -> None:  # type: ignore[override]
         print(f" writing HTMLFile {self.path}")
-        self.path.write_text(html)
+        self.path.write_text(data)
 
 
 class JSONFile(File):
@@ -60,5 +61,5 @@ class JSONFile(File):
     def __init__(self, path: typing.Union[str, pathlib.Path]) -> None:
         super(JSONFile, self).__init__(path)
 
-    def read(self) -> typing.Union[dict, list]:
+    def read(self) -> typing.Any:
         return json.loads(self.path.read_text())
