@@ -11,6 +11,7 @@ import pathlib
 import scrapy
 import sqlmodel
 from rich import print
+from sqlalchemy.dialects.sqlite import insert
 from sqlmodel.pool import StaticPool
 
 from climatedb import files
@@ -65,7 +66,21 @@ class InsertArticle:
             datetime_crawled=item.datetime_crawled,
             article_length=len(item.body),
         )
-        self.session.add(article)
+        stmt = (
+            insert(ArticleTable)
+            .values(**article.dict())
+            .on_conflict_do_update(
+                index_elements=[ArticleTable.article_name],
+                set_={
+                    "headline": article.headline,
+                    "body": article.body,
+                    "date_published": article.date_published,
+                    "article_url": article.article_url,
+                    "datetime_crawled": article.datetime_crawled,
+                    "article_length": article.article_length,
+                },
+            )
+        )
+        self.session.execute(stmt)
         self.session.commit()
-
         return article

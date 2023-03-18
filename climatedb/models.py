@@ -8,6 +8,8 @@ import datetime
 import typing
 
 import sqlmodel
+from sqlalchemy import String
+from sqlalchemy.sql.schema import Column
 
 
 @dataclasses.dataclass
@@ -35,7 +37,10 @@ class ArticleTable(sqlmodel.SQLModel, table=True):
     headline: str = sqlmodel.Field()
     body: str = sqlmodel.Field()
     date_published: typing.Optional[datetime.date] = sqlmodel.Field(default=None)
-    article_name: str = sqlmodel.Field()
+    article_name: str = sqlmodel.Field(
+        sa_column=Column("article_name", String, unique=True)
+    )
+
     article_url: str = sqlmodel.Field()
     datetime_crawled: datetime.datetime = sqlmodel.Field()
     article_length: int
