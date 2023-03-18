@@ -10,6 +10,7 @@ import pathlib
 
 import scrapy
 import sqlmodel
+from rich import print
 from sqlmodel.pool import StaticPool
 
 from climatedb import files
@@ -36,7 +37,6 @@ class SaveHTML:
 class InsertArticle:
     def __init__(self, db_uri: str) -> None:
         self.db_uri = db_uri
-        print(db_uri)
         self.engine = sqlmodel.create_engine(
             db_uri,
             connect_args={"check_same_thread": False},
@@ -55,7 +55,7 @@ class InsertArticle:
         self.session.close()
 
     def process_item(self, item: ArticleMeta, spider):
-        print(f" InsertArticle {item.headline} to {self.db_uri}")
+        print(f" Insert Article {item.headline} to {self.db_uri}")
         article = ArticleTable(
             headline=item.headline,
             body=item.body,
