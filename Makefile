@@ -3,14 +3,14 @@ setup:
 	pip install poetry==1.3.0 -q
 	poetry install
 
-check:
+check: setup
 	ruff check . --fix-only
 
-static:
+static: setup
 	mypy climatedb
 	mypy tests
 
-test:
+test: setup
 	pytest tests
 
 test-ci:
