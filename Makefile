@@ -4,7 +4,7 @@ setup:
 	poetry install
 
 check: setup
-	ruff check . --fix-only
+	ruff check .
 
 static: setup
 	mypy climatedb

@@ -1,4 +1,4 @@
-from climatedb import cfg, files
+from climatedb import files
 from climatedb.models import NewspaperMeta
 
 

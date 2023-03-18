@@ -38,3 +38,6 @@ warn_redundant_casts = true
 warn_unused_ignores = true
 #  allows doing list rather than list[str]
 disallow_any_generics = false
+
+[tool.ruff]
+ignore = ["E501"]
