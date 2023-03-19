@@ -7,7 +7,7 @@ import typing
 class JSONEncoder(json.JSONEncoder):
     """seralize non-JSON compatabile data to JSON - numpy + timestamps"""
 
-    def default(self, obj):
+    def default(self, obj: typing.Any) -> typing.Any:
         if isinstance(obj, datetime.datetime):
             return obj.isoformat()
         elif isinstance(obj, datetime.date):
