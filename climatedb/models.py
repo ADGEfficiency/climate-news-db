@@ -13,13 +13,27 @@ from sqlalchemy.sql.schema import Column
 
 
 @dataclasses.dataclass
+class RawURL:
+    url: str
+    search_time_utc: str
+
+
+@dataclasses.dataclass
+class RejectedURL:
+    article_url: str
+    article_start_url: str
+    datetime_rejected_utc: str
+
+
+@dataclasses.dataclass
 class ArticleMeta:
     headline: str
     body: str
     date_published: typing.Optional[datetime.date]
     article_name: str
     article_url: str
-    datetime_crawled: datetime.datetime = datetime.datetime.now()
+    article_start_url: str
+    datetime_crawled_utc: datetime.datetime = datetime.datetime.now()
 
     def __repr__(self) -> str:
         return f"NewspaperArticleMeta(headline={self.headline}, article_name: {self.article_name}, date_published: {self.date_published})"

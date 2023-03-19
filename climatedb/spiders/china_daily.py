@@ -1,16 +1,23 @@
 import datetime
+import pathlib
 import re
 
 import scrapy
 from scrapy.http.response.html import HtmlResponse
 
-from climatedb.crawl import create_article_name, find_urls_to_scrape
+from climatedb.crawl import (create_article_name, find_start_url,
+                             find_urls_to_scrape)
 from climatedb.models import ArticleItem
 
 
 class ChinaDailySpider(scrapy.Spider):
     name = "china_daily"
-    start_urls = find_urls_to_scrape(name)
+
+    def start_requests(self):
+        data_home = pathlib.Path(self.settings["DATA_HOME"])
+        urls = find_urls_to_scrape(self.name, data_home=data_home)
+        for url in urls:
+            yield scrapy.Request(url=url, callback=self.parse)
 
     def parse(self, response: HtmlResponse) -> ArticleItem:
         """
@@ -37,5 +44,6 @@ class ChinaDailySpider(scrapy.Spider):
             body=body,
             article_name=create_article_name(response.url),
             article_url=response.url,
+            article_start_url=find_start_url(response),
             html=response.text,
         )

@@ -30,6 +30,8 @@ def test_integration(base_dir: pathlib.Path) -> None:
             articles_fi.path,
             "-s",
             f"DB_URI=sqlite:///{base_dir}/db.sqlite",
+            "-s",
+            f"DATA_HOME={base_dir}",
         ],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
