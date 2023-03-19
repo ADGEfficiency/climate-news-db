@@ -31,7 +31,8 @@ class SaveHTML:
             date_published=item.date_published,
             article_name=item.article_name,
             article_url=item.article_url,
-            datetime_crawled=item.datetime_crawled,
+            article_start_url=item.article_start_url,
+            datetime_crawled_utc=item.datetime_crawled_utc,
         )
 
 
@@ -64,7 +65,7 @@ class InsertArticle:
             date_published=item.date_published,
             article_name=item.article_name,
             article_url=item.article_url,
-            datetime_crawled=item.datetime_crawled,
+            datetime_crawled_utc=item.datetime_crawled_utc,
             article_length=len(item.body),
         )
         stmt = (
@@ -77,7 +78,7 @@ class InsertArticle:
                     "body": article.body,
                     "date_published": article.date_published,
                     "article_url": article.article_url,
-                    "datetime_crawled": article.datetime_crawled,
+                    "datetime_crawled_utc": article.datetime_crawled_utc,
                     "article_length": article.article_length,
                 },
             )

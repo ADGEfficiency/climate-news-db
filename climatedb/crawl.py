@@ -1,15 +1,13 @@
 import pathlib
 
 import pandas as pd
-import scrapy
 from scrapy.http.response.html import HtmlResponse
-from scrapy.utils.project import get_project_settings
 
 from climatedb import files
 from climatedb.models import NewspaperMeta
 
 
-def filter_urls(exclude_fi: files.JSONLines, urls: set):
+def filter_urls(exclude_fi: files.JSONLines, urls: set) -> set:
     if exclude_fi.exists():
         exclude_urls = set()
         for article in exclude_fi.read():
@@ -70,6 +68,6 @@ def find_start_url(response: HtmlResponse) -> str:
     #  if we get redirected, use the original url we search for
     url = response.request.headers.get("Referer", None)
     if url is None:
-        return response.url
+        return str(response.url)
     else:
-        return url.decode("utf-8")
+        return str(url.decode("utf-8"))

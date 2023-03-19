@@ -6,16 +6,16 @@ import scrapy
 from scrapy.http.response.html import HtmlResponse
 
 from climatedb.crawl import (create_article_name, find_start_url,
-                             find_urls_to_scrape)
+                             find_urls_to_crawl)
 from climatedb.models import ArticleItem
 
 
 class ChinaDailySpider(scrapy.Spider):
     name = "china_daily"
 
-    def start_requests(self):
+    def start_requests(self) -> scrapy.Request:
         data_home = pathlib.Path(self.settings["DATA_HOME"])
-        urls = find_urls_to_scrape(self.name, data_home=data_home)
+        urls = find_urls_to_crawl(self.name, data_home=data_home)
         for url in urls:
             yield scrapy.Request(url=url, callback=self.parse)
 

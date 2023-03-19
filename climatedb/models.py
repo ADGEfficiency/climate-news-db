@@ -56,7 +56,7 @@ class ArticleTable(sqlmodel.SQLModel, table=True):
     )
 
     article_url: str = sqlmodel.Field()
-    datetime_crawled: datetime.datetime = sqlmodel.Field()
+    datetime_crawled_utc: datetime.datetime = sqlmodel.Field()
     article_length: int
 
 

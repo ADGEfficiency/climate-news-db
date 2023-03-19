@@ -1,7 +1,5 @@
 import pathlib
-from datetime import datetime, timezone
-
-import pydantic
+from datetime import date, datetime, timezone
 
 from climatedb import files, models
 from climatedb.crawl import find_urls_to_crawl
@@ -11,7 +9,7 @@ def format_timestamp(dt: datetime) -> str:
     return dt.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
 
 
-def get_timestamp():
+def get_timestamp() -> str:
     stamp = datetime.now(timezone.utc)
     return format_timestamp(stamp)
 
@@ -44,11 +42,11 @@ def test_find_urls_to_scrape(base_dir: pathlib.Path) -> None:
             models.ArticleMeta(
                 headline="",
                 body="",
-                date_published="2020-01-01",
+                date_published=date.fromisoformat("2020-01-01"),
                 article_name="",
                 article_url="https://www.chinadaily.com.cn/a/202301/19/WS63c8a4a8a31057c47ebaa8e4.html",
                 article_start_url="https://www.chinadaily.com.cn/a/202301/19/WS63c8a4a8a31057c47ebaa8e4.html",
-                datetime_crawled_utc=get_timestamp(),
+                datetime_crawled_utc=datetime.now(timezone.utc),
             ).__dict__
         ]
     )
