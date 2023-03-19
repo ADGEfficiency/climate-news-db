@@ -1,6 +1,19 @@
+import datetime
 import json
 import pathlib
 import typing
+
+
+class JSONEncoder(json.JSONEncoder):
+    """seralize non-JSON compatabile data to JSON - numpy + timestamps"""
+
+    def default(self, obj):
+        if isinstance(obj, datetime.datetime):
+            return obj.isoformat()
+        elif isinstance(obj, datetime.date):
+            return obj.isoformat()
+        else:
+            return super(JSONEncoder, self).default(obj)
 
 
 class File:
@@ -38,7 +51,7 @@ class JSONLines(File):
             mode = "a"
 
         with open(self.path, mode) as fp:
-            fp.writelines([json.dumps(d) + "\n" for d in data])
+            fp.writelines([json.dumps(d, cls=JSONEncoder) + "\n" for d in data])
 
     def exists(self) -> bool:
         return self.path.is_file()
