@@ -1,3 +1,5 @@
+import pathlib
+
 import scrapy
 import sqlmodel
 from rich import print
@@ -18,17 +20,22 @@ def read_all_articles(db_uri: str = settings["DB_URI"]) -> list[Article]:
         return session.query(Article).all()
 
 
-def read_newspaper(
-    newspaper: NewspaperMeta, db_uri: str = settings["DB_URI"]
-) -> Newspaper:
+def read_newspaper(newspaper_name: str, db_uri: str = settings["DB_URI"]) -> Newspaper:
     engine = sqlmodel.create_engine(db_uri)
     with sqlmodel.Session(engine) as session:
         return session.exec(
-            sqlmodel.select(Newspaper).where(Newspaper.name == newspaper.name)
+            sqlmodel.select(Newspaper).where(Newspaper.name == newspaper_name)
         ).one()
 
 
-import pathlib
+def write_opinion(db_uri, opinion) -> None:
+    engine = sqlmodel.create_engine(db_uri)
+    from climatedb.gpt import GPTOpinion
+
+    GPTOpinion.metadata.create_all(engine)
+    with sqlmodel.Session(engine) as session:
+        session.add(opinion)
+        session.commit()
 
 
 def seed(db_uri: str, data_home: pathlib.Path) -> None:
@@ -38,6 +45,7 @@ def seed(db_uri: str, data_home: pathlib.Path) -> None:
     Newspaper.metadata.create_all(engine)
     for paper in newspapers:
         paper = Newspaper(**paper)
+        print(f" inserting {paper}")
         with sqlmodel.Session(engine) as session:
             stmt = (
                 insert(Newspaper)
@@ -64,4 +72,7 @@ def seed(db_uri: str, data_home: pathlib.Path) -> None:
 
 
 if __name__ == "__main__":
-    seed()
+    settings = Settings()
+    settings.setmodule("climatedb.settings")
+    seed(settings["DB_URI"], settings["DATA_HOME"])
+    print("seed done")

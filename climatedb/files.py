@@ -26,7 +26,7 @@ class File:
     def read(self) -> typing.Union[list, str, dict]:
         raise NotImplementedError()
 
-    def write(self, data: typing.Union[list, str], mode: str) -> None:
+    def write(self, data: typing.Union[list, str]) -> None:
         raise NotImplementedError()
 
     def exists(self) -> bool:
@@ -76,3 +76,6 @@ class JSONFile(File):
 
     def read(self) -> typing.Any:
         return json.loads(self.path.read_text())
+
+    def write(self, data: dict) -> None:
+        self.path.write_text(json.dumps(data, cls=JSONEncoder))

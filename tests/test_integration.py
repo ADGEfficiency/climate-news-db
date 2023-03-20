@@ -70,7 +70,9 @@ def test_integration(base_dir: pathlib.Path) -> None:
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )
-    # print(result.stdout.decode())
-    # print(result.stderr.decode())
+    print(result.stdout.decode())
+    print(result.stderr.decode())
     articles = database.read_all_articles(db_uri=f"sqlite:///{base_dir}/db.sqlite")
     assert len(articles) == 1
+
+    #  check we can read the

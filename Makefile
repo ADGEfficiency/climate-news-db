@@ -25,3 +25,6 @@ crawl:
 
 crawl-one:
 	scrapy crawl $(PAPER) -L DEBUG -o $(DATA_HOME)/articles/$(PAPER).jsonlines
+
+app: setup
+	uvicorn climatedb.app:app --reload --port 8004

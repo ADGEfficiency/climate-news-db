@@ -71,7 +71,7 @@ class InsertArticle:
 
         #  first need to find the appropriate newspaper
         paper_meta = find_newspaper_from_url(item.article_url)
-        paper = read_newspaper(newspaper=paper_meta)
+        paper = read_newspaper(paper_meta.name)
 
         article = Article(
             headline=item.headline,
