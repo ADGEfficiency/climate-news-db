@@ -20,6 +20,11 @@ def test_integration(base_dir: pathlib.Path) -> None:
     articles_fi = files.JSONLines(base_dir / "articles" / "china_daily.jsonl")
     assert not articles_fi.exists()
 
+    db_uri = f"sqlite:///{base_dir}/db.sqlite"
+
+    #  seed the newspapers
+    database.seed(db_uri=db_uri, data_home=base_dir)
+
     #  run the scraping
     result = subprocess.run(
         [
@@ -29,7 +34,7 @@ def test_integration(base_dir: pathlib.Path) -> None:
             "-o",
             articles_fi.path,
             "-s",
-            f"DB_URI=sqlite:///{base_dir}/db.sqlite",
+            f"DB_URI={db_uri}",
             "-s",
             f"DATA_HOME={base_dir}",
         ],

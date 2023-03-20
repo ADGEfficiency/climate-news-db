@@ -11,7 +11,7 @@ static: setup
 	mypy tests
 
 test: setup
-	pytest tests
+	pytest tests -x --lf
 
 test-ci:
 	coverage run -m pytest tests --showlocals --full-trace --tb=short --show-capture=no -v

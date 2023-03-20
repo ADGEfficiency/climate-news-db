@@ -7,6 +7,7 @@
 # useful for handling different item types with a single interface
 
 import pathlib
+import typing
 
 import scrapy
 import sqlmodel
@@ -38,10 +39,14 @@ class SaveHTML:
 
 
 class InsertArticle:
-    def __init__(self, db_uri: str, data_home: pathlib.Path) -> None:
+    def __init__(self, db_uri: str, data_home: typing.Union[pathlib.Path, str]) -> None:
         self.db_uri = db_uri
+
+        #  shouldnt need really - comes from the integration test
+        #  where we pass DATA_HOME as a CLI setting
+        data_home = pathlib.Path(data_home)
         data_home.mkdir(exist_ok=True, parents=True)
-        print(f"connecting to {db_uri}")
+        print(f" [green]connecting[/] to {db_uri}")
         self.engine = sqlmodel.create_engine(
             db_uri,
             connect_args={"check_same_thread": False},
@@ -60,7 +65,9 @@ class InsertArticle:
         self.session.close()
 
     def process_item(self, item: ArticleMeta, spider: scrapy.Spider) -> ArticleMeta:
-        print(f" Insert Article {item.headline} to {self.db_uri}")
+        print(
+            f" [green]insert article[/]\n headline: {item.headline}\n db_uri: {self.db_uri}"
+        )
 
         #  first need to find the appropriate newspaper
         paper_meta = find_newspaper_from_url(item.article_url)

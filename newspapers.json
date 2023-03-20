@@ -2,127 +2,127 @@
   {
     "name": "guardian",
     "fancy_name": "The Guardian",
-    "newspaper_url": "theguardian.com",
+    "site": "theguardian.com",
     "color": "#072862"
   },
   {
     "name": "nytimes",
     "fancy_name": "The New York Times",
-    "newspaper_url": "nytimes.com",
+    "site": "nytimes.com",
     "color": "#000000"
   },
   {
     "name": "aljazeera",
     "fancy_name": "Al Jazeera",
-    "newspaper_url": "aljazeera.com",
+    "site": "aljazeera.com",
     "color": "#FA9000"
   },
   {
     "name": "dw",
     "fancy_name": "Deutsche Welle",
-    "newspaper_url": "dw.com/en",
+    "site": "dw.com/en",
     "color": "#0098FF"
   },
   {
     "name": "cnn",
     "fancy_name": "CNN",
-    "newspaper_url": "cnn.com",
+    "site": "cnn.com",
     "color": "#CC0000"
   },
   {
     "name": "bbc",
     "fancy_name": "The BBC",
-    "newspaper_url": "bbc.com",
+    "site": "bbc.com",
     "color": "#FF4C98"
   },
   {
     "name": "fox",
     "fancy_name": "Fox News",
-    "newspaper_url": "foxnews.com",
+    "site": "foxnews.com",
     "color": "#C20017"
   },
   {
     "name": "skyau",
     "fancy_name": "Sky News Australia",
-    "newspaper_url": "skynews.com.au",
+    "site": "skynews.com.au",
     "color": "#A90000"
   },
   {
     "name": "stuff",
     "fancy_name": "Stuff.co.nz",
-    "newspaper_url": "stuff.co.nz",
+    "site": "stuff.co.nz",
     "color": "#019902"
   },
   {
     "name": "newshub",
     "fancy_name": "NewsHub.co.nz",
-    "newspaper_url": "newshub.co.nz",
+    "site": "newshub.co.nz",
     "color": "#ED1C28"
   },
   {
     "name": "atlantic",
     "fancy_name": "The Atlantic",
-    "newspaper_url": "theatlantic.com",
+    "site": "theatlantic.com",
     "color": "#E7131A"
   },
   {
     "name": "nzherald",
     "fancy_name": "The New Zealand Herald",
-    "newspaper_url": "nzherald.co.nz",
+    "site": "nzherald.co.nz",
     "color": "#121617"
   },
   {
     "name": "economist",
     "fancy_name": "The Economist",
-    "newspaper_url": "economist.com",
+    "site": "economist.com",
     "color": "#FFFFFF"
   },
   {
     "name": "dailymail",
     "fancy_name": "The Daily Mail",
-    "newspaper_url": "https://www.dailymail.co.uk",
+    "site": "https://www.dailymail.co.uk",
     "color": "#004DB3"
   },
   {
     "name": "independent",
     "fancy_name": "The Independent",
-    "newspaper_url": "independent.co.uk",
+    "site": "independent.co.uk",
     "color": "#E30D24"
   },
   {
     "name": "washington_post",
     "fancy_name": "The Washington Post",
-    "newspaper_url": "washingtonpost.com",
+    "site": "washingtonpost.com",
     "color": "#000000"
   },
   {
     "name": "daily_nation",
     "fancy_name": "Daily Nation",
-    "newspaper_url": "nation.africa/kenya",
+    "site": "nation.africa/kenya",
     "color": "#FF8D01"
   },
   {
     "name": "daily_post",
     "fancy_name": "Daily Post",
-    "newspaper_url": "dailypost.ng",
+    "site": "dailypost.ng",
     "color": "#F50D0E"
   },
   {
     "name": "folha",
     "fancy_name": "Folha de S.Paulo",
-    "newspaper_url": "folha.uol.com.br/internacional/en/",
+    "site": "folha.uol.com.br/internacional/en/",
     "color": "#053654"
   },
   {
     "name": "batimes",
     "fancy_name": "Buenos Aires Times",
-    "newspaper_url": "batimes.com.ar",
+    "site": "batimes.com.ar",
     "color": "#0076B8"
   },
   {
     "name": "china_daily",
     "fancy_name": "China Daily",
-    "newspaper_url": "chinadaily.com.cn",
+    "site": "chinadaily.com.cn",
     "color": "#024073"
   }
 ]

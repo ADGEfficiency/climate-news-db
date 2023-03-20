@@ -37,12 +37,15 @@ class ArticleMeta:
     datetime_crawled_utc: datetime.datetime = datetime.datetime.now()
 
     def __repr__(self) -> str:
-        return f"NewspaperArticleMeta(headline={self.headline}, article_name: {self.article_name}, date_published: {self.date_published})"
+        return f"ArticleMeta(headline={self.headline}, article_name: {self.article_name}, date_published: {self.date_published})"
 
 
 @dataclasses.dataclass(kw_only=True)
 class ArticleItem(ArticleMeta):
     html: str
+
+    def __repr__(self) -> str:
+        return f"ArticleItem(headline={self.headline}, article_name: {self.article_name}, date_published: {self.date_published})"
 
 
 @dataclasses.dataclass
@@ -51,7 +54,7 @@ class NewspaperMeta:
 
     name: str
     fancy_name: str
-    newspaper_url: str
+    site: str
     color: str
 
 
@@ -63,7 +66,7 @@ class Newspaper(sqlmodel.SQLModel, table=True):
     #  from newspaper.json
     name: str = sqlmodel.Field(sa_column=Column("name", String, unique=True))
     fancy_name: str
-    newspaper_url: str
+    site: str
     color: str
 
     #  aggregated statistics from Newspaper

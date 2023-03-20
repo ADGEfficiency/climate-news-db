@@ -28,17 +28,12 @@ def read_newspaper(
         ).one()
 
 
-def seed():
-    #  create the newspapers
+import pathlib
 
-    #  todo
-    import pathlib
 
+def seed(db_uri: str, data_home: pathlib.Path) -> None:
     newspapers = files.JSONFile("./newspapers.json").read()
-    data_home = pathlib.Path("./data")
-
-    #  TODO
-    engine = sqlmodel.create_engine("sqlite:///data/db.sqlite")
+    engine = sqlmodel.create_engine(db_uri)
 
     Newspaper.metadata.create_all(engine)
     for paper in newspapers:
@@ -51,7 +46,7 @@ def seed():
                     index_elements=[Newspaper.name],
                     set_={
                         "fancy_name": paper.fancy_name,
-                        "newspaper_url": paper.newspaper_url,
+                        "site": paper.site,
                         "color": paper.color,
                     },
                 )
@@ -59,13 +54,13 @@ def seed():
             session.execute(stmt)
             session.commit()
 
-    #  create the articles
-    Article.metadata.create_all(engine)
+    # #  create the articles
+    # Article.metadata.create_all(engine)
 
-    for article in [p for p in (data_home / "articles").iterdir() if p.is_dir()]:
-        breakpoint()  # fmt: skip
+    # for article in [p for p in (data_home / "articles").iterdir() if p.is_dir()]:
+    #     breakpoint()  # fmt: skip
 
-    #  update the statistics
+    # #  update the statistics
 
 
 if __name__ == "__main__":

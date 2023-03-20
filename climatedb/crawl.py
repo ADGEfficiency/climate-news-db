@@ -57,7 +57,7 @@ def find_newspaper_from_url(url: str) -> NewspaperMeta:
 
     for pap in papers:
         paper = NewspaperMeta(**pap)
-        if paper.newspaper_url in url:
+        if paper.site in url:
             return paper
 
     raise ValueError(f"No paper found for {url}")
