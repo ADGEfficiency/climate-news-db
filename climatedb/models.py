@@ -1,8 +1,3 @@
-# Define here the models for your scraped items
-#
-# See documentation in:
-# https://docs.scrapy.org/en/latest/topics/items.html
-
 import dataclasses
 import datetime
 import typing
@@ -14,12 +9,16 @@ from sqlalchemy.sql.schema import Column
 
 @dataclasses.dataclass
 class RawURL:
+    """Maps to urls.jsonl"""
+
     url: str
     search_time_utc: str
 
 
 @dataclasses.dataclass
 class RejectedURL:
+    """Maps to rejected.jsonl"""
+
     article_url: str
     article_start_url: str
     datetime_rejected_utc: str
@@ -27,6 +26,8 @@ class RejectedURL:
 
 @dataclasses.dataclass
 class ArticleMeta:
+    """Maps to articles/{newspaper}.jsonl"""
+
     headline: str
     body: str
     date_published: typing.Optional[datetime.date]
@@ -44,7 +45,36 @@ class ArticleItem(ArticleMeta):
     html: str
 
 
-class ArticleTable(sqlmodel.SQLModel, table=True):
+@dataclasses.dataclass
+class NewspaperMeta:
+    """Maps to newspaper.json"""
+
+    name: str
+    fancy_name: str
+    newspaper_url: str
+    color: str
+
+
+class Newspaper(sqlmodel.SQLModel, table=True):
+    __tablename__ = "newspaper"
+
+    id: typing.Optional[int] = sqlmodel.Field(default=None, primary_key=True)
+
+    #  from newspaper.json
+    name: str = sqlmodel.Field(sa_column=Column("name", String, unique=True))
+    fancy_name: str
+    newspaper_url: str
+    color: str
+
+    #  aggregated statistics from Newspaper
+    article_count: int = 0
+    average_article_length: float = 0
+
+    #  one newspaper can have many articles
+    articles: list["Article"] = sqlmodel.Relationship(back_populates="newspaper")
+
+
+class Article(sqlmodel.SQLModel, table=True):
     __tablename__ = "article"
 
     id: typing.Optional[int] = sqlmodel.Field(default=None, primary_key=True)
@@ -59,10 +89,5 @@ class ArticleTable(sqlmodel.SQLModel, table=True):
     datetime_crawled_utc: datetime.datetime = sqlmodel.Field()
     article_length: int
 
-
-@dataclasses.dataclass
-class NewspaperMeta:
-    name: str
-    fancy_name: str
-    newspaper_url: str
-    color: str
+    newspaper_id: int = sqlmodel.Field(foreign_key="newspaper.id")
+    newspaper: Newspaper = sqlmodel.Relationship(back_populates="articles")

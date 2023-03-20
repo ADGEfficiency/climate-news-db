@@ -16,7 +16,8 @@ from sqlmodel.pool import StaticPool
 
 from climatedb import files
 from climatedb.crawl import find_newspaper_from_url
-from climatedb.models import ArticleItem, ArticleMeta, ArticleTable
+from climatedb.database import read_newspaper
+from climatedb.models import Article, ArticleItem, ArticleMeta
 
 
 class SaveHTML:
@@ -37,19 +38,20 @@ class SaveHTML:
 
 
 class InsertArticle:
-    def __init__(self, db_uri: str) -> None:
+    def __init__(self, db_uri: str, data_home: pathlib.Path) -> None:
         self.db_uri = db_uri
+        data_home.mkdir(exist_ok=True, parents=True)
         print(f"connecting to {db_uri}")
         self.engine = sqlmodel.create_engine(
             db_uri,
             connect_args={"check_same_thread": False},
             poolclass=StaticPool,
         )
-        ArticleTable.metadata.create_all(self.engine)
+        Article.metadata.create_all(self.engine)
 
     @classmethod
     def from_crawler(cls, crawler: scrapy.crawler.Crawler) -> scrapy.crawler.Crawler:
-        return cls(crawler.settings["DB_URI"])
+        return cls(crawler.settings["DB_URI"], crawler.settings["DATA_HOME"])
 
     def open_spider(self, spider: scrapy.Spider) -> None:
         self.session = sqlmodel.Session(self.engine)
@@ -59,7 +61,12 @@ class InsertArticle:
 
     def process_item(self, item: ArticleMeta, spider: scrapy.Spider) -> ArticleMeta:
         print(f" Insert Article {item.headline} to {self.db_uri}")
-        article = ArticleTable(
+
+        #  first need to find the appropriate newspaper
+        paper_meta = find_newspaper_from_url(item.article_url)
+        paper = read_newspaper(newspaper=paper_meta)
+
+        article = Article(
             headline=item.headline,
             body=item.body,
             date_published=item.date_published,
@@ -67,12 +74,14 @@ class InsertArticle:
             article_url=item.article_url,
             datetime_crawled_utc=item.datetime_crawled_utc,
             article_length=len(item.body),
+            newspaper=paper,
+            newspaper_id=paper.id,
         )
         stmt = (
-            insert(ArticleTable)
+            insert(Article)
             .values(**article.dict())
             .on_conflict_do_update(
-                index_elements=[ArticleTable.article_name],
+                index_elements=[Article.article_name],
                 set_={
                     "headline": article.headline,
                     "body": article.body,

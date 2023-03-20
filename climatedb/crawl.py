@@ -1,6 +1,7 @@
 import pathlib
 
 import pandas as pd
+from rich import print
 from scrapy.http.response.html import HtmlResponse
 
 from climatedb import files
@@ -34,13 +35,11 @@ def find_urls_to_crawl(paper: str, data_home: pathlib.Path) -> list[str]:
 
     #  filter for this newspaper
     urls = urls[urls["paper"] == paper]
-    print(f" {urls.shape} urls after dropping duplicates")
+    print(f" {urls.shape} urls after filter for newspaper")
 
     urls = set(urls["url"].tolist())
-
     urls = filter_urls(files.JSONLines(data_home / "articles" / paper), urls)
     urls = filter_urls(files.JSONLines(data_home / "rejected"), urls)
-
     return list(urls)
 
 

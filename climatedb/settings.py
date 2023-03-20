@@ -97,3 +97,5 @@ FEED_EXPORT_ENCODING = "utf-8"
 
 DATA_HOME = pathlib.Path.cwd() / "data"
 DB_URI = f"sqlite:///{DATA_HOME}/db.sqlite"
+
+STATS_CLASS = "climatedb.stats.StatCollector"
