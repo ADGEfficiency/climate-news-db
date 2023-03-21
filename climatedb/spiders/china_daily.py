@@ -1,5 +1,4 @@
 import datetime
-import pathlib
 import re
 
 import scrapy
@@ -7,6 +6,7 @@ from scrapy.http.response.html import HtmlResponse
 
 from climatedb.crawl import create_article_name, find_start_url
 from climatedb.models import ArticleItem
+from climatedb.spiders.base import BaseSpider
 
 
 class ChinaDailySpider(scrapy.Spider):
