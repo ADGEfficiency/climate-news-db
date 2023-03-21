@@ -1,3 +1,4 @@
+import json
 import os
 import typing
 
@@ -5,27 +6,11 @@ import pydantic
 import requests
 import sqlalchemy
 import sqlmodel
+from scrapy.settings import Settings
 from sqlalchemy.sql.schema import Column
 
-from climatedb import crawl, database
-
-
-class GPTOpinion(sqlmodel.SQLModel, table=True):
-    __table_args__ = {"extend_existing": True}
-
-    id: typing.Optional[int] = sqlmodel.Field(default=None, primary_key=True)
-    message: dict = sqlmodel.Field(
-        default_factory=dict, sa_column=Column(sqlmodel.JSON)
-    )
-    request: dict = sqlmodel.Field(
-        default_factory=dict, sa_column=Column(sqlmodel.JSON)
-    )
-    response: dict = sqlmodel.Field(
-        default_factory=dict, sa_column=Column(sqlmodel.JSON)
-    )
-
-    class Config:
-        arbitrary_types_allowed = True
+from climatedb import crawl, database, files
+from climatedb.models import GPTOpinion
 
 
 class Message(pydantic.BaseModel):
@@ -62,39 +47,35 @@ def call_gpt(article_body: str):
 
 
 if __name__ == "__main__":
-    from climatedb import database
-
     articles = database.read_all_articles()
     print(len(articles))
-    import json
 
     #  for each article
     for article in articles:
-        """
-        where to do the cache
-        - cache the file
-        - cache in database
-        """
-        request, response = call_gpt(article.body)
-        assert response.ok
+        opinion = database.read_opinion(article)
 
-        from climatedb import files
+        if opinion is None:
+            print(f" calling openai: {article.article_name}")
+            request, response = call_gpt(article.body)
+            assert response.ok
 
-        print("make request")
-        choices = response.json()["choices"]
-        assert len(choices) == 1
-        message = choices[0]["message"]["content"]
-        message = json.loads(message)
+            choices = response.json()["choices"]
+            assert len(choices) == 1
+            message = choices[0]["message"]["content"]
+            message = json.loads(message)
 
-        paper_meta = crawl.find_newspaper_from_url(article.article_url)
-        paper = database.read_newspaper(paper_meta.name)
+            paper_meta = crawl.find_newspaper_from_url(article.article_url)
+            paper = database.read_newspaper(paper_meta.name)
 
-        gpt_opinion = GPTOpinion(
-            request=request.dict(), response=response.json(), message=message
-        )
+            gpt_opinion = GPTOpinion(
+                request=request.dict(),
+                response=response.json(),
+                message=message,
+                article_id=article.id,
+            )
 
-        from scrapy.settings import Settings
-
-        settings = Settings()
-        settings.setmodule("climatedb.settings")
-        database.write_opinion(settings["DB_URI"], gpt_opinion)
+            settings = Settings()
+            settings.setmodule("climatedb.settings")
+            database.write_opinion(settings["DB_URI"], gpt_opinion)
+        else:
+            print(f" not calling openai: {article.article_name}")

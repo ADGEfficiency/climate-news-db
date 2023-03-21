@@ -8,7 +8,7 @@ from sqlalchemy.dialects.sqlite import insert
 from sqlmodel.pool import StaticPool
 
 from climatedb import files
-from climatedb.models import Article, Newspaper, NewspaperMeta
+from climatedb.models import Article, GPTOpinion, Newspaper, NewspaperMeta
 
 settings = Settings()
 settings.setmodule("climatedb.settings")
@@ -26,6 +26,14 @@ def read_newspaper(newspaper_name: str, db_uri: str = settings["DB_URI"]) -> New
         return session.exec(
             sqlmodel.select(Newspaper).where(Newspaper.name == newspaper_name)
         ).one()
+
+
+def read_opinion(article: Article, db_uri: str = settings["DB_URI"]) -> Newspaper:
+    engine = sqlmodel.create_engine(db_uri)
+    with sqlmodel.Session(engine) as session:
+        return session.exec(
+            sqlmodel.select(GPTOpinion).where(GPTOpinion.article_id == article.id)
+        ).one_or_none()
 
 
 def write_opinion(db_uri, opinion) -> None:

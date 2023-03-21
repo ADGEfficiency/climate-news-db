@@ -25,25 +25,24 @@ class ChinaDailySpider(scrapy.Spider):
         @returns items 1
         @scrapes headline date_published body article_name article_url
         """
-        date_published = datetime.date.fromisoformat(
-            response.xpath('//meta[@name="publishdate"]/@content').get()
-        )
-
+        #  article body
         body = response.xpath('//div[@id="Content"]/p[not(@class="email")]/text()')
         body = " ".join(body.getall())
 
         #  replace one or more whitespace characters with single space - removes '\xa0'
         body = re.sub(r"\s+", " ", body)
 
-        #  remove whitespace from start and end
-        body = body.strip(" ")
+        #  strip whitespace
+        body = body.strip("")
 
         return ArticleItem(
-            headline=response.xpath('//meta[@property="og:title"]/@content').get(),
-            date_published=date_published,
             body=body,
-            article_name=create_article_name(response.url),
-            article_url=response.url,
-            article_start_url=find_start_url(response),
             html=response.text,
+            headline=response.xpath('//meta[@property="og:title"]/@content').get(),
+            date_published=datetime.date.fromisoformat(
+                response.xpath('//meta[@name="publishdate"]/@content').get()
+            ),
+            article_url=response.url,
+            article_name=create_article_name(response.url),
+            article_start_url=find_start_url(response),
         )

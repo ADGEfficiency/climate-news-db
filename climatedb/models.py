@@ -94,3 +94,22 @@ class Article(sqlmodel.SQLModel, table=True):
 
     newspaper_id: int = sqlmodel.Field(foreign_key="newspaper.id")
     newspaper: Newspaper = sqlmodel.Relationship(back_populates="articles")
+
+
+class GPTOpinion(sqlmodel.SQLModel, table=True):
+    __table_args__ = {"extend_existing": True}
+
+    id: typing.Optional[int] = sqlmodel.Field(default=None, primary_key=True)
+    message: dict = sqlmodel.Field(
+        default_factory=dict, sa_column=Column(sqlmodel.JSON)
+    )
+    request: dict = sqlmodel.Field(
+        default_factory=dict, sa_column=Column(sqlmodel.JSON)
+    )
+    response: dict = sqlmodel.Field(
+        default_factory=dict, sa_column=Column(sqlmodel.JSON)
+    )
+    article_id: int = sqlmodel.Field(foreign_key="article.id")
+
+    class Config:
+        arbitrary_types_allowed = True
