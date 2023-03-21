@@ -5,7 +5,6 @@ import sqlmodel
 from rich import print
 from scrapy.settings import Settings
 from sqlalchemy.dialects.sqlite import insert
-from sqlmodel.pool import StaticPool
 
 from climatedb import files
 from climatedb.models import Article, GPTOpinion, Newspaper, NewspaperMeta

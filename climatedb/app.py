@@ -2,6 +2,9 @@ import fastapi
 import uvicorn
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from scrapy.settings import Settings
+
+from climatedb import database
 
 app = fastapi.FastAPI()
 
@@ -30,17 +33,60 @@ async def home(request: fastapi.Request):
     data = {"n_articles": 0, "n_papers": 0}
     return templates.TemplateResponse(
         "home.html",
-        {"request": request, "data": data},
+        {
+            "request": request,
+            "data": data,
+            "papers": [
+                {
+                    "name": "guardian",
+                    "fancy_name": "Guardian",
+                    "article_count": 100,
+                    "average_article_length": 100,
+                }
+            ],
+        },
     )
 
 
-@app.get("/charts")
-async def charts(request: fastapi.Request):
-    return templates.TemplateResponse(
-        "charts.html",
+@app.get("/newspaper/{newspaper}")
+def newspaper(request: fastapi.Request):
+    articles = [
         {
-            "request": request,
-        },
+            "date_published": "2020-01-01",
+            "article_id": 0,
+            "headline": "headline",
+            "body": "body",
+        }
+    ]
+
+    settings = Settings()
+    settings.setmodule("climatedb.settings")
+    articles = database.read_all_articles(settings["DB_URI"])
+
+    newspaper = {"fancy_name": "Guardian"}
+    return templates.TemplateResponse(
+        "newspaper.html",
+        {"request": request, "articles": articles, "newspaper": newspaper},
+    )
+
+
+@app.get("/article/{id}")
+def article(request: fastapi.Request):
+    settings = Settings()
+    settings.setmodule("climatedb.settings")
+
+    # articles = database.read_all_articles(settings["DB_URI"])
+    article = {
+        "newspaper_name": "guardian",
+        "newspaper_fancy_name": "Guardian",
+        "date_published": "2020-01-01",
+        "article_url": "https://www.theguardian.com/environment/2020/jan/01/australia-bushfires-heatwave-temperatures",
+        "body": "hello",
+    }
+
+    return templates.TemplateResponse(
+        "article.html",
+        {"request": request, "article": article},
     )
 
 
