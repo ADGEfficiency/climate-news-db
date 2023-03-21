@@ -19,6 +19,22 @@ def read_all_articles(db_uri: str = settings["DB_URI"]) -> list[Article]:
         return session.query(Article).all()
 
 
+def read_article(article_id: int, db_uri: str = settings["DB_URI"]) -> list[Article]:
+    engine = sqlmodel.create_engine(db_uri)
+    with sqlmodel.Session(engine) as session:
+        return session.query(Article).where(Article.id == article_id).one()
+
+
+def read_opinion(article_id: int, db_uri: str = settings["DB_URI"]) -> GPTOpinion:
+    engine = sqlmodel.create_engine(db_uri)
+    with sqlmodel.Session(engine) as session:
+        return (
+            session.query(GPTOpinion)
+            .where(GPTOpinion.article_id == article_id)
+            .one_or_none()
+        )
+
+
 def read_newspaper(newspaper_name: str, db_uri: str = settings["DB_URI"]) -> Newspaper:
     engine = sqlmodel.create_engine(db_uri)
     with sqlmodel.Session(engine) as session:
@@ -27,11 +43,11 @@ def read_newspaper(newspaper_name: str, db_uri: str = settings["DB_URI"]) -> New
         ).one()
 
 
-def read_opinion(article: Article, db_uri: str = settings["DB_URI"]) -> Newspaper:
+def read_opinion(article_id: int, db_uri: str = settings["DB_URI"]) -> Newspaper:
     engine = sqlmodel.create_engine(db_uri)
     with sqlmodel.Session(engine) as session:
         return session.exec(
-            sqlmodel.select(GPTOpinion).where(GPTOpinion.article_id == article.id)
+            sqlmodel.select(GPTOpinion).where(GPTOpinion.article_id == article_id)
         ).one_or_none()
 
 

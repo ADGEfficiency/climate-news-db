@@ -64,29 +64,33 @@ def newspaper(request: fastapi.Request):
     articles = database.read_all_articles(settings["DB_URI"])
 
     newspaper = {"fancy_name": "Guardian"}
+    opinions = {
+        "average_article_accuracy": 0.5,
+        "average_article_tone": 0.5,
+    }
+    #  also want opinions over time?
     return templates.TemplateResponse(
         "newspaper.html",
-        {"request": request, "articles": articles, "newspaper": newspaper},
+        {
+            "request": request,
+            "articles": articles,
+            "newspaper": newspaper,
+            "opinions": opinions,
+        },
     )
 
 
 @app.get("/article/{id}")
-def article(request: fastapi.Request):
+def article(request: fastapi.Request, id: int):
     settings = Settings()
     settings.setmodule("climatedb.settings")
 
-    # articles = database.read_all_articles(settings["DB_URI"])
-    article = {
-        "newspaper_name": "guardian",
-        "newspaper_fancy_name": "Guardian",
-        "date_published": "2020-01-01",
-        "article_url": "https://www.theguardian.com/environment/2020/jan/01/australia-bushfires-heatwave-temperatures",
-        "body": "hello",
-    }
+    article = database.read_article(id, settings["DB_URI"])
+    opinion = database.read_opinion(id, settings["DB_URI"])
 
     return templates.TemplateResponse(
         "article.html",
-        {"request": request, "article": article},
+        {"request": request, "article": article, "opinion": opinion},
     )
 
 

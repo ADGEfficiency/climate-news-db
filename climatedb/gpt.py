@@ -6,6 +6,7 @@ import pydantic
 import requests
 import sqlalchemy
 import sqlmodel
+from rich import print
 from scrapy.settings import Settings
 from sqlalchemy.sql.schema import Column
 
@@ -22,14 +23,19 @@ class CompletionRequest(pydantic.BaseModel):
     messages: list[Message]
     model: typing.Literal["gpt-3.5-turbo"] = "gpt-3.5-turbo"
     temperature: float = 0.0
+    max_tokens: int = 1028
 
 
 def call_gpt(article_body: str):
+    # article_body = len(article_body) / 4
+    max_characetrs = 4096 * 4
+    article_body = article_body[: int(max_characetrs)]
+
     request = CompletionRequest(
         messages=[
             Message(
                 role="system",
-                content='You are evaluating the content of a newspaper article on climate change.  I want you to evaluate two things.  First is the accuracy of the article compared with the current scientific understanding of climate change. 1 would be very accurate, 0 would be inaccurate.  Second is the an evaluation of how positive or negative the tone of the article is with regards to climate change.  1 would be very positive, 0 would be very negative. For both you should be estimating an expected value across all the available data, population or samples available.  If you cannot evaluate either numeric-score, you should return -1. You should return a JSON string of the form `{"scientific-accuracy": {"numeric-score": 1.0, "explanation": "some explanation" }, "article-tone": {"numeric-score": 1.0, "explanation": "some explanation"}}`.',
+                content='You are evaluating the content of a newspaper article on climate change.  I want you to evaluate two things.  First is the accuracy of the article compared with the current scientific understanding of climate change. 1 would be very accurate, 0 would be inaccurate.  Second is the an evaluation of how positive or negative the tone of the article is with regards to climate change.  1 would be very positive, 0 would be very negative. For both you should be estimating an expected value across all the available data, population or samples available.  If you cannot evaluate either numeric-score, you should return -1. You should return a JSON string of the form `{"scientific-accuracy": {"numeric-score": 1.0, "explanation": "some explanation"}, "article-tone": {"numeric-score": 1.0, "explanation": "some explanation"}}`.  Keep the explanations short.',
             ),
             Message(role="user", content=f"Evaluate this article: {article_body}"),
         ]
@@ -52,10 +58,17 @@ if __name__ == "__main__":
 
     #  for each article
     for article in articles:
-        opinion = database.read_opinion(article)
+        #  TODO - should actually read by NAME here
+        #  id won't be stable across different databases
+
+        #  with this approach i throw away the result if i lose the database
+        #  should save to json and re-seed later
+        opinion = database.read_opinion(article.id)
 
         if opinion is None:
-            print(f" calling openai: {article.article_name}")
+            print(
+                f" [green]calling[/] openai: article: {article.article_name} id: {article.id}"
+            )
             request, response = call_gpt(article.body)
             assert response.ok
 
