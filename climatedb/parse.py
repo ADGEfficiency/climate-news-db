@@ -1,3 +1,4 @@
+import json
 import re
 import unicodedata
 from datetime import datetime
@@ -17,3 +18,8 @@ def clean_body(body: str) -> str:
     body = re.sub(r"\s+", " ", body).strip()
     body = unicodedata.normalize("NFKD", body).encode("ASCII", "ignore").decode()
     return body
+
+
+def get_ld_json(response: HtmlResponse) -> dict:
+    ld_json = response.xpath('//script[@type="application/ld+json"]/text()')
+    return json.loads(ld_json.get())

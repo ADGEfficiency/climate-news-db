@@ -5,7 +5,7 @@ from scrapy.http.response.html import HtmlResponse
 
 from climatedb.crawl import find_start_url
 from climatedb.models import ArticleItem
-from climatedb.parse import get_body
+from climatedb.parse import get_body, get_ld_json
 from climatedb.spiders.base import BaseSpider
 
 
@@ -23,7 +23,7 @@ class WashingtonPostSpider(BaseSpider):
 
         patterns = [
             r"Sign in",
-            r"This article was published more than\s*\d+\s*years\s+ago",
+            r"This article was published more than\s*\d+\s*year(s)?\s+ago",
             r"Want smart analysis of the most important news in your inbox every weekday, along with other global reads, interesting ideas and opinions to know\? Sign up for the Todays WorldView newsletter",
             r"For the latest news, sign up for our free newsletter",
         ]
@@ -33,12 +33,18 @@ class WashingtonPostSpider(BaseSpider):
         headline = response.xpath('//meta[@property="og:title"]/@content').get()
         headline = headline.split("|")[-1]
 
-        date_published = response.xpath(
-            '//meta[@property="article:published_time"]/@content'
-        ).get()
-        date_published = datetime.datetime.strptime(
-            date_published, "%Y-%m-%dT%H:%M:%S.%fZ"
-        )
+        date_published = None
+        ld_json = get_ld_json(response)
+
+        if ld_json:
+            date_published = datetime.datetime.strptime(
+                ld_json["datePublished"], "%Y-%m-%dT%H:%M:%S.%fZ"
+            )
+
+        if date_published is None:
+            date_published = datetime.datetime.fromisoformat(
+                response.xpath('//meta[@name="article:published_time"]/@content').get()
+            )
 
         return ArticleItem(
             body=body,
