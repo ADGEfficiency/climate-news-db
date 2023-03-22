@@ -6,6 +6,7 @@ setup:
 check: setup
 	ruff check .
 
+.PHONY: static
 static: setup
 	mypy climatedb
 	mypy tests
@@ -17,9 +18,7 @@ test-ci:
 	coverage run -m pytest tests --showlocals --full-trace --tb=short --show-capture=no -v
 	coverage report -m
 
-scrape: crawl
-
-DATA_HOME = ./data-neu
+DATA_HOME = ./data
 crawl:
 	cat newspapers.json | jq 'keys[]' | xargs -n 1 -I {} scrapy crawl {} -o $(DATA_HOME)/articles/{}.jsonl -L DEBUG
 

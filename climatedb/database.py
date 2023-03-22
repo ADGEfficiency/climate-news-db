@@ -1,6 +1,6 @@
 import pathlib
+import typing
 
-import scrapy
 import sqlmodel
 from rich import print
 from scrapy.settings import Settings
@@ -16,13 +16,21 @@ settings.setmodule("climatedb.settings")
 def read_all_articles(db_uri: str = settings["DB_URI"]) -> list[Article]:
     engine = sqlmodel.create_engine(db_uri)
     with sqlmodel.Session(engine) as session:
-        return session.query(Article).all()
+        return session.query(Article).order_by(Article.date_published.desc()).all()
 
 
 def read_article(article_id: int, db_uri: str = settings["DB_URI"]) -> list[Article]:
     engine = sqlmodel.create_engine(db_uri)
     with sqlmodel.Session(engine) as session:
         return session.query(Article).where(Article.id == article_id).one()
+
+
+def read_newspaper_by_id(
+    newspaper_id: int, db_uri: str = settings["DB_URI"]
+) -> list[Newspaper]:
+    engine = sqlmodel.create_engine(db_uri)
+    with sqlmodel.Session(engine) as session:
+        return session.query(Newspaper).where(Newspaper.id == newspaper_id).one()
 
 
 def read_opinion(article_id: int, db_uri: str = settings["DB_URI"]) -> GPTOpinion:
@@ -43,7 +51,9 @@ def read_newspaper(newspaper_name: str, db_uri: str = settings["DB_URI"]) -> New
         ).one()
 
 
-def read_opinion(article_id: int, db_uri: str = settings["DB_URI"]) -> Newspaper:
+def read_opinion(
+    article_id: int, db_uri: str = settings["DB_URI"]
+) -> typing.Optional[GPTOpinion]:
     engine = sqlmodel.create_engine(db_uri)
     with sqlmodel.Session(engine) as session:
         return session.exec(

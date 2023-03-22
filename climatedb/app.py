@@ -49,7 +49,7 @@ async def home(request: fastapi.Request):
 
 
 @app.get("/newspaper/{newspaper}")
-def newspaper(request: fastapi.Request):
+def newspaper(request: fastapi.Request, newspaper: str):
     articles = [
         {
             "date_published": "2020-01-01",
@@ -63,12 +63,13 @@ def newspaper(request: fastapi.Request):
     settings.setmodule("climatedb.settings")
     articles = database.read_all_articles(settings["DB_URI"])
 
-    newspaper = {"fancy_name": "Guardian"}
+    newspaper = database.read_newspaper(newspaper)
+
     opinions = {
         "average_article_accuracy": 0.5,
         "average_article_tone": 0.5,
     }
-    #  also want opinions over time?
+
     return templates.TemplateResponse(
         "newspaper.html",
         {
@@ -88,9 +89,30 @@ def article(request: fastapi.Request, id: int):
     article = database.read_article(id, settings["DB_URI"])
     opinion = database.read_opinion(id, settings["DB_URI"])
 
+    opinion_web = []
+    for key in ["scientific-accuracy", "article-tone"]:
+        data = opinion.message[key]
+        opinion_web.append(
+            {
+                "name": key.replace("-", " ").title(),
+                "score": data["numeric-score"],
+                "width": int(data["numeric-score"]) * 100,
+                "message": data["explanation"],
+            }
+        )
+
+    prompt = opinion.request["messages"][0]["content"]
+    newspaper = database.read_newspaper_by_id(article.newspaper_id, settings["DB_URI"])
+
     return templates.TemplateResponse(
         "article.html",
-        {"request": request, "article": article, "opinion": opinion},
+        {
+            "request": request,
+            "article": article,
+            "newspaper": newspaper,
+            "opinions": opinion_web,
+            "prompt": prompt,
+        },
     )
 
 

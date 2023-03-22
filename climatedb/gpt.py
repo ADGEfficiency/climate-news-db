@@ -27,7 +27,6 @@ class CompletionRequest(pydantic.BaseModel):
 
 
 def call_gpt(article_body: str):
-    # article_body = len(article_body) / 4
     max_characetrs = 4096 * 4
     article_body = article_body[: int(max_characetrs)]
 
@@ -35,7 +34,7 @@ def call_gpt(article_body: str):
         messages=[
             Message(
                 role="system",
-                content='You are evaluating the content of a newspaper article on climate change.  I want you to evaluate two things.  First is the accuracy of the article compared with the current scientific understanding of climate change. 1 would be very accurate, 0 would be inaccurate.  Second is the an evaluation of how positive or negative the tone of the article is with regards to climate change.  1 would be very positive, 0 would be very negative. For both you should be estimating an expected value across all the available data, population or samples available.  If you cannot evaluate either numeric-score, you should return -1. You should return a JSON string of the form `{"scientific-accuracy": {"numeric-score": 1.0, "explanation": "some explanation"}, "article-tone": {"numeric-score": 1.0, "explanation": "some explanation"}}`.  Keep the explanations short.',
+                content='You are evaluating the content of a newspaper article on climate change.  I want you to evaluate two things on a numeric, continuous scale of 0 to 1.0.  First is the accuracy of the article compared with the current scientific understanding of climate change. 1 would be very accurate, 0 would be inaccurate, 0.5 would be mixed.  Second is the an evaluation of how positive or negative the tone of the article is with regards to climate change.  1 would be very positive, 0 would be very negative, 0.5 would be mixed. For both you should be estimating an expected value across all the available data, population or samples available.  If you cannot evaluate either numeric-score, you should return -1. You should return a JSON string of the form `{"scientific-accuracy": {"numeric-score": 1.0, "explanation": "some explanation"}, "article-tone": {"numeric-score": 1.0, "explanation": "some explanation"}}`.  Keep the explanations short.',
             ),
             Message(role="user", content=f"Evaluate this article: {article_body}"),
         ]
@@ -90,5 +89,9 @@ if __name__ == "__main__":
             settings = Settings()
             settings.setmodule("climatedb.settings")
             database.write_opinion(settings["DB_URI"], gpt_opinion)
+
+            #  TODO write to json file
+            #  just bit list of files, include the article url / name
+
         else:
             print(f" not calling openai: {article.article_name}")
