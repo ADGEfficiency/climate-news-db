@@ -12,6 +12,21 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 
+def get_opinion_web(opinion_message: str):
+    opinion_web = []
+    for key in ["scientific-accuracy", "article-tone"]:
+        data = opinion_message[key]
+        opinion_web.append(
+            {
+                "name": key.replace("-", " ").title(),
+                "score": data["numeric-score"],
+                "width": data["numeric-score"] * 100,
+                "message": data["explanation"],
+            }
+        )
+    return opinion_web
+
+
 def datetimeformat(value, fmt="%Y-%m-%d"):
     try:
         dt = str(value).replace("Z", "")
@@ -61,10 +76,8 @@ def newspaper(request: fastapi.Request, newspaper: str):
 
     settings = Settings()
     settings.setmodule("climatedb.settings")
-    articles = database.read_all_articles(settings["DB_URI"])
-
+    articles = database.get_articles_with_opinions(settings["DB_URI"])
     newspaper = database.read_newspaper(newspaper)
-
     opinions = {
         "average_article_accuracy": 0.5,
         "average_article_tone": 0.5,
@@ -89,19 +102,12 @@ def article(request: fastapi.Request, id: int):
     article = database.read_article(id, settings["DB_URI"])
     opinion = database.read_opinion(id, settings["DB_URI"])
 
-    opinion_web = []
-    for key in ["scientific-accuracy", "article-tone"]:
-        data = opinion.message[key]
-        opinion_web.append(
-            {
-                "name": key.replace("-", " ").title(),
-                "score": data["numeric-score"],
-                "width": int(data["numeric-score"]) * 100,
-                "message": data["explanation"],
-            }
-        )
-
-    prompt = opinion.request["messages"][0]["content"]
+    if opinion:
+        prompt = opinion.request["messages"][0]["content"]
+        opinion_web = get_opinion_web(opinion.message)
+    else:
+        prompt = None
+        opinion_web = None
     newspaper = database.read_newspaper_by_id(article.newspaper_id, settings["DB_URI"])
 
     return templates.TemplateResponse(

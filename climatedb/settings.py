@@ -56,6 +56,14 @@ ROBOTSTXT_OBEY = True
 #    "climatedb.middlewares.ClimatedbDownloaderMiddleware": 543,
 # }
 
+#  from https://github.com/alecxe/scrapy-fake-useragent
+DOWNLOADER_MIDDLEWARES = {
+    "scrapy.downloadermiddlewares.useragent.UserAgentMiddleware": None,
+    "scrapy.downloadermiddlewares.retry.RetryMiddleware": None,
+    "scrapy_fake_useragent.middleware.RandomUserAgentMiddleware": 400,
+    "scrapy_fake_useragent.middleware.RetryUserAgentMiddleware": 401,
+}
+
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
 # EXTENSIONS = {

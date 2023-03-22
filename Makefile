@@ -27,3 +27,7 @@ crawl-one:
 
 app: setup
 	uvicorn climatedb.app:app --reload --port 8004
+
+seed:
+	mkdir -p $(DATA_HOME)
+	python climatedb/database.py

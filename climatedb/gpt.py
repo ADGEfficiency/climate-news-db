@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 import typing
@@ -24,6 +25,7 @@ class CompletionRequest(pydantic.BaseModel):
     model: typing.Literal["gpt-3.5-turbo"] = "gpt-3.5-turbo"
     temperature: float = 0.0
     max_tokens: int = 1028
+    request_time_utc: str = datetime.datetime.now().isoformat()
 
 
 def call_gpt(article_body: str):
@@ -45,7 +47,7 @@ def call_gpt(article_body: str):
             "Content-Type": "application/json",
             "Authorization": f"Bearer {os.environ['OPENAI_API_KEY']}",
         },
-        json=request.dict(),
+        json=request.dict(exclude={"request_time_utc": True}),
     )
     print(response.json())
     return request, response
@@ -63,6 +65,8 @@ if __name__ == "__main__":
         #  with this approach i throw away the result if i lose the database
         #  should save to json and re-seed later
         opinion = database.read_opinion(article.id)
+
+        opinion_fi = files.JSONFile(f"./data/opinions/{article.article_name}")
 
         if opinion is None:
             print(
@@ -84,14 +88,16 @@ if __name__ == "__main__":
                 response=response.json(),
                 message=message,
                 article_id=article.id,
+                scientific_accuracy=message["scientific-accuracy"]["numeric-score"],
+                article_tone=message["article-tone"]["numeric-score"],
             )
 
             settings = Settings()
             settings.setmodule("climatedb.settings")
             database.write_opinion(settings["DB_URI"], gpt_opinion)
-
-            #  TODO write to json file
-            #  just bit list of files, include the article url / name
+            opinion_fi.write(gpt_opinion.json())
 
         else:
             print(f" not calling openai: {article.article_name}")
+
+        breakpoint()  # fmt: skip
