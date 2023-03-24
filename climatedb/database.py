@@ -4,6 +4,7 @@ import typing
 import sqlmodel
 from rich import print
 from scrapy.settings import Settings
+from sqlalchemy import func
 from sqlalchemy.dialects.sqlite import insert
 from sqlalchemy.orm import joinedload
 
@@ -18,6 +19,12 @@ def read_all_articles(db_uri: str = settings["DB_URI"]) -> list[Article]:
     engine = sqlmodel.create_engine(db_uri)
     with sqlmodel.Session(engine) as session:
         return session.query(Article).order_by(Article.date_published.desc()).all()
+
+
+def read_all_newspapers(db_uri: str = settings["DB_URI"]) -> list[Newspaper]:
+    engine = sqlmodel.create_engine(db_uri)
+    with sqlmodel.Session(engine) as session:
+        return session.query(Newspaper).order_by(Newspaper.name).all()
 
 
 def read_article(article_id: int, db_uri: str = settings["DB_URI"]) -> list[Article]:
@@ -72,7 +79,7 @@ def write_opinion(db_uri, opinion) -> None:
         session.commit()
 
 
-def seed(db_uri: str, data_home: pathlib.Path) -> None:
+def seed_newspapers(db_uri: str, data_home: pathlib.Path) -> None:
     newspapers = files.JSONFile("./newspapers.json").read()
     engine = sqlmodel.create_engine(db_uri)
 
@@ -105,18 +112,51 @@ def seed(db_uri: str, data_home: pathlib.Path) -> None:
     # #  update the statistics
 
 
-def get_articles_with_opinions(db_uri: str = settings["DB_URI"]) -> list:
+def create_newspaper_statistics(db_uri: str) -> dict:
+    engine = sqlmodel.create_engine(db_uri)
+    with sqlmodel.Session(engine) as session:
+        data = (
+            session.query(
+                Newspaper.name,
+                Newspaper.fancy_name,
+                func.count(Article.id).label("num_articles"),
+                func.avg(Article.article_length).label("article_length"),
+            )
+            .join(Newspaper.articles)
+            .group_by(Newspaper.name)
+            .order_by(Newspaper.name)
+            .all()
+        )
+        pkg = []
+        for name, fancy_name, num_articles, article_length in data:
+            pkg.append(
+                {
+                    "name": name,
+                    "fancy_name": fancy_name,
+                    "article_count": num_articles,
+                    "average_article_length": article_length,
+                }
+            )
+
+        #  now need to update the database
+    return pkg
+
+
+def get_articles_with_opinions(
+    newspaper: Newspaper, db_uri: str = settings["DB_URI"]
+) -> list:
     engine = sqlmodel.create_engine(db_uri)
 
     with sqlmodel.Session(engine) as session:
-        query = (
-            session.query(Article, GPTOpinion)
-            .outerjoin(GPTOpinion, Article.id == GPTOpinion.article_id)
-            .options(joinedload(Article.newspaper))
+        statement = (
+            sqlmodel.select(Article, GPTOpinion)
+            .join(GPTOpinion, isouter=True)
+            .where(Article.newspaper_id == newspaper.id)
         )
+        data = session.exec(statement)
 
         results = []
-        for article, opinion in query.all():
+        for article, opinion in data:
             results.append(
                 {
                     "id": article.id,
@@ -137,10 +177,3 @@ def get_articles_with_opinions(db_uri: str = settings["DB_URI"]) -> list:
             )
 
         return results
-
-
-if __name__ == "__main__":
-    settings = Settings()
-    settings.setmodule("climatedb.settings")
-    seed(settings["DB_URI"], settings["DATA_HOME"])
-    print("seed done")

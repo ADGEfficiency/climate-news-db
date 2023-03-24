@@ -45,20 +45,24 @@ templates.env.filters["comma_number"] = comma_number
 
 @app.get("/")
 async def home(request: fastapi.Request):
+    settings = Settings()
+    settings.setmodule("climatedb.settings")
+    papers = database.create_newspaper_statistics(settings["DB_URI"])
     data = {"n_articles": 0, "n_papers": 0}
     return templates.TemplateResponse(
         "home.html",
         {
             "request": request,
             "data": data,
-            "papers": [
-                {
-                    "name": "guardian",
-                    "fancy_name": "Guardian",
-                    "article_count": 100,
-                    "average_article_length": 100,
-                }
-            ],
+            "papers": papers
+            # "papers": [
+            #     {
+            #         "name": "guardian",
+            #         "fancy_name": "Guardian",
+            #         "article_count": 100,
+            #         "average_article_length": 100,
+            #     }
+            # ],
         },
     )
 
@@ -76,8 +80,8 @@ def newspaper(request: fastapi.Request, newspaper: str):
 
     settings = Settings()
     settings.setmodule("climatedb.settings")
-    articles = database.get_articles_with_opinions(settings["DB_URI"])
     newspaper = database.read_newspaper(newspaper)
+    articles = database.get_articles_with_opinions(newspaper, settings["DB_URI"])
     opinions = {
         "average_article_accuracy": 0.5,
         "average_article_tone": 0.5,

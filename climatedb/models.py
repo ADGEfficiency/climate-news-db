@@ -95,7 +95,7 @@ class Article(sqlmodel.SQLModel, table=True):
     newspaper_id: int = sqlmodel.Field(foreign_key="newspaper.id")
     newspaper: Newspaper = sqlmodel.Relationship(back_populates="articles")
 
-    opinion_id: typing.Optional[int] = sqlmodel.Field(foreign_key="gptopinion.id")
+    opinion_id: typing.Optional[int]
 
 
 class GPTOpinion(sqlmodel.SQLModel, table=True):
