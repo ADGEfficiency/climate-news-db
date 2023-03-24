@@ -36,7 +36,6 @@ class NYTimesSpider(BaseSpider):
             response.xpath('//meta[@property="article:published_time"]/@content').get(),
             "%Y-%m-%dT%H:%M:%S.%fZ",
         )
-
         return ArticleItem(
             body=body,
             html=response.text,
