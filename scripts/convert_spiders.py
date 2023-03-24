@@ -6,7 +6,7 @@ import requests
 from climatedb.gpt import CompletionRequest, Message
 
 olds = pathlib.Path.home() / "cdb-main" / "climatedb" / "spiders"
-olds = [p for p in olds.iterdir() if p.suffix == ".py"]
+olds = [p for p in olds.iterdir() if p.suffix == ".py" if "washingtion" not in str(p)]
 
 base = pathlib.Path.cwd() / "climatedb" / "spiders" / "china_daily.py"
 base = base.read_text()
@@ -20,10 +20,10 @@ for fi in olds:
             messages=[
                 Message(
                     role="system",
-                    content=f"Convert the given Python code to be the same as the base template.  Make sure to remove parsing_utils and clean_body.  Make sure you import scrapy and pathlib. Keep the xpath scraping logic for the article processing from the original article, but base the other logic on the base china daily spider. return an ArticleItem in the style of the base template. Don't create a meta dictionary, instead initialize the arguments for the ArticleItem class inline during the init. For the article_start_url use the function `article_start_url=find_start_url(response)`. Dont use any start_urls - remove it all like the china daily spider. Remove any unused imports. Remove any reference to description or subtitle. Remove any reference to `get_urls_for_paper`. Remove the `start_requests` function from the spider class. Use the typing from the base china daily class with the needed imports. Change the name to match the original spider. Remove the start_requests function from the spider class. If the given Python code includes the get_body function, use it. The spider should inherit from the base BaseSpider.  The parse function should be called `parse`. The base template is ```\n{base}\n```",
+                    content=f"I am converting scrapy Spiders written in Python from the old style to a new style.  The new style is given as the ChinaDailySpider:\n```\n{base}\n```.  Below you will be given a spider to convert to the new style - this is the OLD spider.  You should convert the spider to the new style as defined by ChinaDailySpider.  You should remove parsing_utils and clean_body.  You should import scrapy.  Base the xpath scraping logic on the OLD spider, but any other logic or code style on the ChinaDailySpider.  Return an ArticleItem is the style of the ChinaDailySpider. For the article_start_url use the function `article_start_url=find_start_url(response)`. Dont use any start_urls - remove it all like the china daily spider. Remove any unused imports. Remove any reference to description or subtitle. Remove any reference to `get_urls_for_paper`. Remove the `start_requests` function from the spider class. Use the typing from the base china daily class with the needed imports. Change the name to match the original spider. Remove the start_requests function from the spider class. If the given Python code includes the get_body function, use it. The spider should inherit from the base BaseSpider.  The parse function should be called `parse`.",
                 ),
                 Message(
-                    role="user", content=f"Code to convert ```python\n{old_code}\n```"
+                    role="user", content=f"OLD spider code:\n```python\n{old_code}\n```"
                 ),
             ]
         )
@@ -33,8 +33,9 @@ for fi in olds:
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {os.environ['OPENAI_API_KEY']}",
             },
-            json=request.dict(),
+            json=request.dict(exclude={"request_time_utc": True}),
         )
+        assert response.ok, response.json()
 
         choices = response.json()["choices"]
         assert len(choices) == 1

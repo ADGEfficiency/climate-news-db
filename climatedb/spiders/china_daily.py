@@ -9,7 +9,7 @@ from climatedb.models import ArticleItem
 from climatedb.spiders.base import BaseSpider
 
 
-class ChinaDailySpider(scrapy.Spider):
+class ChinaDailySpider(BaseSpider):
     name = "china_daily"
 
     def parse(self, response: HtmlResponse) -> ArticleItem:
