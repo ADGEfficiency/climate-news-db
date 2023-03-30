@@ -1,39 +1,33 @@
 import datetime
 import re
 
+import scrapy
 from scrapy.http.response.html import HtmlResponse
 
+from climatedb import parse
 from climatedb.crawl import create_article_name, find_start_url
 from climatedb.models import ArticleItem
-from climatedb.parse import clean_body, get_ld_json
 from climatedb.spiders.base import BaseSpider
 
 
-class EconomistSpider(BaseSpider):
-    name = "economist"
+class DailyPostSpider(BaseSpider):
+    name = "daily_post"
 
     def parse(self, response: HtmlResponse) -> ArticleItem:
         """
-        @url https://www.economist.com/leaders/2022/01/22/the-climate-issue
+        @url https://www.dailypost.co.uk/news/north-wales-news/anglesey-wind-farm-plans-could-19906408
         @returns items 1
         @scrapes headline date_published body article_name article_url
         """
-        ld_json = get_ld_json(response)
+        ld_json = parse.get_ld_json(response)[0]
 
         body = ld_json["articleBody"]
-        body = clean_body(body)
-
-        unwanted = [
-            "For more coverage of climate change, register for The Climate Issue, our fortnightly newsletter, or visit our climate-change hub",
-            'Sign up to our new fortnightly climate-change newsletter hereThis article appeared in the Leaders section of the print edition under the headline "The climate issue"',
-        ]
-        for unw in unwanted:
-            body = body.replace(unw, "")
+        body = parse.clean_body(body)
 
         headline = ld_json["headline"]
         date_published = ld_json["datePublished"]
         date_published = datetime.datetime.strptime(
-            date_published, "%Y-%m-%dT%H:%M:%SZ"
+            date_published, "%Y-%m-%dT%H:%M:%S%z"
         )
 
         return ArticleItem(

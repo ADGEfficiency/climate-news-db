@@ -5,7 +5,7 @@ from scrapy.http.response.html import HtmlResponse
 
 from climatedb.crawl import create_article_name, find_start_url
 from climatedb.models import ArticleItem
-from climatedb.parse import PUBLISHED_FORMAT, get_body
+from climatedb.parse import PUBLISHED_FORMAT, clean_body, get_body, get_ld_json
 from climatedb.spiders.base import BaseSpider
 
 
@@ -20,14 +20,10 @@ class StuffSpider(BaseSpider):
         """
         body = get_body(response)
         body = re.sub(r"\d{4} Stuff Limited", "", body)
-        body = body.strip(" ")
-        body = body.replace("  ", " ")
+        body = clean_body(body)
 
         date_published = get_ld_json(response)["datePublished"]
-        date_published = datetime.datetime.strptime(
-            response.xpath('//meta[@itemprop="datePublished"]/@content').get(),
-            PUBLISHED_FORMAT,
-        )
+        date_published = datetime.datetime.strptime(date_published, PUBLISHED_FORMAT)
         return ArticleItem(
             body=body,
             html=response.text,
