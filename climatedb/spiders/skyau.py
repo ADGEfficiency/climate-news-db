@@ -1,5 +1,4 @@
 import datetime
-import re
 
 from scrapy.http.response.html import HtmlResponse
 
@@ -9,31 +8,26 @@ from climatedb.models import ArticleItem
 from climatedb.spiders.base import BaseSpider
 
 
-class EconomistSpider(BaseSpider):
-    name = "economist"
+class SkyAUSpider(BaseSpider):
+    name = "skyau"
 
     def parse(self, response: HtmlResponse) -> ArticleItem:
         """
-        @url https://www.economist.com/leaders/2022/01/22/the-climate-issue
+        @url https://www.skynews.com.au/details/_6216840001
         @returns items 1
         @scrapes headline date_published body article_name article_url
         """
-        ld_json = parse.get_ld_json(response)
 
-        body = ld_json["articleBody"]
+        ld_json = parse.get_ld_json(response)
+        headline = ld_json["name"]
+
+        body = response.xpath('//div[@class="article-body"]/p/text()')
+        body = " ".join(body.getall())
         body = parse.clean_body(body)
 
-        unwanted = [
-            "For more coverage of climate change, register for The Climate Issue, our fortnightly newsletter, or visit our climate-change hub",
-            'Sign up to our new fortnightly climate-change newsletter hereThis article appeared in the Leaders section of the print edition under the headline "The climate issue"',
-        ]
-        for unw in unwanted:
-            body = body.replace(unw, "")
-
-        headline = ld_json["headline"]
         date_published = ld_json["datePublished"]
         date_published = datetime.datetime.strptime(
-            date_published, "%Y-%m-%dT%H:%M:%SZ"
+            date_published, "%Y-%m-%dT%H:%M:%S.%fZ"
         )
 
         return ArticleItem(
@@ -42,6 +36,6 @@ class EconomistSpider(BaseSpider):
             headline=headline,
             date_published=date_published,
             article_url=response.url,
-            article_name=create_article_name(response.url),
+            article_name=create_article_name(response.url, -1),
             article_start_url=find_start_url(response),
         )

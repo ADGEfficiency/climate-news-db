@@ -8,7 +8,7 @@ from climatedb.gpt import CompletionRequest, Message
 olds = pathlib.Path.home() / "cdb-main" / "climatedb" / "spiders"
 olds = [p for p in olds.iterdir() if p.suffix == ".py" if "washingtion" not in str(p)]
 
-base = pathlib.Path.cwd() / "climatedb" / "spiders" / "economist.py"
+base = pathlib.Path.cwd() / "climatedb" / "spiders" / "skyau.py"
 base = base.read_text()
 for fi in olds:
     old_code = fi.read_text()

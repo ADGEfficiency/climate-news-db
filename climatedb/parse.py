@@ -25,4 +25,9 @@ def clean_body(body: str) -> str:
 
 def get_ld_json(response: HtmlResponse) -> dict:
     ld_json = response.xpath('//script[@type="application/ld+json"]/text()')
-    return json.loads(ld_json.get())
+    ld_json = ld_json.get()
+
+    assert ld_json is not None
+    ld_json = ld_json.replace("\n", "")
+    ld_json = ld_json.replace("\t", "")
+    return json.loads(ld_json)
