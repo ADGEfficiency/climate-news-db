@@ -22,8 +22,16 @@ def clean_body(body: str) -> str:
     body = re.sub(r"\s+", " ", body)
     body = unicodedata.normalize("NFKD", body).encode("ASCII", "ignore").decode()
     body = body.replace("&nbsp;", " ")
+    body = body.replace("<em>", "")
+    body = body.replace("</em>", "")
     body = body.strip(" ")
     return body
+
+
+def clean_headline(headline: str) -> str:
+    headline = headline.replace("&#8216;", "")
+    headline = headline.replace("&#8217;", "")
+    return headline
 
 
 def get_ld_json(response: HtmlResponse, idx: int = 0) -> dict:

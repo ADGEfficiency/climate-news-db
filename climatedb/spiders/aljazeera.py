@@ -17,10 +17,8 @@ class AljazeeraSpider(BaseSpider):
         @returns items 1
         @scrapes headline date_published body article_name article_url
         """
-        body = response.xpath('//div[@class="wysiwyg wysiwyg--all-content"]/p/text()')
-        body = " ".join(body.getall())
+        body = parse.get_body(response)
         body = body.replace("Follow Al Jazeera English:", "")
-        body = parse.clean_body(body)
 
         try:
             ld_json = parse.get_ld_json(response)

@@ -13,7 +13,6 @@ function fetchJSONFile(path, callback) {
   httpRequest.send();
 }
 
-// requests the file and executes a callback with the parsed result once it is available
 fetchJSONFile('/newspaper-by-year.json', (data) => {
   const years = Array.from(data.years);
   const datasets = Array.from(data.datasets);

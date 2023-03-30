@@ -30,6 +30,8 @@ class IndependentSpider(BaseSpider):
             body = body.replace(unw, "")
 
         headline = ld_json["headline"]
+        headline = parse.clean_headline(headline)
+
         date_published = ld_json["datePublished"]
         date_published = datetime.datetime.strptime(
             date_published, "%Y-%m-%dT%H:%M:%S.%fZ"

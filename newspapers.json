@@ -75,7 +75,7 @@
     "name": "economist",
     "fancy_name": "The Economist",
     "site": "economist.com",
-    "color": "#FFFFFF"
+    "color": "#E3120B"
   },
   {
     "name": "dailymail",
@@ -124,5 +124,11 @@
     "fancy_name": "China Daily",
     "site": "chinadaily.com.cn",
     "color": "#024073"
+  },
+  {
+    "name": "yomiuri",
+    "fancy_name": "The Yomiuri Shimbun",
+    "site": "japannews.yomiuri.co.jp/",
+    "color": "#111111"
   }
 ]

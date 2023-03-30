@@ -1,16 +1,16 @@
 <p>{{article.date_published}}
-<i class="bi bi-dot"></i>
-<a href="/newspaper/{{newspaper.name}}">{{newspaper.fancy_name}}</a>
-<i class="bi bi-dot"></i>
-<a href="/article/{{article.id}}">Article</a>
-<i class="bi bi-dot"></i>
-<a href="{{article.article_url}}">Source</a>
-{% if article.scientific_accuracy_score %}
-<i class="bi bi-dot"></i>
-Scientific Accuracy:
-{{article.scientific_accuracy_score}}
-<i class="bi bi-dot"></i>
-Article Tone:
-{{article.article_tone_score}}
-{% endif %}
+  <i class="bi bi-dot"></i>
+  <a href="/newspaper/{{newspaper.name}}">{{newspaper.fancy_name}}</a>
+  <i class="bi bi-dot"></i>
+  <a href="/article/{{article.id}}">Full Article</a>
+  <i class="bi bi-dot"></i>
+  <a href="{{article.article_url}}">Source</a>
+  {% if article.scientific_accuracy_score %}
+  <i class="bi bi-dot"></i>
+  Scientific Accuracy:
+  {{article.scientific_accuracy_score}}
+  <i class="bi bi-dot"></i>
+  Article Tone:
+  {{article.article_tone_score}}
+  {% endif %}
 </p>

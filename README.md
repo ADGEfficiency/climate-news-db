@@ -9,6 +9,27 @@ Deployment chart
 - scraper
 - flyio
 
+# Use
+
+## Crawling URLs
+
+```shell-session
+$ make crawl
+```
+
+## Interactive Search for Getting URLs
+
+Requires Gum
+
+```shell-session
+$ bash scripts/cli.sh
+```
+
+## Statistics
+
+- number of rejected urls,
+- number of parsed urls,
+
 # Data Catalog
 
 {"url": "https://www.chinadaily.com.cn/a/202302/21/WS63f4aea4a31057c47ebb004e.html", "search_time_utc": "2023-03-20T00:05:02.998560"}

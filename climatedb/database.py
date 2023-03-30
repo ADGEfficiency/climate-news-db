@@ -1,4 +1,5 @@
 import pathlib
+import random
 import typing
 
 import sqlmodel
@@ -13,6 +14,13 @@ from climatedb.models import Article, GPTOpinion, Newspaper, NewspaperMeta
 
 settings = Settings()
 settings.setmodule("climatedb.settings")
+
+
+def get_random_article_id(db_uri: str = settings["DB_URI"]) -> int:
+    engine = sqlmodel.create_engine(db_uri)
+    with sqlmodel.Session(engine) as session:
+        low, high = session.query(func.min(Article.id), func.max(Article.id)).one()
+        return random.randint(low, high)
 
 
 def read_all_articles(db_uri: str = settings["DB_URI"]) -> list[Article]:
@@ -161,6 +169,7 @@ def get_articles_with_opinions(
             sqlmodel.select(Article, GPTOpinion)
             .join(GPTOpinion, isouter=True)
             .where(Article.newspaper_id == newspaper.id)
+            .order_by(Article.date_published.desc())
         )
         data = session.exec(statement)
 
@@ -186,3 +195,44 @@ def get_articles_with_opinions(
             )
 
         return results
+
+
+def get_latest(db_uri: str = settings["DB_URI"]) -> list:
+    engine = sqlmodel.create_engine(db_uri)
+    with sqlmodel.Session(engine) as session:
+        query = (
+            session.query(Article, Newspaper)
+            .join(Newspaper)
+            .order_by(Article.date_published.desc())
+            .limit(12)
+        )
+        latest_published = query.all()
+        latest_published = [
+            {
+                "date_published": a.date_published,
+                "date_uploaded": a.datetime_crawled_utc,
+                "headline": a.headline,
+                "fancy_name": n.fancy_name,
+                "article_id": a.id,
+            }
+            for a, n in latest_published
+        ]
+
+        query = (
+            session.query(Article, Newspaper)
+            .join(Newspaper)
+            .order_by(Article.datetime_crawled_utc.desc())
+            .limit(12)
+        )
+        latest_scraped = query.all()
+        latest_scraped = [
+            {
+                "date_published": a.date_published,
+                "date_uploaded": a.datetime_crawled_utc.date(),
+                "headline": a.headline,
+                "fancy_name": n.fancy_name,
+                "article_id": a.id,
+            }
+            for a, n in latest_scraped
+        ]
+    return latest_published, latest_scraped

@@ -20,7 +20,7 @@ test-ci:
 
 DATA_HOME = ./data
 crawl:
-	cat newspapers.json | jq 'keys[]' | xargs -n 1 -I {} scrapy crawl {} -o $(DATA_HOME)/articles/{}.jsonl -L DEBUG
+	cat newspapers.json | jq '.[].name' | xargs -n 1 -I {} scrapy crawl {} -o $(DATA_HOME)/articles/{}.jsonl -L DEBUG
 
 crawl-one:
 	scrapy crawl $(PAPER) -L DEBUG -o $(DATA_HOME)/articles/$(PAPER).jsonlines
@@ -30,4 +30,4 @@ app: setup
 
 seed:
 	mkdir -p $(DATA_HOME)
-	python climatedb/database.py
+	python scripts/seed.py

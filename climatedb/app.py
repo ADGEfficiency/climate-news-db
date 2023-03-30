@@ -10,6 +10,8 @@ app = fastapi.FastAPI()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
+settings = Settings()
+settings.setmodule("climatedb.settings")
 
 
 def get_opinion_web(opinion_message: str):
@@ -48,22 +50,13 @@ async def home(request: fastapi.Request):
     settings = Settings()
     settings.setmodule("climatedb.settings")
     papers = database.create_newspaper_statistics(settings["DB_URI"])
-    data = {"n_articles": 0, "n_papers": 0}
+    data = {
+        "n_articles": sum([p["article_count"] for p in papers]),
+        "n_papers": len(papers),
+    }
     return templates.TemplateResponse(
         "home.html",
-        {
-            "request": request,
-            "data": data,
-            "papers": papers
-            # "papers": [
-            #     {
-            #         "name": "guardian",
-            #         "fancy_name": "Guardian",
-            #         "article_count": 100,
-            #         "average_article_length": 100,
-            #     }
-            # ],
-        },
+        {"request": request, "data": data, "papers": papers},
     )
 
 
@@ -100,9 +93,6 @@ def newspaper(request: fastapi.Request, newspaper: str):
 
 @app.get("/article/{id}")
 def article(request: fastapi.Request, id: int):
-    settings = Settings()
-    settings.setmodule("climatedb.settings")
-
     article = database.read_article(id, settings["DB_URI"])
     opinion = database.read_opinion(id, settings["DB_URI"])
 
@@ -126,28 +116,28 @@ def article(request: fastapi.Request, id: int):
     )
 
 
+@app.get("/random")
+def random():
+    id = database.get_random_article_id(settings["DB_URI"])
+    return fastapi.responses.RedirectResponse(url=f"/article/{id}")
+
+
+@app.get("/latest")
+async def read_latest(request: fastapi.Request):
+    """show the latest articles"""
+    latest_published, latest_scraped = database.get_latest(settings["DB_URI"])
+    return templates.TemplateResponse(
+        "latest.html",
+        {"request": request, "latest": latest_published, "scrape": latest_scraped},
+    )
+
+
 @app.get("/newspaper-by-year.json")
 def years_json():
-    data = {
-        "years": [2010, 2011],
-        "datasets": [
-            {
-                "label": "Guardian",
-                "backgroundColor": "#FA9000",
-                "data": [100, 200],
-            },
-            {
-                "label": "NY Times",
-                "backgroundColor": "#000000",
-                "data": [100, 200],
-            },
-        ],
-        "colors": {
-            "guardian": "#FA9000",
-        },
-    }
+    from climatedb import charts
 
-    return fastapi.responses.JSONResponse(content=data)
+    home_chart_data = charts.get_home_chart(settings["DB_URI"])
+    return fastapi.responses.JSONResponse(content=home_chart_data)
 
 
 if __name__ == "__main__":

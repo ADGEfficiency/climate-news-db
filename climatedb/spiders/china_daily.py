@@ -1,9 +1,8 @@
 import datetime
-import re
 
-import scrapy
 from scrapy.http.response.html import HtmlResponse
 
+from climatedb import parse
 from climatedb.crawl import create_article_name, find_start_url
 from climatedb.models import ArticleItem
 from climatedb.spiders.base import BaseSpider
@@ -21,12 +20,7 @@ class ChinaDailySpider(BaseSpider):
         #  article body
         body = response.xpath('//div[@id="Content"]/p[not(@class="email")]/text()')
         body = " ".join(body.getall())
-
-        #  replace one or more whitespace characters with single space - removes '\xa0'
-        body = re.sub(r"\s+", " ", body)
-
-        #  strip whitespace
-        body = body.strip("")
+        body = parse.clean_body(body)
 
         return ArticleItem(
             body=body,

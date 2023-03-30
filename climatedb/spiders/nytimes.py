@@ -23,7 +23,13 @@ class NYTimesSpider(BaseSpider):
         body = response.xpath("//p/text()").getall()
 
         neu_body = []
-        unwanted = set(["Advertisement", "Supported by"])
+        unwanted = set(
+            [
+                "Advertisement",
+                "Supported by",
+                "As a subscriber, you have to give each month. Anyone can read what you share. The editorial board represents the opinions of the board, its editor and the publisher. It is separate from the newsroom and the Op-Ed section.",
+            ]
+        )
         for b in body:
             if b not in unwanted:
                 neu_body.append(b)

@@ -8,28 +8,20 @@ from climatedb.parse import get_body, get_ld_json
 from climatedb.spiders.base import BaseSpider
 
 
-class BBCSpider(BaseSpider):
-    name = "bbc"
+class YomiuriSpider(BaseSpider):
+    name = "yomiuri"
 
     def parse(self, response: HtmlResponse) -> ArticleItem:
         """
-        @url https://www.bbc.com/news/science-environment-58640453
+        @url https://japannews.yomiuri.co.jp/science-nature/climate-change/20230315-97397/
         @returns items 1
         @scrapes headline date_published body article_name article_url
         """
-        ld_json = get_ld_json(response)
+        headline = response.xpath('//meta[@property="og:title"]/@content').get()
         body = get_body(response)
-        headline = response.xpath("//title/text()").get()
-        headline = headline.replace(" - BBC News", "")
-        date_published = datetime.datetime.strptime(
-            ld_json["datePublished"], "%Y-%m-%dT%H:%M:%S.%fZ"
+        date_published = datetime.datetime.fromisoformat(
+            response.xpath("//meta[@property='article:published_time']/@content").get(),
         )
-
-        body = body.replace(
-            "The BBC is not responsible for the content of external sites. Read about our approach to external linking.",
-            "",
-        )
-
         return ArticleItem(
             body=body,
             html=response.text,
