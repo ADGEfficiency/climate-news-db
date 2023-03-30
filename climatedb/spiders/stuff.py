@@ -22,8 +22,19 @@ class StuffSpider(BaseSpider):
         body = re.sub(r"\d{4} Stuff Limited", "", body)
         body = clean_body(body)
 
-        date_published = get_ld_json(response)["datePublished"]
-        date_published = datetime.datetime.strptime(date_published, PUBLISHED_FORMAT)
+        try:
+            date_published = get_ld_json(response)["datePublished"]
+            date_published = datetime.datetime.strptime(
+                date_published, PUBLISHED_FORMAT
+            )
+        except:
+            date_published = response.xpath(
+                '//meta[@property="article:published_time"]/@content'
+            ).get()
+            date_published = datetime.datetime.strptime(
+                date_published, "%Y-%m-%dT%H:%M:%S.%fZ"
+            )
+
         return ArticleItem(
             body=body,
             html=response.text,
