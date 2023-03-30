@@ -21,6 +21,15 @@ def read_all_articles(db_uri: str = settings["DB_URI"]) -> list[Article]:
         return session.query(Article).order_by(Article.date_published.desc()).all()
 
 
+def read_articles(
+    newspaper: Newspaper, db_uri: str = settings["DB_URI"]
+) -> list[Article]:
+    engine = sqlmodel.create_engine(db_uri)
+    with sqlmodel.Session(engine) as session:
+        statement = sqlmodel.select(Article).where(Article.newspaper_id == newspaper.id)
+        return session.exec(statement).all()
+
+
 def read_all_newspapers(db_uri: str = settings["DB_URI"]) -> list[Newspaper]:
     engine = sqlmodel.create_engine(db_uri)
     with sqlmodel.Session(engine) as session:

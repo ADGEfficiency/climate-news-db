@@ -36,7 +36,7 @@ def call_gpt(article_body: str):
         messages=[
             Message(
                 role="system",
-                content='You are evaluating the content of a newspaper article on climate change on two things.  I want you to evaluate the article on a numeric, continuous scale of 0 to 1.0, and give a natural language explanation.  First is the accuracy of the article compared with the current scientific understanding of climate change. 1 would be very accurate, 0 would be inaccurate, 0.5 would be mixed.  Second is the an evaluation of how positive or negative the tone of the article is with regards to climate change.  1 would be very positive, 0 would be very negative, 0.5 would be mixed. For both you should be estimating an expected value across all the available data, population or samples available.  If you cannot evaluate either numeric-score, you should return -1. In addition to the two evaluations, you should return the topics of the article as a list of strings.  You should return a JSON string of the form `{"scientific-accuracy": {"numeric-score": 1.0, "explanation": "some explanation"}, "article-tone": {"numeric-score": 1.0, "explanation": "some explanation"}, "topics": ["topic1", "topic2"]}`.  Keep the explanations short.',
+                content='You are evaluating the content of a newspaper article on climate change on two things.  I want you to evaluate the article on a numeric, continuous scale of 0 to 1.0, and give a natural language explanation.  First is the accuracy of the article compared with the current scientific understanding of climate change. 1 would be very accurate, 0 would be inaccurate, 0.5 would be mixed.  Second is the an evaluation of how positive or negative the tone of the article is with regards to climate change.  1 would be very positive, 0 would be very negative, 0.5 would be mixed. For both you should be estimating an expected value across all the available data, population or samples available.  If you cannot evaluate either numeric-score, you should return -1. In addition to the two evaluations, you should return the topics of the article as a list of strings.  You should return a JSON string of the form `{"scientific-accuracy": {"numeric-score": 1.0, "explanation": "some explanation"}, "article-tone": {"numeric-score": 1.0, "explanation": "some explanation"}, "topics": ["topic1", "topic2"]}`.  Keep the explanations short. What you return should be JSON decodable.',
             ),
             Message(role="user", content=f"Evaluate this article: {article_body}"),
         ]
@@ -55,6 +55,13 @@ def call_gpt(article_body: str):
 
 if __name__ == "__main__":
     articles = database.read_all_articles()
+    print(len(articles))
+
+    newspaper = database.read_newspaper("economist")
+    articles = database.get_articles_with_opinions(newspaper)
+    print(len(articles))
+
+    articles = database.read_articles(newspaper)
     print(len(articles))
 
     #  for each article

@@ -1,7 +1,6 @@
 import datetime
 import re
 
-import scrapy
 from scrapy.http.response.html import HtmlResponse
 
 from climatedb.crawl import create_article_name, find_start_url
@@ -20,6 +19,11 @@ class StuffSpider(BaseSpider):
         @scrapes headline date_published body article_name article_url
         """
         body = get_body(response)
+        body = re.sub(r"\d{4} Stuff Limited", "", body)
+        body = body.strip(" ")
+        body = body.replace("  ", " ")
+
+        date_published = get_ld_json(response)["datePublished"]
         date_published = datetime.datetime.strptime(
             response.xpath('//meta[@itemprop="datePublished"]/@content').get(),
             PUBLISHED_FORMAT,
