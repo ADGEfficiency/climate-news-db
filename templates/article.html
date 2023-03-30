@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="container">
+  <div class="card w-100 border-0">
+    <div class="card-body">
+      <h2 class="card-title">{{article.headline}}</h2>
+      {% include "article-meta.html" %}
+      <p class="card-text mb-3">{{article.body}}</p>
+      {% if opinions %}
+      <h3 class="card-title mt-3">GPT Opinion</h3>
+      <div class="accordion mb-3" id="accordionExample">
+      {% for opinion in opinions %}
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingOne">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+              {{opinion.name}} - {{opinion.width}} %
+            </button>
+          </h2>
+          <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+            <div class="accordion-body">
+              {{opinion.message}}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingOne">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+              Prompt
+            </button>
+          </h2>
+          <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+            <div class="accordion-body">
+              {{prompt}}
+            </div>
+          </div>
+        </div>
+
+      </div>
+      {% endif %}
+  </div>
+</div>
+{% endblock %}

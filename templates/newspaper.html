@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block body %}
+  <div>
+		<p>{{articles|length}} articles from {{newspaper.fancy_name}}.</p>
+    <!-- <table class="table table-condensed table-striped"> -->
+    <!--   <thead> -->
+    <!--     <th>Published</th> -->
+    <!--     <th>Headline</th> -->
+    <!--     <th>Body</th> -->
+    <!--   </thead> -->
+    <!--   <tbody> -->
+    <!--     {% for article in articles %} -->
+    <!--     <tr> -->
+    <!--       <td>{{article.date_published|datetimeformat()}}</td> -->
+    <!--       <td><a href=/article/{{article.id}}>{{article.headline}}</a></td> -->
+    <!--       <td>{{article.body[:80]+'...'}}</td> -->
+    <!--     </tr> -->
+    <!--     {% endfor %} -->
+    <!--   </tbody> -->
+    <!-- </table> -->
+
+    <div class="container">
+      {% for article in articles %}
+        <div class="row">
+          <div class="col">
+            <h3>{{article.headline}}</h3>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            {% include "article-meta.html" %}
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col">
+            {{article.body[:280]+'...' }}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}
