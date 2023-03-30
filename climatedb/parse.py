@@ -20,6 +20,8 @@ def clean_body(body: str) -> str:
     #  replace one or more whitespace characters with single space - removes '\xa0'
     body = re.sub(r"\s+", " ", body)
     body = unicodedata.normalize("NFKD", body).encode("ASCII", "ignore").decode()
+    body = body.replace("&nbsp;", " ")
+    body = body.strip(" ")
     return body
 
 
