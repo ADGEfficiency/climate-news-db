@@ -17,6 +17,7 @@ def get_body(response: HtmlResponse) -> str:
 def clean_body(body: str) -> str:
     body = body.replace("  ", " ")
     body = body.strip(" ")
+
     #  replace one or more whitespace characters with single space - removes '\xa0'
     body = re.sub(r"\s+", " ", body)
     body = unicodedata.normalize("NFKD", body).encode("ASCII", "ignore").decode()
