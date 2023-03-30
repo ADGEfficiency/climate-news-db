@@ -3,10 +3,14 @@ import time
 from datetime import datetime, timezone
 from urllib.error import HTTPError
 
+import typer
 from googlesearch import search as googlesearch
 from rich import print
+from scrapy.settings import Settings
 
 from climatedb import files, models
+from climatedb.files import JSONLines
+from climatedb.models import Newspaper
 
 
 def format_timestamp(dt: datetime) -> str:
@@ -41,12 +45,6 @@ def google_search(
         return google_search(site, query, stop, backoff=backoff + 1)
 
 
-import typer
-from scrapy.settings import Settings
-
-from climatedb.files import JSONLines
-from climatedb.models import Newspaper
-
 app = typer.Typer()
 
 
@@ -67,8 +65,6 @@ def cli(paper: str, query: str, num: int) -> None:
 
     db = JSONLines(settings["DATA_HOME"] / "urls.jsonl")
     db.write(urls)
-    # urls = search(paper, 10, "climate crisis")
-    # db.write(urls)
 
 
 if __name__ == "__main__":

@@ -29,6 +29,9 @@ class DWSpider(BaseSpider):
             "You can find more information in our data protection declaration.",
             "© 2022 Deutsche Welle",
             "| Privacy Policy | Accessibility Statement | Legal notice | Contact | Mobile version ",
+            "rc/amp",
+            "(AFP, Reuters)",
+            "Each evening at 1830 UTC, DW's editors send out a selection of the day's hard news and quality feature journalism. You can sign up to receive it directly here.",
         ]
         for unw in unwanted:
             body = body.replace(unw, "")

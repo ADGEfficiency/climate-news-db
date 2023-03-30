@@ -5,11 +5,8 @@ import typing
 
 import pydantic
 import requests
-import sqlalchemy
-import sqlmodel
 from rich import print
 from scrapy.settings import Settings
-from sqlalchemy.sql.schema import Column
 
 from climatedb import crawl, database, files
 from climatedb.models import GPTOpinion
@@ -57,14 +54,13 @@ if __name__ == "__main__":
     articles = database.read_all_articles()
     print(len(articles))
 
-    newspaper = database.read_newspaper("economist")
-    articles = database.get_articles_with_opinions(newspaper)
-    print(len(articles))
+    # newspaper = database.read_newspaper("economist")
+    # articles = database.get_articles_with_opinions(newspaper)
+    # print(len(articles))
 
-    articles = database.read_articles(newspaper)
-    print(len(articles))
+    # articles = database.read_articles(newspaper)
+    # print(len(articles))
 
-    #  for each article
     for article in articles:
         #  TODO - should actually read by NAME here
         #  id won't be stable across different databases
@@ -72,7 +68,6 @@ if __name__ == "__main__":
         #  with this approach i throw away the result if i lose the database
         #  should save to json and re-seed later
         opinion = database.read_opinion(article.id)
-
         opinion_fi = files.JSONFile(f"./data/opinions/{article.article_name}")
 
         if opinion is None:

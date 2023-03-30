@@ -1,5 +1,4 @@
 import datetime
-import re
 
 from scrapy.http.response.html import HtmlResponse
 

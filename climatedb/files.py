@@ -3,6 +3,8 @@ import json
 import pathlib
 import typing
 
+from rich import print
+
 
 class JSONEncoder(json.JSONEncoder):
     """seralize non-JSON compatabile data to JSON - numpy + timestamps"""
