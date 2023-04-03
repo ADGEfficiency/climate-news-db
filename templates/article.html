@@ -1,43 +1,16 @@
 {% extends "base.html" %}
 {% block body %}
-<div class="container">
-  <div class="card w-100 border-0">
-    <div class="card-body">
-      <h2 class="card-title">{{article.headline}}</h2>
-      {% include "article-meta.html" %}
-      <p class="card-text mb-3">{{article.body}}</p>
-      {% if opinions %}
-      <h3 class="card-title mt-3">GPT Opinion</h3>
-      <div class="accordion mb-3" id="accordionExample">
-      {% for opinion in opinions %}
-        <div class="accordion-item">
-          <h2 class="accordion-header" id="headingOne">
-            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-              {{opinion.name}} - {{opinion.width}} %
-            </button>
-          </h2>
-          <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
-            <div class="accordion-body">
-              {{opinion.message}}
-            </div>
-          </div>
-        </div>
-      {% endfor %}
-        <div class="accordion-item">
-          <h2 class="accordion-header" id="headingOne">
-            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-              Prompt
-            </button>
-          </h2>
-          <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
-            <div class="accordion-body">
-              {{prompt}}
-            </div>
-          </div>
-        </div>
 
-      </div>
-      {% endif %}
+<div class="bg-white px-6 lg:px-8">
+  <div class="mx-auto max-w-5xl text-base leading-7 text-gray-700">
+    <p class="text-base font-semibold leading-7 text-indigo-600">{{ newspaper.fancy_name }}</p>
+    <h1 class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">{{ article.headline }}</h1>
+    <div class="mt-6">
+      {% with newspaper_fancy_name=newspaper.fancy_name %}
+        {% include "article-meta.html" %}
+      {% endwith %}
+    </div>
+    <p class="mt-6">{{article.body }}</p>
+    </div>
   </div>
-</div>
 {% endblock %}

@@ -88,7 +88,6 @@ def read_opinion(
 
 def write_opinion(db_uri, opinion) -> None:
     engine = sqlmodel.create_engine(db_uri)
-
     GPTOpinion.metadata.create_all(engine)
 
     with sqlmodel.Session(engine) as session:
@@ -119,14 +118,6 @@ def seed_newspapers(db_uri: str, data_home: pathlib.Path) -> None:
             )
             session.execute(stmt)
             session.commit()
-
-    # #  create the articles ??? not sure
-    # Article.metadata.create_all(engine)
-
-    # for article in [p for p in (data_home / "articles").iterdir() if p.is_dir()]:
-    #     breakpoint()  # fmt: skip
-
-    # #  update the statistics
 
 
 def create_newspaper_statistics(db_uri: str) -> dict:
@@ -186,11 +177,44 @@ def get_articles_with_opinions(
                     "datetime_crawled_utc": article.datetime_crawled_utc,
                     "article_length": article.article_length,
                     "newspaper_name": article.newspaper.name,
-                    # "opinion_message": opinion.message if opinion else None,
                     "scientific_accuracy_score": opinion.scientific_accuracy
                     if opinion
                     else None,
                     "article_tone_score": opinion.article_tone if opinion else None,
+                }
+            )
+
+        return results
+
+
+def get_all_articles_with_opinions(db_uri: str = settings["DB_URI"]) -> list:
+    engine = sqlmodel.create_engine(db_uri)
+
+    with sqlmodel.Session(engine) as session:
+        statement = (
+            sqlmodel.select(Article, GPTOpinion)
+            .join(GPTOpinion)
+            .order_by(Article.date_published.desc())
+        )
+        data = session.exec(statement)
+
+        results = []
+        for article, opinion in data:
+            results.append(
+                {
+                    "id": article.id,
+                    "headline": article.headline,
+                    "body": article.body,
+                    "date_published": article.date_published,
+                    "article_name": article.article_name,
+                    "article_url": article.article_url,
+                    "datetime_crawled_utc": article.datetime_crawled_utc,
+                    "article_length": article.article_length,
+                    "newspaper_name": article.newspaper.name,
+                    "fancy_newspaper_name": article.newspaper.fancy_name,
+                    "scientific_accuracy_score": opinion.scientific_accuracy,
+                    "article_tone_score": opinion.article_tone,
+                    "topics": opinion.topics,
                 }
             )
 

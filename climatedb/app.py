@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from scrapy.settings import Settings
 
-from climatedb import database
+from climatedb import charts, database
 
 app = fastapi.FastAPI()
 
@@ -62,15 +62,6 @@ async def home(request: fastapi.Request):
 
 @app.get("/newspaper/{newspaper}")
 def newspaper(request: fastapi.Request, newspaper: str):
-    articles = [
-        {
-            "date_published": "2020-01-01",
-            "article_id": 0,
-            "headline": "headline",
-            "body": "body",
-        }
-    ]
-
     settings = Settings()
     settings.setmodule("climatedb.settings")
     newspaper = database.read_newspaper(newspaper)
@@ -134,10 +125,22 @@ async def read_latest(request: fastapi.Request):
 
 @app.get("/newspaper-by-year.json")
 def years_json():
-    from climatedb import charts
-
     home_chart_data = charts.get_home_chart(settings["DB_URI"])
     return fastapi.responses.JSONResponse(content=home_chart_data)
+
+
+@app.get("/gpt")
+def gpt(request: fastapi.Request):
+    settings = Settings()
+    settings.setmodule("climatedb.settings")
+    articles = database.get_all_articles_with_opinions(settings["DB_URI"])
+    return templates.TemplateResponse(
+        "gpt.html",
+        {
+            "request": request,
+            "articles": articles,
+        },
+    )
 
 
 if __name__ == "__main__":

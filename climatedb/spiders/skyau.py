@@ -17,13 +17,12 @@ class SkyAUSpider(BaseSpider):
         @returns items 1
         @scrapes headline date_published body article_name article_url
         """
-
         ld_json = parse.get_ld_json(response)
-        headline = ld_json["name"]
 
-        body = response.xpath('//div[@class="article-body"]/p/text()')
-        body = " ".join(body.getall())
-        body = parse.clean_body(body)
+        headline = ld_json["name"]
+        headline = parse.clean_headline(headline)
+
+        body = parse.get_body(response)
 
         date_published = ld_json["datePublished"]
         date_published = datetime.datetime.strptime(

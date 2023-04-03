@@ -1,16 +1,19 @@
-<p>{{article.date_published}}
-  <i class="bi bi-dot"></i>
-  <a href="/newspaper/{{newspaper.name}}">{{newspaper.fancy_name}}</a>
-  <i class="bi bi-dot"></i>
-  <a href="/article/{{article.id}}">Full Article</a>
-  <i class="bi bi-dot"></i>
-  <a href="{{article.article_url}}">Source</a>
-  {% if article.scientific_accuracy_score %}
-  <i class="bi bi-dot"></i>
-  Scientific Accuracy:
+<a href="/newspaper/{{newspaper_name}}" type="button"
+  class="rounded-md bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-600 shadow-sm hover:bg-indigo-100">More
+  Articles from {{newspaper_fancy_name}}</a>
+<a href={{article.article_url}} type="button"
+  class="rounded-md bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-600 shadow-sm hover:bg-indigo-100">Source</a>
+{% if article.scientific_accuracy_score != "-1" %}
+<button
+  class="rounded-md bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-600 shadow-sm hover:bg-indigo-100">Scientific
+  Accuracy:
   {{article.scientific_accuracy_score}}
-  <i class="bi bi-dot"></i>
-  Article Tone:
+</button>
+{% endif %}
+{% if article.article_tone_score != "-1" %}
+<button
+  class="rounded-md bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-600 shadow-sm hover:bg-indigo-100">Article
+  Tone Score:
   {{article.article_tone_score}}
-  {% endif %}
-</p>
+</button>
+{% endif %}

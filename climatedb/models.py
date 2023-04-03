@@ -115,6 +115,7 @@ class GPTOpinion(sqlmodel.SQLModel, table=True):
 
     scientific_accuracy: str
     article_tone: str
+    topics: list[str] = sqlmodel.Field(sa_column=Column(sqlmodel.JSON))
 
     class Config:
         arbitrary_types_allowed = True

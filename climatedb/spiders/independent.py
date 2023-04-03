@@ -19,18 +19,16 @@ class IndependentSpider(BaseSpider):
         """
         ld_json = parse.get_ld_json(response, idx=1)
 
-        body = response.xpath('//div[@class="text-wrapper"]/p/text()')
-        body = " ".join(body.getall())
+        headline = ld_json["headline"]
+        headline = parse.clean_headline(headline)
 
+        body = parse.get_body(response)
         unwanted = [
             "Please refresh the page or navigate to another page on the site to be automatically logged in Please refresh your browser to be logged in",
             " Registration is a free and easy way to support our truly independent journalism By registering, you will also enjoy limited access to Premium articles, exclusive newsletters, commenting, and virtual events with our leading journalists {{#verifyErrors}} {{message}} {{/verifyErrors}} {{^verifyErrors}} {{message}} {{/verifyErrors}} By clicking ‘Create my account’ you confirm that your data has been entered correctly and you have read and agree to our  Terms of use,   Cookie policy  and  Privacy notice. This site is protected by reCAPTCHA and the Google  Privacy policy  and  Terms of service  apply. Already have an account? sign in By clicking ‘Register’ you confirm that your data has been entered correctly and you have read and agree to our  Terms of use,   Cookie policy  and  Privacy notice. This site is protected by reCAPTCHA and the Google  Privacy policy  and  Terms of service  apply. Join thought-provoking conversations, follow other Independent readers and see their replies Want to bookmark your favourite articles and stories to read or reference later? Start your Independent Premium subscription today. Please refresh the page or navigate to another page on the site to be automatically logged in Please refresh your browser to be logged in Log in New to The Independent? Or if you would prefer: Want an ad-free experience? Hi {{indy.fullName}}",
         ]
         for unw in unwanted:
             body = body.replace(unw, "")
-
-        headline = ld_json["headline"]
-        headline = parse.clean_headline(headline)
 
         date_published = ld_json["datePublished"]
         date_published = datetime.datetime.strptime(

@@ -34,4 +34,3 @@ class RejectRegister(object):
         }
         print(f"[red]REJECTED[/] {response.url} {failure}\n {pkg}")
         db.write([pkg])
-        breakpoint()  # fmt: skip
