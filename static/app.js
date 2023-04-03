@@ -44,6 +44,11 @@ fetchJSONFile('/newspaper-by-year.json', (data) => {
         }],
         yAxes: [{
           stacked: true,
+          scaleLabel: {
+          display: true,
+          labelString: 'Articles',
+          fontSize: 12,
+        },
         }],
       },
     },

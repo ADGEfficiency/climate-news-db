@@ -59,7 +59,7 @@ def cli(paper: str, query: str, num: int) -> None:
     paper = Newspaper(**newspapers[0])
 
     query = "climate change"
-    print(f"[green]searching[/]:\n {paper.name} n: {num} query: {query}")
+    print(f"[green]search[/]:\n paper: {paper.name} n: {num} query: {query}")
     urls = google_search(paper.site, query, stop=num)
     urls = [{"url": u, "timestamp": get_timestamp()} for u in urls]
 

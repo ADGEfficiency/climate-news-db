@@ -25,7 +25,7 @@ def get_home_chart(db_uri: str = settings["DB_URI"]):
                 Newspaper.fancy_name.label("newspaper_name"),
                 func.count(Article.id).label("article_count"),
             )
-            .join(Newspaper)
+            .join(Newspaper, Article.newspaper_id == Newspaper.id)
             .filter(Article.date_published >= min_datetime)
             .group_by("year", "newspaper_name")
             .subquery()
@@ -53,6 +53,7 @@ def get_home_chart(db_uri: str = settings["DB_URI"]):
     for year, newspaper, count in rows:
         newspapers[newspaper]["data"][year - min_datetime.year] = count
 
+    breakpoint()  # fmt: skip
     return {
         "years": years.tolist(),
         "datasets": sorted(newspapers.values(), key=lambda x: x["label"]),

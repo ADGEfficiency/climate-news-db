@@ -1,6 +1,7 @@
 import datetime
 import json
 import os
+import random
 import typing
 
 import pydantic
@@ -51,16 +52,11 @@ def call_gpt(article_body: str):
 
 
 if __name__ == "__main__":
-    limit = 1
+    limit = 1000
     articles = database.read_all_articles()
     print(len(articles))
 
-    # newspaper = database.read_newspaper("economist")
-    # articles = database.get_articles_with_opinions(newspaper)
-    # print(len(articles))
-
-    # articles = database.read_articles(newspaper)
-    # print(len(articles))
+    random.shuffle(articles)
 
     for n, article in enumerate(articles):
         from climatedb.crawl import find_newspaper_from_url

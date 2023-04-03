@@ -99,7 +99,15 @@ def article(request: fastapi.Request, id: int):
 
         article = article.dict()
         article["scientific_accuracy_score"] = opinion.scientific_accuracy
+        article["scientific_accuracy_explanation"] = opinion.message[
+            "scientific-accuracy"
+        ]["explanation"]
+
         article["article_tone_score"] = opinion.article_tone
+        article["article_tone_explanation"] = opinion.message["article-tone"][
+            "explanation"
+        ]
+
         article["topics"] = opinion.topics
 
     return templates.TemplateResponse(

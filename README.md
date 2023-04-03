@@ -32,10 +32,10 @@ This is useful when you want to re-create the database without scraping articles
 
 ## Interactive Search for Getting URLs
 
-Requires Gum
+Requires Go + Gum
 
 ```shell-session
-$ bash scripts/cli.sh
+$ ./scripts/search-cli.sh
 ```
 
 ## Statistics

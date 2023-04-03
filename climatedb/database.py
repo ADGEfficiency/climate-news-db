@@ -168,7 +168,6 @@ def create_newspaper_statistics(db_uri: str) -> dict:
                 }
             )
 
-        #  now need to update the database
     return pkg
 
 

@@ -9,8 +9,18 @@
       {% with newspaper_fancy_name=newspaper.fancy_name %}
         {% include "article-meta.html" %}
       {% endwith %}
+      {% if article.scientific_accuracy_explanation %}
+      <h2 class="mt-6 text-2xl">GPT Opinions</h2>
+      <h2 class="mt-6 text-xl">Scientific Accuracy</h2>
+      <p class="mt-6">{{ article.scientific_accuracy_explanation}}</p>
+      <h2 class="mt-6 text-xl">Aritcle Tone</h2>
+      <p class="mt-6">{{ article.article_tone_explanation}}</p>
+      <h2 class="mt-6 text-xl">Topics</h2>
+      <p class="mt-6">{{ article.topics}}</p>
+      <h2 class="mt-6 text-2xl">Article Body</h2>
+      {% endif %}
+      <p class="mt-6">{{ article.body }}</p>
     </div>
-    <p class="mt-6">{{article.body }}</p>
-    </div>
-  </div>
+</div>
+</div>
 {% endblock %}

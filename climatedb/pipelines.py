@@ -1,3 +1,4 @@
+import datetime
 import pathlib
 import typing
 
@@ -19,10 +20,16 @@ class SaveHTML:
         data_home = pathlib.Path(spider.settings["DATA_HOME"])
         fi = files.HTMLFile(data_home / "html" / paper.name / item.article_name)
         fi.write(item.html)
+
+        if isinstance(item.date_published, datetime.datetime):
+            date_published = item.date_published.date()
+        else:
+            date_published = item.date_published
+
         return ArticleMeta(
             headline=item.headline,
             body=item.body,
-            date_published=item.date_published,
+            date_published=date_published,
             article_name=item.article_name,
             article_url=item.article_url,
             article_start_url=item.article_start_url,

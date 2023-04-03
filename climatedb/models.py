@@ -59,8 +59,6 @@ class NewspaperMeta:
 
 
 class Newspaper(sqlmodel.SQLModel, table=True):
-    __tablename__ = "newspaper"
-
     id: typing.Optional[int] = sqlmodel.Field(default=None, primary_key=True)
 
     #  from newspaper.json
@@ -78,12 +76,10 @@ class Newspaper(sqlmodel.SQLModel, table=True):
 
 
 class Article(sqlmodel.SQLModel, table=True):
-    __tablename__ = "article"
-
     id: typing.Optional[int] = sqlmodel.Field(default=None, primary_key=True)
     headline: str = sqlmodel.Field()
-    body: str = sqlmodel.Field()
-    date_published: typing.Optional[datetime.date] = sqlmodel.Field(default=None)
+    body: str = sqlmodel.Field(min_length=16)
+    date_published: datetime.date = sqlmodel.Field()
     article_name: str = sqlmodel.Field(
         sa_column=Column("article_name", String, unique=True)
     )
