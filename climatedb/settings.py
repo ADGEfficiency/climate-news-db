@@ -1,5 +1,7 @@
 import pathlib
 
+from scrapy.settings import Settings
+
 # Scrapy settings for climatedb project
 #
 # For simplicity, this file contains only settings considered important or
@@ -107,3 +109,9 @@ DATA_HOME = pathlib.Path.cwd() / "data"
 DB_URI = f"sqlite:///{DATA_HOME}/db.sqlite"
 
 STATS_CLASS = "climatedb.stats.StatCollector"
+
+
+def get_project_settings():
+    settings = Settings()
+    settings.setmodule("climatedb.settings")
+    return settings

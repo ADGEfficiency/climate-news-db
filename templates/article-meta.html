@@ -1,8 +1,10 @@
-<a href="/newspaper/{{newspaper_name}}" type="button"
-  class="rounded-md bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-600 shadow-sm hover:bg-indigo-100">More
-  Articles from {{newspaper_fancy_name}}</a>
+<a href="/article/{{article.id}}" type="button"
+  class="rounded-md bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-600 shadow-sm hover:bg-indigo-100">
+  Full Article</a>
 <a href={{article.article_url}} type="button"
   class="rounded-md bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-600 shadow-sm hover:bg-indigo-100">Source</a>
+
+{% if article.scientific_accuracy_score %}
 {% if article.scientific_accuracy_score != "-1" %}
 <button
   class="rounded-md bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-600 shadow-sm hover:bg-indigo-100">Scientific
@@ -16,4 +18,12 @@
   Tone Score:
   {{article.article_tone_score}}
 </button>
+{% endif %}
+
+{% if article.topics %}
+<button class="rounded-md bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-600 shadow-sm hover:bg-indigo-100">
+  Topics:
+  {{article.topics | length}}
+</button>
+{% endif %}
 {% endif %}

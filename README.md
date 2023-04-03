@@ -4,11 +4,31 @@ The climate-news-db has two goals - to create a dataset of climate change newspa
 
 # Use
 
+
+```mermaid
+graph LR
+  1(urls.jsonl) -->|make crawl| 2(articles.jsonl)
+  2(articles.jsonl) -->|make crawl, make regen-db| 3(database)
+
+```
+
 ## Crawling URLs
+
+Scrapes each url in `urls.jsonl` and saves into articles/{newspaper}.jsonl and to database:
 
 ```shell-session
 $ make crawl
 ```
+
+## Regenerate Database
+
+Take urls from `articles/{newspaper}.jsonl` and saves into database:
+
+```shell-session
+$ make regen-db
+```
+
+This is useful when you want to re-create the database without scraping articles.
 
 ## Interactive Search for Getting URLs
 

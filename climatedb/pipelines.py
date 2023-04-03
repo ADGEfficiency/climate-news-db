@@ -9,7 +9,7 @@ from sqlmodel.pool import StaticPool
 
 from climatedb import files
 from climatedb.crawl import find_newspaper_from_url
-from climatedb.database import read_newspaper
+from climatedb.database import read_newspaper, write_article
 from climatedb.models import Article, ArticleItem, ArticleMeta
 
 
@@ -72,25 +72,10 @@ class InsertArticle:
             article_name=item.article_name,
             article_url=item.article_url,
             datetime_crawled_utc=item.datetime_crawled_utc,
-            article_length=len(item.body),
+            article_length=len(item.body.split(" ")),
             newspaper=paper,
             newspaper_id=paper.id,
         )
-        stmt = (
-            insert(Article)
-            .values(**article.dict())
-            .on_conflict_do_update(
-                index_elements=[Article.article_name],
-                set_={
-                    "headline": article.headline,
-                    "body": article.body,
-                    "date_published": article.date_published,
-                    "article_url": article.article_url,
-                    "datetime_crawled_utc": article.datetime_crawled_utc,
-                    "article_length": article.article_length,
-                },
-            )
-        )
-        self.session.execute(stmt)
-        self.session.commit()
+
+        write_article(self.db_uri, article)
         return item

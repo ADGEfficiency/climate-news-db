@@ -31,3 +31,6 @@ app: setup
 seed:
 	mkdir -p $(DATA_HOME)
 	python scripts/seed.py
+
+db-regen: seed
+	python scripts/regen_database.py

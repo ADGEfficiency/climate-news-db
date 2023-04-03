@@ -33,7 +33,7 @@ def call_gpt(article_body: str):
         messages=[
             Message(
                 role="system",
-                content='You are evaluating the content of a newspaper article on climate change on two things.  I want you to evaluate the article on a numeric, continuous scale of 0 to 1.0, and give a natural language explanation.  First is the accuracy of the article compared with the current scientific understanding of climate change. 1 would be very accurate, 0 would be inaccurate, 0.5 would be mixed.  Second is the an evaluation of how positive or negative the tone of the article is with regards to climate change.  1 would be very positive, 0 would be very negative, 0.5 would be mixed. For both you should be estimating an expected value across all the available data, population or samples available.  If you cannot evaluate either numeric-score, you should return -1. In addition to the two evaluations, you should return the topics of the article as a list of strings.  You should return a JSON string of the form `{"scientific-accuracy": {"numeric-score": 1.0, "explanation": "some explanation"}, "article-tone": {"numeric-score": 1.0, "explanation": "some explanation"}, "topics": ["topic1", "topic2"]}`.  Keep the explanations short, import `parse` from `climatedb`, and create a `ld_json` variable. Use the `create_article_name` function inside the final `ArticleItem` init. What you return should be JSON decodable.',
+                content='You are evaluating the content of a newspaper article on climate change on two things.  I want you to evaluate the article on a numeric, continuous scale of 0 to 1.0, and give a natural language explanation.  First is the accuracy of the article compared with the current scientific understanding of climate change. 1 would be very accurate, 0 would be inaccurate, 0.5 would be mixed.  Second is the an evaluation of how positive or negative the tone of the article is with regards to climate change.  1 would be very positive, 0 would be very negative, 0.5 would be mixed. For both you should be estimating an expected value across all the available data, population or samples available.  If you cannot evaluate either numeric-score, you should return -1. In addition to the two evaluations, you should return the topics of the article as a list of strings.  You should return a JSON string of the form `{"scientific-accuracy": {"numeric-score": 1.0, "explanation": "some explanation"}, "article-tone": {"numeric-score": 1.0, "explanation": "some explanation"}, "topics": ["topic1", "topic2"]}`. Keep explanations short. Return a JSON decodable string.',
             ),
             Message(role="user", content=f"Evaluate this article: {article_body}"),
         ]
@@ -51,6 +51,7 @@ def call_gpt(article_body: str):
 
 
 if __name__ == "__main__":
+    limit = 1
     articles = database.read_all_articles()
     print(len(articles))
 
@@ -61,14 +62,18 @@ if __name__ == "__main__":
     # articles = database.read_articles(newspaper)
     # print(len(articles))
 
-    for article in articles:
-        #  TODO - should actually read by NAME here
-        #  id won't be stable across different databases
+    for n, article in enumerate(articles):
+        from climatedb.crawl import find_newspaper_from_url
+        from climatedb.database import read_newspaper
 
-        #  with this approach i throw away the result if i lose the database
-        #  should save to json and re-seed later
+        paper_meta = find_newspaper_from_url(article.article_url)
+        paper = read_newspaper(paper_meta.name)
+
+        #  id won't be stable across different databases
         opinion = database.read_opinion(article.id)
-        opinion_fi = files.JSONFile(f"./data/opinions/{article.article_name}")
+        opinion_fi = files.JSONFile(
+            f"./data/opinions/{paper.name}/{article.article_name}"
+        )
 
         if opinion is None:
             print(
@@ -92,6 +97,7 @@ if __name__ == "__main__":
                 article_id=article.id,
                 scientific_accuracy=message["scientific-accuracy"]["numeric-score"],
                 article_tone=message["article-tone"]["numeric-score"],
+                topics=message["topics"],
             )
 
             settings = Settings()
@@ -101,5 +107,5 @@ if __name__ == "__main__":
 
         else:
             print(f" not calling openai: {article.article_name}")
-
-        breakpoint()  # fmt: skip
+        if n > limit:
+            break

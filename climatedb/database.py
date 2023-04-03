@@ -86,6 +86,28 @@ def read_opinion(
         ).one_or_none()
 
 
+def write_article(db_uri: str, article: Article) -> None:
+    engine = sqlmodel.create_engine(db_uri)
+    with sqlmodel.Session(engine) as session:
+        stmt = (
+            insert(Article)
+            .values(**article.dict())
+            .on_conflict_do_update(
+                index_elements=[Article.article_name],
+                set_={
+                    "headline": article.headline,
+                    "body": article.body,
+                    "date_published": article.date_published,
+                    "article_url": article.article_url,
+                    "datetime_crawled_utc": article.datetime_crawled_utc,
+                    "article_length": article.article_length,
+                },
+            )
+        )
+        session.execute(stmt)
+        session.commit()
+
+
 def write_opinion(db_uri, opinion) -> None:
     engine = sqlmodel.create_engine(db_uri)
     GPTOpinion.metadata.create_all(engine)

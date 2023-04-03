@@ -10,6 +10,13 @@ app = fastapi.FastAPI()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
+
+
+def first_sentence(body: str):
+    return body.split(".")[0] + "."
+
+
+templates.env.globals["first_sentence"] = first_sentence
 settings = Settings()
 settings.setmodule("climatedb.settings")
 
@@ -89,11 +96,11 @@ def article(request: fastapi.Request, id: int):
 
     if opinion:
         prompt = opinion.request["messages"][0]["content"]
-        opinion_web = get_opinion_web(opinion.message)
-    else:
-        prompt = None
-        opinion_web = None
-    newspaper = database.read_newspaper_by_id(article.newspaper_id, settings["DB_URI"])
+
+        article = article.dict()
+        article["scientific_accuracy_score"] = opinion.scientific_accuracy
+        article["article_tone_score"] = opinion.article_tone
+        article["topics"] = opinion.topics
 
     return templates.TemplateResponse(
         "article.html",
@@ -101,8 +108,6 @@ def article(request: fastapi.Request, id: int):
             "request": request,
             "article": article,
             "newspaper": newspaper,
-            "opinions": opinion_web,
-            "prompt": prompt,
         },
     )
 
