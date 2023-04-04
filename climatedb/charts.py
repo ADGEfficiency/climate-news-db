@@ -1,3 +1,4 @@
+import numpy as np
 import sqlmodel
 from scrapy.settings import Settings
 from sqlalchemy import func
@@ -36,8 +37,6 @@ def get_home_chart(db_uri: str = settings["DB_URI"]):
             stmt.c.year, stmt.c.newspaper_name, stmt.c.article_count
         ).all()
 
-    import numpy as np
-
     years = np.arange(min_datetime.year, now.year + 1)
     assert len(years) == 10
     newspapers = {
@@ -53,7 +52,6 @@ def get_home_chart(db_uri: str = settings["DB_URI"]):
     for year, newspaper, count in rows:
         newspapers[newspaper]["data"][year - min_datetime.year] = count
 
-    breakpoint()  # fmt: skip
     return {
         "years": years.tolist(),
         "datasets": sorted(newspapers.values(), key=lambda x: x["label"]),

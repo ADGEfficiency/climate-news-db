@@ -31,6 +31,8 @@ def clean_body(body: str) -> str:
 def clean_headline(headline: str) -> str:
     headline = headline.replace("&#8216;", "'")
     headline = headline.replace("&#8217;", "'")
+    headline = headline.replace("&apos;", "'")
+    headline = headline.replace("&#8217;", "'")
 
     headline = headline.replace("&amp;#8216;", "'")
     headline = headline.replace("&amp;#8217;", "'")

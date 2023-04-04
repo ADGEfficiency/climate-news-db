@@ -94,6 +94,10 @@ def article(request: fastapi.Request, id: int):
     article = database.read_article(id, settings["DB_URI"])
     opinion = database.read_opinion(id, settings["DB_URI"])
 
+    from climatedb.crawl import find_newspaper_from_url
+
+    newspaper = find_newspaper_from_url(article.article_url)
+
     if opinion:
         prompt = opinion.request["messages"][0]["content"]
 

@@ -16,11 +16,14 @@
 </head>
 
 <body>
-  {% include "navbar.html" %}
-  {% block body %}{% endblock %}
-  <hr>
-  <footer class="footer fixed-bottom">
-    <p class="muted credit">from <a href="https://www.datasciencesouth.com">Data Science South</a>.
+
+  <div class="flex flex-col h-screen justify-between">
+    {% include "navbar.html" %}
+    <main class="mb-auto h-10">
+      {% block body %}{% endblock %}
+    </main>
+    {% include "footer.html" %}
+  </div>
 </body>
 
 </html>
