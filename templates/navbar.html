@@ -1,45 +1,61 @@
-<header>
-<nav class="bg-white shadow mt-4">
-  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-    <div class="flex h-16 justify-between">
-      <div class="flex">
-        <div class="flex flex-shrink-0 items-center">
-          <img class="block h-8 w-auto lg:hidden" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600" alt="Your Company">
-          <img class="hidden h-8 w-auto lg:block" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600" alt="Your Company">
-        </div>
-        <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-          <!-- Current: "border-indigo-500 text-gray-900", Default: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700" -->
-          <div class="flex flex-col">
-            <h1 class="inline-flex items-center px-1 pt-1 font-medium text-gray-900">climate-news-db</h1>
-            <p class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900">A database of climate change newspaper articles</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="hidden sm:ml-6 sm:flex sm:items-center">
-        <button type="button" class="rounded-full bg-white p-1 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-          <span class="sr-only">View notifications</span>
-          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+<!-- Header -->
+<header x-data="{ isMenuOpen: false }" class="absolute inset-x-0 top-0 z-50">
+  <nav class="dark:bg-dracula flex items-center justify-between p-6 md:px-8" aria-label="Global">
+    <div class="flex md:flex-1">
+      <a href="#" class="-m-1.5 p-1.5">
+        <span class="sr-only">Your Company</span>
+        <img class="h-8 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600" alt="">
+      </a>
+    </div>
+    <div class="flex md:hidden">
+      <button @click="isMenuOpen = !isMenuOpen" type="button"
+        class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700">
+        <span class="sr-only">Open main menu</span>
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+          aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+        </svg>
+      </button>
+    </div>
+    <div class="hidden md:flex md:gap-x-12">
+      {% include "partials/navbar-list.html" %}
+    </div>
+    <div class="hidden md:flex md:flex-1 md:justify-end">
+      <i id="darkModeToggle" class="bi bi-brightness-high" onclick="toggleDarkMode()"></i>
+    </div>
+  </nav>
+  <!-- Mobile menu, show/hide based on menu open state. -->
+  <div x-show="isMenuOpen" class="md:hidden" role="dialog" aria-modal="true">
+    <!-- Background backdrop, show/hide based on slide-over state. -->
+    <div class="fixed inset-0 z-50"></div>
+    <div
+      class="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white dark:bg-dracula px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
+      <div class="flex items-center justify-between">
+        <a href="#" class="-m-1.5 p-1.5">
+          <span class="sr-only">Your Company</span>
+          <img class="h-8 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600" alt="">
+        </a>
+        <button @click="isMenuOpen = !isMenuOpen" type="button" class="-m-2.5 rounded-md p-2.5 text-gray-700">
+          <span class="sr-only">Close menu</span>
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+            aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
-    </div>
-  </div>
-</nav>
-<nav class="bg-white shadow">
-  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-    <div class="flex h-16 justify-between">
-      <div class="flex">
-        <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-          <a href="/" class="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">Newspapers</a>
-          <a href="/latest" class="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">Latest Articles</a>
-          <a href="/random" class="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">Random Article</a>
-          <a href="/gpt" class="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">GPT Opinions</a>
-          <a href="download" class="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">Download Dataset</a>
+      <div class="mt-6 flow-root">
+        <div class="-my-6 divide-y divide-gray-500/10">
+          <div class="space-y-2 py-6">
+            {% include "partials/navbar-list.html" %}
+            <div class="py-6">
+              <div href="/download"
+                class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+                onclick="toggleDarkMode()">
+                Toggle Dark Mode</div>
+            </div>
+          </div>
         </div>
       </div>
-      </div>
-      </div>
-</nav>
+    </div>
+  </div>
 </header>
