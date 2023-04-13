@@ -35,7 +35,6 @@
       theme: {
         extend: {
           colors: {
-            clifford: '#da373d',
             dracula: '#282A36'
           }
         }
@@ -50,7 +49,7 @@
 <body>
   <div class="dark:bg-dracula bg-white dark:text-green text-black">
     {% include "navbar.html" %}
-    <main class="isolate pt-16">
+    <main class="isolate pt-24">
       {% block body %}{% endblock %}
     </main>
     {% include "footer.html" %}

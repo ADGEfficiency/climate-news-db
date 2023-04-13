@@ -1,25 +1,25 @@
 {% extends "base.html" %}
 {% block body %}
 
-<div class="bg-white px-6 lg:px-8">
+<div class="bg-white dark:bg-dracula px-6 lg:px-8">
   <div class="mx-auto max-w-5xl text-base leading-7 text-gray-700">
     <p class="text-base font-semibold leading-7 text-indigo-600">{{newspaper.fancy_name}}</p>
-    <h1 class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">{{ article.headline }}</h1>
+    <h1 class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-white">{{ article.headline }}</h1>
     <div class="mt-6">
       {% with newspaper_fancy_name=newspaper.fancy_name %}
         {% include "article-meta.html" %}
       {% endwith %}
       {% if article.scientific_accuracy_explanation %}
-      <h2 class="mt-6 text-2xl">GPT Opinions</h2>
-      <h2 class="mt-6 text-xl">Scientific Accuracy</h2>
-      <p class="mt-6">{{ article.scientific_accuracy_explanation}}</p>
-      <h2 class="mt-6 text-xl">Aritcle Tone</h2>
-      <p class="mt-6">{{ article.article_tone_explanation}}</p>
-      <h2 class="mt-6 text-xl">Topics</h2>
-      <p class="mt-6">{{ article.topics}}</p>
-      <h2 class="mt-6 text-2xl">Article Body</h2>
+      <h2 class="mt-6 text-2xl dark:text-white">GPT Opinions</h2>
+      <h2 class="mt-6 text-xl dark:text-white">Scientific Accuracy</h2>
+      <p class="mt-6 dark:text-white">{{ article.scientific_accuracy_explanation}}</p>
+      <h2 class="mt-6 text-xl dark:text-white">Aritcle Tone</h2>
+      <p class="mt-6 dark:text-white">{{ article.article_tone_explanation}}</p>
+      <h2 class="mt-6 text-xl dark:text-white">Topics</h2>
+      <p class="mt-6 dark:text-white">{{ article.topics}}</p>
+      <h2 class="mt-6 text-2xl dark:text-white">Article Body</h2>
       {% endif %}
-      <p class="mt-6">{{ article.body }}</p>
+      <p class="mt-6 dark:text-white">{{ article.body }}</p>
     </div>
 </div>
 </div>

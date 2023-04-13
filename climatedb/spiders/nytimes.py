@@ -28,7 +28,7 @@ class NYTimesSpider(BaseSpider):
                 "Advertisement",
                 "Supported by",
                 "As a subscriber, you have to give each month. Anyone can read what you share. The editorial board represents the opinions of the board, its editor and the publisher. It is separate from the newsroom and the Op-Ed section.",
-                "As a subscriber, you have to give each month."
+                "As a subscriber, you have to give each month.",
                 "Anyone can read what you share.",
                 "Anyone can read what you share. and ",
             ]

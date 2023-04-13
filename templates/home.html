@@ -22,14 +22,11 @@
               <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-white sm:pl-6 lg:pl-8">Newspaper</th>
               <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Article Count</th>
               <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Average Word Count</th>
-              <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6 lg:pr-8">
-                <span class="sr-only">Edit</span>
-              </th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200 bg-white dark:bg-dracula">
             {% for paper in papers %}
-            <tr>
+            <tr class="dark:bg-dracula">
               <td class="hover:underline whitespace-nowrap py-1 pl-4 pr-3 text-sm font-medium text-gray-900 dark:text-white sm:pl-6 lg:pl-8">
             <a href="/newspaper/{{paper.name}}">{{paper.fancy_name}}</a>
               </td>
