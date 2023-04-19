@@ -1,7 +1,10 @@
+import pandas as pd
 from aws_cdk import (CfnOutput, Duration, Stack, aws_events,
                      aws_events_targets, aws_iam, aws_lambda, aws_s3)
 from aws_cdk.aws_ecr_assets import Platform
 from constructs import Construct
+
+from climatedb.utils import read_newspapers_json
 
 
 class ClimatedbStack(Stack):
@@ -68,13 +71,25 @@ class ClimatedbStack(Stack):
         )
 
         # EventBridge Rules
-        for hour, query in enumerate(["climate change", "climate crisis"]):
+        #  lambda timeout is 15 min
+        timeout = 15 + 1
+        newspapers = read_newspapers_json("..")
+        lambda_start_times = pd.date_range(
+            "2021-01-01T00:00:00", freq=f"{timeout}T", periods=len(newspapers)
+        )
+
+        max_newspapers_per_day = 24 * 60 / timeout
+        assert len(newspapers) < max_newspapers_per_day
+        print(f"scheduling newspapers until {lambda_start_times[-1]}")
+
+        for start_time, paper in zip(lambda_start_times, newspapers):
+            print(f"scheduling {start_time} {paper.name}")
             aws_events.Rule(
                 self,
-                f"SearchRule-{query}",
+                f"SearchRule-{paper.name}",
                 schedule=aws_events.Schedule.cron(
-                    minute="0",
-                    hour=str(hour),
+                    minute=str(start_time.minute),
+                    hour=str(start_time.hour),
                 ),
                 targets=[
                     aws_events_targets.LambdaFunction(
@@ -83,7 +98,7 @@ class ClimatedbStack(Stack):
                             {
                                 "s3_bucket": bucket.bucket_name,
                                 "s3_key": "urls.jsonl",
-                                "query": query,
+                                "newspaper_name": paper.name,
                                 "num": 5,
                             }
                         ),

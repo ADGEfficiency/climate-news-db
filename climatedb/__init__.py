@@ -1,3 +1,3 @@
-from climatedb.config import Config
+# from climatedb.config import Config
 
-cfg = Config()
+# cfg = Config()
