@@ -53,9 +53,9 @@ DATA_HOME=./data
 
 .PHONY: pulls3 pulls3-urls pushs3
 pulls3:
-	aws --no-sign-request --region ap-southeast-2 s3 sync $(S3_DIR) $(DATA_HOME) --exclude 'raw/*' --exclude 'temp/*' --exclude 'html/*'
+	aws --no-sign-request --region ap-southeast-2 s3 sync $(S3_DIR) $(DATA_HOME) --exclude 'html/*'
 pulls3-urls:
-	aws --no-sign-request --region ap-southeast-2 s3 cp $(S3_DIR)/urls.jsonl $(DATA_HOME)/urls.jsonl --exclude 'html/*'
+	aws --region ap-southeast-2 s3 cp $(S3_DIR)/urls.jsonl $(DATA_HOME)/urls.jsonl
 pushs3:
 	aws s3 sync $(DATA_HOME) $(S3_DIR)
 

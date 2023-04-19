@@ -84,7 +84,7 @@ class ClimatedbStack(Stack):
                                 "s3_bucket": bucket.bucket_name,
                                 "s3_key": "urls.jsonl",
                                 "query": query,
-                                "num": 6,
+                                "num": 5,
                             }
                         ),
                     ),
