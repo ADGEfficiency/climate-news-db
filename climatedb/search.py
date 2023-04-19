@@ -26,26 +26,31 @@ def get_timestamp() -> str:
 
 
 def google_search(
-    site: str, query: str, start: int = 1, stop: int = 10, backoff: int = 1
+    site: str, query: str, start: int = 0, stop: int = 10, backoff: int = 1
 ) -> list:
     """helper for search"""
-
-    #  protects against a -1 example
-    if stop <= 0:
-        stop = 10
+    assert stop > 0
 
     qry = f"{query} site:{site}"
     time.sleep((2**backoff) + random.random())
+
     try:
         return list(
             googlesearch(
-                qry, start=start, stop=stop, pause=1.0, user_agent="adgefficiency"
+                qry,
+                num=stop,
+                start=start,
+                stop=stop,
+                pause=0.5,
+                user_agent="adgefficiency",
+                tbs="qdr:d2",
             )
         )
 
     except HTTPError as e:
-        print(f"{qry}, {e}, backoff {backoff}")
-        return google_search(site, query, stop, backoff=backoff + 1)
+        raise e
+        # print(f"{qry}, {e}, backoff {backoff}")
+        # return google_search(site, query, start=stop, backoff=backoff + 1)
 
 
 @app.command()
@@ -53,8 +58,7 @@ def cli(paper: str, query: str, num: int) -> None:
     settings = Settings()
     settings.setmodule("climatedb.settings")
     newspapers = [
-        p for p in files.JSONFile("./newspapers.json").read()
-        if paper in p["name"]
+        p for p in files.JSONFile("./newspapers.json").read() if paper in p["name"]
     ]
     newspaper = Newspaper(**newspapers[0])
     print(f"[green]search[/]:\n paper: {newspaper.name} n: {num} query: {query}")

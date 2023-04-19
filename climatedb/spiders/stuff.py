@@ -27,10 +27,12 @@ class StuffSpider(BaseSpider):
             date_published = datetime.datetime.strptime(
                 date_published, PUBLISHED_FORMAT
             )
-        except:
+        #  TODO be specific
+        except Exception:
             date_published = response.xpath(
                 '//meta[@property="article:published_time"]/@content'
             ).get()
+            assert date_published
             date_published = datetime.datetime.strptime(
                 date_published, "%Y-%m-%dT%H:%M:%S.%fZ"
             )

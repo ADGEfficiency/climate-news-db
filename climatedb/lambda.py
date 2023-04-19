@@ -11,25 +11,25 @@ from climatedb.search import get_timestamp, google_search
 def search_controller(
     event: dict, context: typing.Union[dict, None] = None
 ) -> list[dict[str, str]]:
-    """Search all newspapers for climate articles.
+    """Search newspapers for articles about climate change.
 
-    Reads newspapers from the SQLite database.
-
-    Writes urls to `urls.jsonl` on S3.
+    Appends to `urls.jsonl` on S3.  Run on a daily schedule.
     """
-    #  duplication of /Users/adam/climate-news-db/climatedb/search.py
+    #  duplication of logic in /Users/adam/climate-news-db/climatedb/search.py
+    #  TODO refactor out
 
     newspapers = files.JSONFile("./newspapers.json").read()
-    paper = Newspaper(**newspapers[0])
-
     pkg = []
     num = event["num"]
-    for query in ["climate change", "climate crisis"]:
-        for paper in newspapers:
-            print(f"[green]search[/]:\n paper: {paper.name} n: {num} query: {query}")
-            urls = google_search(paper.site, query, stop=num)
-            urls = [{"url": u, "timestamp": get_timestamp()} for u in urls]
-            pkg.extend(urls)
+    query = event["query"]
+    for newspaper in newspapers:
+        paper = Newspaper(**newspaper)
+        print(f"[green]search[/]: paper: {paper.name} n: {num} query: {query}")
+        urls = google_search(paper.site, query, stop=num)
+        print(f"found {len(urls)} urls")
+        print(urls)
+        urls = [{"url": u, "timestamp": get_timestamp()} for u in urls]
+        pkg.extend(urls)
 
     db = files.S3JSONLines(event["s3_bucket"], event["s3_key"])
     db.write(pkg)

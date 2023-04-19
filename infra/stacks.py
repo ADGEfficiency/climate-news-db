@@ -1,5 +1,6 @@
 from aws_cdk import (CfnOutput, Duration, Stack, aws_events,
                      aws_events_targets, aws_iam, aws_lambda, aws_s3)
+from aws_cdk.aws_ecr_assets import Platform
 from constructs import Construct
 
 
@@ -40,36 +41,52 @@ class ClimatedbStack(Stack):
             self, "BucketNameOutput", value=bucket.bucket_name, export_name="BucketName"
         )
 
-        # Lambda Functions
-        search_function = aws_lambda.DockerImageFunction(
+        search_function = aws_lambda.Function(
             self,
             "SearchLambda",
-            code=aws_lambda.DockerImageCode.from_image_asset(
+            code=aws_lambda.EcrImageCode.from_asset_image(
                 directory="../",
                 file="docker/search.Dockerfile",
                 entrypoint=["/lambda-entrypoint.sh"],
                 cmd=["climatedb.lambda.search_controller"],
-                exclude=[".git", ".gitignore", ".vscode", "infra", "__pycache__"],
+                exclude=[
+                    ".git",
+                    ".gitignore",
+                    ".vscode",
+                    "infra",
+                    "__pycache__",
+                    "data",
+                    "data-neu",
+                ],
+                platform=Platform.LINUX_AMD64,
             ),
-            role=lambda_role,
+            handler=aws_lambda.Handler.FROM_IMAGE,
+            runtime=aws_lambda.Runtime.FROM_IMAGE,
+            memory_size=128,
             timeout=Duration.seconds(900),
+            role=lambda_role,
         )
 
         # EventBridge Rules
-        aws_events.Rule(
-            self,
-            "SearchRule",
-            schedule=aws_events.Schedule.cron(minute="0", hour="0"),
-            targets=[
-                aws_events_targets.LambdaFunction(
-                    search_function,
-                    event=aws_events.RuleTargetInput.from_object(
-                        {
-                            "s3_bucket": bucket.bucket_name,
-                            "s3_key": "data/urls.jsonl",
-                            "num": 5,
-                        }
-                    ),
+        for hour, query in enumerate(["climate change", "climate crisis"]):
+            aws_events.Rule(
+                self,
+                f"SearchRule-{query}",
+                schedule=aws_events.Schedule.cron(
+                    minute="0",
+                    hour=str(hour),
                 ),
-            ],
-        )
+                targets=[
+                    aws_events_targets.LambdaFunction(
+                        search_function,
+                        event=aws_events.RuleTargetInput.from_object(
+                            {
+                                "s3_bucket": bucket.bucket_name,
+                                "s3_key": "urls.jsonl",
+                                "query": query,
+                                "num": 6,
+                            }
+                        ),
+                    ),
+                ],
+            )
