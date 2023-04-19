@@ -1,7 +1,6 @@
 import json
 import re
 import unicodedata
-from datetime import datetime
 
 from scrapy.http.response.html import HtmlResponse
 
@@ -46,4 +45,4 @@ def get_ld_json(response: HtmlResponse, idx: int = 0) -> dict:
     assert ld_json is not None
     ld_json = ld_json.replace("\n", "")
     ld_json = ld_json.replace("\t", "")
-    return json.loads(ld_json)
+    return dict(json.loads(ld_json))

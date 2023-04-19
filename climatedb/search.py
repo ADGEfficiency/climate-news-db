@@ -8,23 +8,26 @@ from googlesearch import search as googlesearch
 from rich import print
 from scrapy.settings import Settings
 
-from climatedb import files, models
+from climatedb import files
 from climatedb.files import JSONLines
 from climatedb.models import Newspaper
 
+app = typer.Typer()
+
 
 def format_timestamp(dt: datetime) -> str:
-    return dt.strftime("%Y-%m-%dT%H:%M:%S.%f")
+    return dt.strftime("%Y-%m-%dT%H:%M:%S.%f%Z")
 
 
-def get_timestamp():
+def get_timestamp() -> str:
+    """Create standardized UTC timestamp."""
     stamp = datetime.now(timezone.utc)
     return format_timestamp(stamp)
 
 
 def google_search(
     site: str, query: str, start: int = 1, stop: int = 10, backoff: int = 1
-):
+) -> list:
     """helper for search"""
 
     #  protects against a -1 example
@@ -45,24 +48,18 @@ def google_search(
         return google_search(site, query, stop, backoff=backoff + 1)
 
 
-app = typer.Typer()
-
-
 @app.command()
 def cli(paper: str, query: str, num: int) -> None:
     settings = Settings()
-    settings = Settings()
     settings.setmodule("climatedb.settings")
-
-    newspapers = files.JSONFile("./newspapers.json").read()
-    newspapers = [p for p in newspapers if paper in p["name"]]
-    paper = Newspaper(**newspapers[0])
-
-    query = "climate change"
-    print(f"[green]search[/]:\n paper: {paper.name} n: {num} query: {query}")
-    urls = google_search(paper.site, query, stop=num)
+    newspapers = [
+        p for p in files.JSONFile("./newspapers.json").read()
+        if paper in p["name"]
+    ]
+    newspaper = Newspaper(**newspapers[0])
+    print(f"[green]search[/]:\n paper: {newspaper.name} n: {num} query: {query}")
+    urls = google_search(newspaper.site, query, stop=num)
     urls = [{"url": u, "timestamp": get_timestamp()} for u in urls]
-
     db = JSONLines(settings["DATA_HOME"] / "urls.jsonl")
     db.write(urls)
 

@@ -1,4 +1,3 @@
-from rich import print
 from scrapy.settings import Settings
 
 from climatedb.database import create_newspaper_statistics, seed_newspapers

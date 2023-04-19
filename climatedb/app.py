@@ -99,7 +99,7 @@ def article(request: fastapi.Request, id: int):
     newspaper = find_newspaper_from_url(article.article_url)
 
     if opinion:
-        prompt = opinion.request["messages"][0]["content"]
+        opinion.request["messages"][0]["content"]
 
         article = article.dict()
         article["scientific_accuracy_score"] = opinion.scientific_accuracy
@@ -125,7 +125,7 @@ def article(request: fastapi.Request, id: int):
 
 
 @app.get("/random")
-def random():
+def random() -> fastapi.responses.RedirectResponse:
     id = database.get_random_article_id(settings["DB_URI"])
     return fastapi.responses.RedirectResponse(url=f"/article/{id}")
 

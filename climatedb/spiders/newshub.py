@@ -2,7 +2,6 @@ import datetime
 
 from scrapy.http.response.html import HtmlResponse
 
-from climatedb import parse
 from climatedb.crawl import create_article_name, find_start_url
 from climatedb.models import ArticleItem
 from climatedb.spiders.base import BaseSpider

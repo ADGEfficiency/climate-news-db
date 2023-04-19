@@ -27,6 +27,9 @@ datasette = "^0.64.2"
 scrapy-fake-useragent = "^1.4.4"
 google = "^3.0.0"
 typer = "^0.7.0"
+aws-cdk-lib = "^2.75.0"
+constructs = "^10.2.0"
+boto3 = "^1.26.115"
 
 [tool.poetry.group.develop.dependencies]
 ipython = "^8.11.0"

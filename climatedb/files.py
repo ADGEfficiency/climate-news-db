@@ -2,6 +2,8 @@ import datetime
 import json
 import pathlib
 import typing
+import boto3
+from scrapy.settings import Settings
 
 from rich import print
 
@@ -28,7 +30,7 @@ class File:
     def read(self) -> typing.Union[list, str, dict]:
         raise NotImplementedError()
 
-    def write(self, data: typing.Union[list, str]) -> None:
+    def write(self, data: typing.Union[dict, list, str]) -> None:
         raise NotImplementedError()
 
     def exists(self) -> bool:
@@ -81,3 +83,39 @@ class JSONFile(File):
 
     def write(self, data: dict) -> None:
         self.path.write_text(json.dumps(data, cls=JSONEncoder))
+
+
+class S3JSONLines:
+    def __init__(self, bucket: str, key: str) -> None:
+
+        settings = Settings()
+        settings.setmodule("climatedb.settings")
+
+        self.bucket = bucket
+        self.key = key
+
+        self.session = boto3.Session(region_name=settings["AWS_REGION"])
+        self.resource = self.session.resource("s3")
+        self.client = self.session.client("s3")
+        self.obj = self.resource.Object(self.bucket, self.key)
+
+    def read(self) -> list[dict]:
+        print(f" reading JSONLines from s3: {self.bucket, self.key}")
+        obj = self.client.get_object(Bucket=self.bucket, Key=self.key)
+        #  this will be a big string
+        data = obj["Body"].read().decode("UTF-8")
+        data = data.split("\n")[:-1]
+        #  last one is empty string
+        return [json.loads(d) for d in data]
+
+    def write(self, data: list, mode: str = "w") -> None:
+        print(f" writing JSONLines to s3: {self.bucket, self.key}")
+        #  write data into a list of strings
+        #  separated by new lines
+        existing = self.read()
+
+        #  can actually use the jsonlines package here probably...
+        print(f" joining {len(data)} urls onto {len(existing)} existing urls")
+        #  TODO - messy
+        pkg = "".join([json.dumps(d) + "\n" for d in existing]) + "".join([json.dumps(d) + "\n" for d in data])
+        self.obj.put(Body=bytes(pkg.encode("UTF-8")))

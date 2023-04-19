@@ -5,7 +5,6 @@ import typing
 import scrapy
 import sqlmodel
 from rich import print
-from sqlalchemy.dialects.sqlite import insert
 from sqlmodel.pool import StaticPool
 
 from climatedb import files

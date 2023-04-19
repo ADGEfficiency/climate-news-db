@@ -4,7 +4,7 @@ from scrapy.http.response.html import HtmlResponse
 
 from climatedb.crawl import create_article_name, find_start_url
 from climatedb.models import ArticleItem
-from climatedb.parse import get_body, get_ld_json
+from climatedb.parse import get_body
 from climatedb.spiders.base import BaseSpider
 
 
@@ -23,7 +23,8 @@ class YomiuriSpider(BaseSpider):
             "Please disable the ad blocking feature. To use this site, please disable the ad blocking feature and reload the page. This website uses cookies to collect information about your visit for purposes such as showing you personalized ads and content, and analyzing our website traffic. By clicking Accept all, you will allow the use of these cookies. Users accessing this site from EEA countries and UK are unable to view this site without your consent. We apologize for any inconvenience caused.",
             "JN ACCESS RANKING The Japan News / Weekly Edition Our weekly ePaper presents the most noteworthy recent topics in an exciting, readable fomat. Read more 2023 The Japan News - by The Yomiuri Shimbun",
         ]
-        body = body.replace(unwanted, "")
+        for unw in unwanted:
+            body = body.replace(unw, "")
         date_published = datetime.datetime.fromisoformat(
             response.xpath("//meta[@property='article:published_time']/@content").get(),
         )

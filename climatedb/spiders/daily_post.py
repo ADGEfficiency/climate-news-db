@@ -1,7 +1,5 @@
 import datetime
-import re
 
-import scrapy
 from scrapy.http.response.html import HtmlResponse
 
 from climatedb import parse

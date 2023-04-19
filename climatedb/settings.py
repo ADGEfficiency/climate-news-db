@@ -110,8 +110,10 @@ DB_URI = f"sqlite:///{DATA_HOME}/db.sqlite"
 
 STATS_CLASS = "climatedb.stats.StatCollector"
 
+AWS_REGION="ap-southeast-2"
 
-def get_project_settings():
+
+def get_project_settings() -> Settings:
     settings = Settings()
     settings.setmodule("climatedb.settings")
     return settings

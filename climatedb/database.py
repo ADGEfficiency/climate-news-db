@@ -7,10 +7,9 @@ from rich import print
 from scrapy.settings import Settings
 from sqlalchemy import func
 from sqlalchemy.dialects.sqlite import insert
-from sqlalchemy.orm import joinedload
 
 from climatedb import files
-from climatedb.models import Article, GPTOpinion, Newspaper, NewspaperMeta
+from climatedb.models import Article, GPTOpinion, Newspaper
 
 settings = Settings()
 settings.setmodule("climatedb.settings")
