@@ -136,7 +136,21 @@ async def read_latest(request: fastapi.Request):
     latest_published, latest_scraped = database.get_latest(settings["DB_URI"])
     return templates.TemplateResponse(
         "latest.html",
-        {"request": request, "latest": latest_published, "scrape": latest_scraped},
+        {
+            "request": request,
+            "latest": latest_published,
+            "scrape": latest_scraped,
+            "pkg": [
+                {
+                    "header": "Latest Scraped",
+                    "articles": latest_scraped,
+                },
+                {
+                    "header": "Latest Published",
+                    "articles": latest_published,
+                },
+            ],
+        },
     )
 
 

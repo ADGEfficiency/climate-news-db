@@ -257,6 +257,7 @@ def get_latest(db_uri: str = settings["DB_URI"]) -> list:
                 "date_uploaded": a.datetime_crawled_utc,
                 "headline": a.headline,
                 "fancy_name": n.fancy_name,
+                "newspaper": n.name,
                 "article_id": a.id,
             }
             for a, n in latest_published
@@ -275,6 +276,7 @@ def get_latest(db_uri: str = settings["DB_URI"]) -> list:
                 "date_uploaded": a.datetime_crawled_utc.date(),
                 "headline": a.headline,
                 "fancy_name": n.fancy_name,
+                "newspaper": n.name,
                 "article_id": a.id,
             }
             for a, n in latest_scraped

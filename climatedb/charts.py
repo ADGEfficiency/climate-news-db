@@ -43,7 +43,7 @@ def get_home_chart(db_uri: str = settings["DB_URI"]):
         name: {
             "backgroundColor": color + "80",
             "borderColor": color,
-            "borderWidth": 1,
+            "borderWidth": 0,
             "label": name,
             "data": np.zeros(10, dtype=int).tolist(),
         }

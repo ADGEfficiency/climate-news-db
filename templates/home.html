@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block body %}
-  <div class="container mx-auto">
+  <div class="container mx-auto max-w-5xl">
     <figure class="my-4 mx-6">
       <canvas id="canvas" height="240px"></canvas>
     </figure>
@@ -8,7 +8,7 @@
 <div class="sm:px-6 lg:px-8">
   <div class="sm:flex sm:items-center">
     <div class="sm:flex-auto">
-      <h1 class="text-base font-semibold leading-6 text-gray-900 dark:text-white">
+      <h1 class="text-base font-semibold leading-6 text-gray-900 dark:text-gray-300">
     <p>{{data.n_articles|comma_number}} articles from {{data.n_papers}} newspapers.</p>
         </h1>
     </div>
@@ -16,24 +16,24 @@
   <div class="flow-root">
     <div class="overflow-x-auto sm:-mx-6 lg:-mx-8">
       <div class="inline-block min-w-full py-2 align-middle">
-        <table class="min-w-full divide-y divide-gray-300 dark:bg-dracula">
+        <table class="min-w-full dark:bg-dracula">
           <thead>
             <tr>
-              <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-white sm:pl-6 lg:pl-8">Newspaper</th>
-              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Article Count</th>
-              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Average Word Count</th>
+              <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-gray-300 sm:pl-6 lg:pl-8">Newspaper</th>
+              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300">Article Count</th>
+              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-300">Average Word Count</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-200 bg-white dark:bg-dracula">
+          <tbody class="bg-white dark:bg-dracula">
             {% for paper in papers %}
             <tr class="dark:bg-dracula">
-              <td class="hover:underline whitespace-nowrap py-1 pl-4 pr-3 text-sm font-medium text-gray-900 dark:text-white sm:pl-6 lg:pl-8">
+              <td class="hover:underline whitespace-nowrap py-1 pl-4 pr-3 text-sm font-medium text-gray-900 dark:text-gray-300 sm:pl-6 lg:pl-8">
             <a href="/newspaper/{{paper.name}}">{{paper.fancy_name}}</a>
               </td>
-              <td class="whitespace-nowrap px-3 py-1 text-sm text-gray-500 dark:text-white">
+              <td class="whitespace-nowrap px-3 py-1 text-sm text-gray-500 dark:text-gray-300">
           {{"%4.0f"|format(paper.article_count)}}
               </td>
-              <td class="whitespace-nowrap px-3 py-1 text-sm text-gray-500 dark:text-white">
+              <td class="whitespace-nowrap px-3 py-1 text-sm text-gray-500 dark:text-gray-300">
 
                 {{"%4.1f"|format(paper.average_article_length)}}
             </tr>

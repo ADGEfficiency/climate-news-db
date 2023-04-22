@@ -34,6 +34,8 @@ if __name__ == "__main__":
     assert bucket_name is not None
     assert function_name is not None
     newspapers = read_newspapers_json()
+    import random
+    random.shuffle(newspapers)
 
     print(
         f"Bucket: {bucket_name} Function: {function_name} Newspapers {len(newspapers)}"
@@ -46,7 +48,7 @@ if __name__ == "__main__":
             FunctionName=function_name,
             InvocationType="RequestResponse",
             Payload=SearchLambdaEvent(
-                s3_bucket=bucket_name, newspaper_name=newspaper.name, num=20
+                s3_bucket=bucket_name, newspaper_name=newspaper.name, num=5
             ).json(),
         )
         response_payload = json.loads(response["Payload"].read())

@@ -1,63 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-  <meta charset="utf-8">
-  <title>climate-news-db</title>
-  <meta name="description" content="A database of climate change newspaper articles.">
-  <meta name="author" content="Adam Green">
-  <link rel="shortcut icon" href="{{ url_for('static', path='/favicon.ico') }}">
+<div class="dark:bg-dracula">
 
-  <!-- https://stackoverflow.com/questions/63033412/dark-mode-flickers-a-white-background-for-a-millisecond-on-reload -->
-  <script>
-    // Render blocking JS:
-    if (
-      localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
-    ) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  </script>
+  <head>
+    <meta charset="utf-8">
+    <title>climate-news-db</title>
+    <meta name="description" content="A database of climate change newspaper articles.">
+    <meta name="author" content="Adam Green">
+    <link rel="shortcut icon" href="{{ url_for('static', path='/favicon.ico') }}">
 
-  <!-- chart js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+    <!-- https://stackoverflow.com/questions/63033412/dark-mode-flickers-a-white-background-for-a-millisecond-on-reload -->
+    <script>
+      // Render blocking JS:
+      if (
+        localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
+      ) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    </script>
 
-  <!-- bootstrap icons -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
-  <script defer data-domain="climate-news-db.com" src="https://plausible.io/js/plausible.js"></script>
+    <!-- chart js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
 
-  <!-- tailwind -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            dracula: '#282A36'
+    <!-- bootstrap icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    <script defer data-domain="climate-news-db.com" src="https://plausible.io/js/plausible.js"></script>
+
+    <!-- tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              dracula: '#282A36'
+            }
           }
         }
       }
-    }
-  </script>
+    </script>
 
-  <!-- alpine -->
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-</head>
+    <!-- alpine -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  </head>
 
-<body>
-  <div class="dark:bg-dracula bg-white dark:text-green text-black">
-    {% include "navbar.html" %}
-    <main class="isolate pt-24">
-      {% block body %}{% endblock %}
-    </main>
-    {% include "footer.html" %}
-  </div>
-</body>
+  <body>
+    <div class="dark:bg-dracula bg-white dark:text-green text-black min-h-screen">
+      {% include "navbar.html" %}
+      <main class="isolate pt-24">
+        {% block body %}{% endblock %}
+      </main>
+      {% include "footer.html" %}
+    </div>
+  </body>
 
-<script defer src="{{ url_for('static', path='dark-mode.js') }}"></script>
-<script src="{{ url_for('static', path='chart-home.js') }}"></script>
-<link rel="stylesheet" href="{{ url_for('static', path='style.css')}}">
+  <script defer src="{{ url_for('static', path='dark-mode.js') }}"></script>
+  <script src="{{ url_for('static', path='chart-home.js') }}"></script>
+  <link rel="stylesheet" href="{{ url_for('static', path='style.css')}}">
+
+</div>
 
 </html>

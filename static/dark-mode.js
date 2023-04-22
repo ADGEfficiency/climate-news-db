@@ -15,7 +15,7 @@ function updateChartColors(theme) {
     // chart.options.legend.labels.fontColor = colo;
     // chart.options.scales.xAxes[0].ticks.fontColor = colo;
     // chart.options.scales.yAxes[0].ticks.fontColor = colo;
-    chart.options.scales.yAxes[0].scaleLabel.fontColor = colo;
+    // chart.options.scales.yAxes[0].scaleLabel.fontColor = colo;
 
   } else {
     chart.data.datasets.forEach((dataset, i) => {

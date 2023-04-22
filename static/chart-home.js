@@ -44,6 +44,9 @@ function main() {
         scales: {
           xAxes: [{
             stacked: true,
+            gridLines: {
+                  display: false,
+                },
           }],
           yAxes: [{
             stacked: true,
@@ -52,12 +55,15 @@ function main() {
               labelString: 'Articles',
               fontSize: 12,
             },
+            gridLines: {
+                  display: false,
+                },
           }],
         },
     animation: {
         duration : 2000,
         easing : 'easeInOutQuint'
-    }
+    },
       },
     });
   });

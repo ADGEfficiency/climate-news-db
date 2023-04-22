@@ -1,24 +1,8 @@
 {% extends "base.html" %}
 {% block body %}
+<div class="container max-w-5xl mx-auto">
   <div>
 		<p>{{articles|length}} articles from {{newspaper.fancy_name}}.</p>
-    <!-- <table class="table table-condensed table-striped"> -->
-    <!--   <thead> -->
-    <!--     <th>Published</th> -->
-    <!--     <th>Headline</th> -->
-    <!--     <th>Body</th> -->
-    <!--   </thead> -->
-    <!--   <tbody> -->
-    <!--     {% for article in articles %} -->
-    <!--     <tr> -->
-    <!--       <td>{{article.date_published|datetimeformat()}}</td> -->
-    <!--       <td><a href=/article/{{article.id}}>{{article.headline}}</a></td> -->
-    <!--       <td>{{article.body[:80]+'...'}}</td> -->
-    <!--     </tr> -->
-    <!--     {% endfor %} -->
-    <!--   </tbody> -->
-    <!-- </table> -->
-
     <div class="container">
       {% for article in articles %}
         <div class="row">
@@ -38,5 +22,6 @@
         </div>
       {% endfor %}
     </div>
+  </div>
   </div>
 {% endblock %}

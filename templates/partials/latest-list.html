@@ -1,0 +1,34 @@
+{% for pk in pkg %}
+
+<table class="table-fixed w-full mx-auto">
+  <h1 class="text-base font-semibold leading-6 text-gray-900 dark:text-sky-500 pt-6 pb-1">
+    {{ pk.header }}
+  </h1>
+  <thead>
+    <tr>
+      <th scope="col" class="dark:text-gray-400 w-40 text-sm">Published</th>
+      <th scope="col" class="dark:text-gray-400 w-40 text-sm">Newspaper</th>
+      <th scope="col" class="dark:text-gray-400 w-100 text-sm">Headline</th>
+    </tr>
+  </thead>
+  <tbody class="bg-white dark:bg-dracula">
+    {% for article in pk.articles %}
+    <tr>
+      <td class="text-sm text-gray-500 dark:bg-dracula dark:text-gray-300">
+        {{article.date_published}}
+      </td>
+      <td class="whitespace-nowrap px-3 py-1 text-sm text-gray-500 dark:bg-dracula dark:text-gray-300 hover:underline">
+        <a href="/newspaper/{{article.newspaper}}">
+          {{article.fancy_name}}
+        </a>
+      </td>
+      <td class="whitespace-nowrap px-3 py-1 text-sm text-gray-500 dark:bg-dracula dark:text-gray-300 hover:underline">
+        <a href="/article/{{article.article_id}}">
+          {{article.headline}}
+        </a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endfor %}
