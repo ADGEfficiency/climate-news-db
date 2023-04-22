@@ -4,7 +4,7 @@ import typing
 from rich import print
 
 from climatedb import files
-from climatedb.models import Newspaper
+from climatedb.models import Newspaper, SearchLambdaEvent
 from climatedb.search import get_timestamp, google_search
 
 
@@ -15,10 +15,12 @@ def search_controller(
 
     Appends to `urls.jsonl` on S3.  Run on a daily schedule.
     """
+    event = SearchLambdaEvent(**event).dict()
+
     #  duplication of logic in /Users/adam/climate-news-db/climatedb/search.py
     #  TODO refactor out
     num = event["num"]
-    paper = event["paper"]
+    paper = event["newspaper_name"]
 
     newspapers = [
         p for p in files.JSONFile("./newspapers.json").read() if paper in p["name"]
@@ -31,7 +33,7 @@ def search_controller(
         urls = google_search(paper.site, query, stop=num)
         print(f"found {len(urls)} urls")
         print(urls)
-        pkg.append(urls)
+        pkg.extend(urls)
         urls = [{"url": u, "timestamp": get_timestamp()} for u in urls]
         db = files.S3JSONLines(event["s3_bucket"], event["s3_key"])
         db.write(urls)

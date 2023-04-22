@@ -4,14 +4,14 @@ from aws_cdk import (CfnOutput, Duration, Stack, aws_events,
 from aws_cdk.aws_ecr_assets import Platform
 from constructs import Construct
 
+from climatedb.models import SearchLambdaEvent
 from climatedb.utils import read_newspapers_json
 
 
-class ClimatedbStack(Stack):
+class Infra(Stack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
-        # IAM Role
         lambda_role = aws_iam.Role(
             self,
             "LambdaRole",
@@ -34,12 +34,7 @@ class ClimatedbStack(Stack):
             },
         )
 
-        # S3 Bucket
-        bucket = aws_s3.Bucket(
-            self,
-            "Bucket",
-            access_control=aws_s3.BucketAccessControl.PUBLIC_READ,
-        )
+        bucket = aws_s3.Bucket(self, "BucketName")
         CfnOutput(
             self, "BucketNameOutput", value=bucket.bucket_name, export_name="BucketName"
         )
@@ -65,13 +60,12 @@ class ClimatedbStack(Stack):
             ),
             handler=aws_lambda.Handler.FROM_IMAGE,
             runtime=aws_lambda.Runtime.FROM_IMAGE,
-            memory_size=128,
+            memory_size=256,
             timeout=Duration.seconds(900),
             role=lambda_role,
         )
 
-        # EventBridge Rules
-        #  lambda timeout is 15 min
+        #  lambda timeout is 15 min, so run every 16 minutes
         timeout = 15 + 1
         newspapers = read_newspapers_json("..")
         lambda_start_times = pd.date_range(
@@ -82,11 +76,11 @@ class ClimatedbStack(Stack):
         assert len(newspapers) < max_newspapers_per_day
         print(f"scheduling newspapers until {lambda_start_times[-1]}")
 
-        for start_time, paper in zip(lambda_start_times, newspapers):
-            print(f"scheduling {start_time} {paper.name}")
+        for start_time, newspaper in zip(lambda_start_times, newspapers):
+            print(f"scheduling {start_time} {newspaper.name}")
             aws_events.Rule(
                 self,
-                f"SearchRule-{paper.name}",
+                f"SearchRule-{newspaper.name}",
                 schedule=aws_events.Schedule.cron(
                     minute=str(start_time.minute),
                     hour=str(start_time.hour),
@@ -95,13 +89,12 @@ class ClimatedbStack(Stack):
                     aws_events_targets.LambdaFunction(
                         search_function,
                         event=aws_events.RuleTargetInput.from_object(
-                            {
-                                "s3_bucket": bucket.bucket_name,
-                                "s3_key": "urls.jsonl",
-                                "newspaper_name": paper.name,
-                                "num": 5,
-                            }
+                            SearchLambdaEvent(
+                                s3_bucket=bucket.bucket_name,
+                                newspaper_name=newspaper.name,
+                            ).dict()
                         ),
                     ),
                 ],
             )
+        print("stack creation done")

@@ -2,6 +2,7 @@ import dataclasses
 import datetime
 import typing
 
+import pydantic
 import sqlmodel
 from sqlalchemy import String
 from sqlalchemy.sql.schema import Column
@@ -116,3 +117,12 @@ class GPTOpinion(sqlmodel.SQLModel, table=True):
     class Config:
         arbitrary_types_allowed = True
         allow_mutation = True
+
+
+class SearchLambdaEvent(pydantic.BaseModel):
+    """Used in Lamdba scheduling & execution."""
+
+    s3_bucket: str
+    newspaper_name: str
+    s3_key: str = "urls.jsonl"
+    num: int = 5

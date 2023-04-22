@@ -42,7 +42,6 @@ def google_search(
                 start=start,
                 stop=stop,
                 pause=0.5,
-                user_agent="adgefficiency",
                 tbs="qdr:d2",
             )
         )

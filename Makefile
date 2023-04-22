@@ -47,13 +47,13 @@ seed:
 db-regen: seed
 	python scripts/regen_database.py
 
-S3_BUCKET=$(shell aws cloudformation describe-stacks --stack-name ClimatedbStack --region ap-southeast-2 --query 'Stacks[0].Outputs[?OutputKey==`BucketNameOutput`].OutputValue' --output text)
+S3_BUCKET=$(shell aws cloudformation describe-stacks --stack-name ClimateNewsDB --region ap-southeast-2 --query 'Stacks[0].Outputs[?OutputKey==`BucketNameOutput`].OutputValue' --output text)
 S3_DIR=s3://$(S3_BUCKET)
 DATA_HOME=./data
 
 .PHONY: pulls3 pulls3-urls pushs3
 pulls3:
-	aws --no-sign-request --region ap-southeast-2 s3 sync $(S3_DIR) $(DATA_HOME) --exclude 'html/*'
+	aws --region ap-southeast-2 s3 sync $(S3_DIR) $(DATA_HOME) --exclude 'html/*'
 pulls3-urls:
 	aws --region ap-southeast-2 s3 cp $(S3_DIR)/urls.jsonl $(DATA_HOME)/urls.jsonl
 pushs3:
@@ -62,4 +62,6 @@ pushs3:
 #  INFRA
 .PHONY: infra
 infra:
-	cd infra && npx --yes aws-cdk@2.75.0 deploy
+	cd infra && npx --yes aws-cdk@2.75.0 deploy -vv --all
+	python scripts/run-search-lambdas.py
+
