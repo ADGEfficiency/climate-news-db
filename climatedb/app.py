@@ -172,5 +172,14 @@ def gpt(request: fastapi.Request):
     )
 
 
+@app.get("/download")
+def download():
+    return fastapi.responses.FileResponse(
+        path="./data/climate-news-db-dataset.zip",
+        filename="climate-news-db-dataset.zip",
+        media_type="zip",
+    )
+
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=80, reload=True)

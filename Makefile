@@ -34,14 +34,23 @@ crawl-one:
 	scrapy crawl $(PAPER) -L DEBUG -o $(DATA_HOME)/articles/$(PAPER).jsonlines
 
 #  run on ECS
-#  replicate???
+#  replicate - perhaps put in the docker image entrypoint
 crawl-cloud: pulls3 crawl pushs3
 
 # WEB APP
 
 PORT=8004
 app: setup
-	uvicorn climatedb.app:app --reload --port $(PORT)
+	uvicorn climatedb.app:app --reload --port $(PORT) --host 0.0.0.0
+
+zip:
+	cd $(DATA_HOME); zip -r ./climate-news-db-dataset.zip ./* -x "./html/*"
+
+setup-cron-jobs:
+	# echo "*/5 * * * * root cd /app && make restore-down" > /etc/cron.d/restore-down
+	# chmod 0644 /etc/cron.d/restore-down
+	echo "* * * * * root echo 'ran-cron' > /app/cron-log" > /etc/cron.d/hello
+	chmod 0644 /etc/cron.d/hello
 
 # DATABASE
 
