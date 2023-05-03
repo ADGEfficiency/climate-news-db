@@ -1,4 +1,5 @@
 import numpy as np
+import datetime
 import sqlmodel
 from scrapy.settings import Settings
 from sqlalchemy import func
@@ -7,7 +8,6 @@ from climatedb.models import Article, Newspaper
 
 settings = Settings()
 settings.setmodule("climatedb.settings")
-import datetime
 
 
 def get_home_chart(db_uri: str = settings["DB_URI"]):

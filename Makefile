@@ -49,7 +49,7 @@ zip:
 setup-cron-jobs:
 	# echo "*/5 * * * * root cd /app && make restore-down" > /etc/cron.d/restore-down
 	# chmod 0644 /etc/cron.d/restore-down
-	echo "* * * * * root echo 'ran-cron' > /app/cron-log" > /etc/cron.d/hello
+	echo "* * * * * root echo 'ran-cron' > /app/cron-log" >> /etc/cron.d/hello
 	chmod 0644 /etc/cron.d/hello
 
 # DATABASE

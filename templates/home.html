@@ -9,8 +9,8 @@
   <div class="sm:flex sm:items-center">
     <div class="sm:flex-auto">
       <h1 class="text-base font-semibold leading-6 text-gray-900 dark:text-gray-300">
-    <p class="text-accent">{{data.n_articles|comma_number}} articles from {{data.n_papers}} newspapers.</p>
-        </h1>
+        <p class="text-accent">{{data.n_articles|comma_number}} articles from {{data.n_papers}} newspapers.</p>
+      </h1>
     </div>
   </div>
   <div class="flow-root">
@@ -34,7 +34,6 @@
           {{"%4.0f"|format(paper.article_count)}}
               </td>
               <td class="whitespace-nowrap px-3 py-1 text-sm text-gray-500 dark:text-gray-300">
-
                 {{"%4.1f"|format(paper.average_article_length)}}
             </tr>
         {% endfor %}
@@ -45,6 +44,4 @@
     </div>
   </div>
 </div>
-  </div>
-  <script src="static/app.js"></script>
 {% endblock %}

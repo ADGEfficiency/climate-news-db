@@ -1,13 +1,9 @@
 import pandas as pd
-from aws_cdk import CfnOutput, Duration, Stack
-from aws_cdk.aws_ecs import LogDriver, AwsLogDriver, AwsLogDriverProps
-from aws_cdk import aws_ecr_assets as ecr_assets
-from aws_cdk import aws_ecs as ecs
-from aws_cdk import aws_events
-from aws_cdk import aws_events as events
-from aws_cdk import aws_events_targets, aws_iam, aws_lambda, aws_s3
+from aws_cdk import (CfnOutput, Duration, Stack, aws_events,
+                     aws_events_targets, aws_iam, aws_lambda, aws_s3)
 from aws_cdk.aws_ecr_assets import DockerImageAsset, Platform
-from aws_cdk.aws_ecs import Cluster, ContainerImage, FargateTaskDefinition
+from aws_cdk.aws_ecs import (Cluster, ContainerImage, FargateTaskDefinition,
+                             LogDriver)
 from aws_cdk.aws_events import Rule, Schedule
 from aws_cdk.aws_events_targets import EcsTask
 from constructs import Construct
@@ -134,10 +130,10 @@ class Crawl(Stack):
 
         task_definition = FargateTaskDefinition(self, "TaskDefinition")
 
-        container = task_definition.add_container(
+        task_definition.add_container(
             "Container",
             image=ContainerImage.from_docker_image_asset(docker_image),
-            logging=LogDriver.aws_logs(stream_prefix="climate-news-db-scrape")
+            logging=LogDriver.aws_logs(stream_prefix="climate-news-db-scrape"),
         )
 
         rule = Rule(self, "WeeklyRule", schedule=Schedule.rate(Duration.days(7)))

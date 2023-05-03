@@ -57,16 +57,6 @@ def read_newspaper_by_id(
         return session.query(Newspaper).where(Newspaper.id == newspaper_id).one()
 
 
-def read_opinion(article_id: int, db_uri: str = settings["DB_URI"]) -> GPTOpinion:
-    engine = sqlmodel.create_engine(db_uri)
-    with sqlmodel.Session(engine) as session:
-        return (
-            session.query(GPTOpinion)
-            .where(GPTOpinion.article_id == article_id)
-            .one_or_none()
-        )
-
-
 def read_newspaper(newspaper_name: str, db_uri: str = settings["DB_URI"]) -> Newspaper:
     engine = sqlmodel.create_engine(db_uri)
     with sqlmodel.Session(engine) as session:
@@ -207,14 +197,18 @@ def get_articles_with_opinions(
         return results
 
 
-def get_all_articles_with_opinions(db_uri: str = settings["DB_URI"]) -> list:
+def get_all_articles_with_opinions(
+    db_uri: str = settings["DB_URI"], n: int = 32
+) -> list:
     engine = sqlmodel.create_engine(db_uri)
-
+    from sqlalchemy import text
     with sqlmodel.Session(engine) as session:
         statement = (
             sqlmodel.select(Article, GPTOpinion)
             .join(GPTOpinion)
-            .order_by(Article.date_published.desc())
+            # .order_by(sqlmodel.sql.func.random())
+            .order_by(text("RANDOM()"))
+            .limit(n)
         )
         data = session.exec(statement)
 
