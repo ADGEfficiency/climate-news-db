@@ -20,10 +20,10 @@ class NZHeraldSpider(BaseSpider):
         ld_json = parse.get_ld_json(response)
         headline = ld_json["headline"]
         body = parse.get_body(response)
+        body = body.replace("Share this article", "")
         date_published = datetime.datetime.strptime(
             ld_json["datePublished"], "%Y-%m-%dT%H:%M:%SZ"
         )
-
         return ArticleItem(
             body=body,
             html=response.text,

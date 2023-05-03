@@ -38,7 +38,7 @@ class DWSpider(BaseSpider):
 
         date_published = datetime.datetime.strptime(
             ld_json["datePublished"], "%Y-%m-%dT%H:%M:%S.%fZ"
-        ).isoformat()
+        )
 
         return ArticleItem(
             body=body,

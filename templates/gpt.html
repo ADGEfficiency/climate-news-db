@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% block body %}
 <div class="container mx-auto max-w-5xl">
-  {% for article in articles %}
-    <div class="mt-4">
-      <a class="text-base font-semibold leading-7 text-indigo-600 hover:underline" href="/newspaper/{{article.newspaper_name}}">{{ article.fancy_newspaper_name }}</a>
-      <h3 class="text-lg dark:text-gray-300 hover:underline">
+  <div class="mx-4">
+    {% for article in articles %}
+      <a class="text-base font-semibold leading-7 text-accent hover:underline" href="/newspaper/{{article.newspaper_name}}">{{ article.fancy_newspaper_name }}</a>
+      <h3 class="text-base font-semibold dark:text-gray-300 hover:underline">
         <a href="/article/{{article.id}}">{{article.headline}}</a>
       </h3>
     <div class="mt-3 mb-3">
@@ -14,7 +14,6 @@
     </div>
       <p class="mb-5 dark:text-gray-300">{{first_sentence(article.body)}}</p>
     {% endfor %}
-    </div>
   </div>
 </div>
 {% endblock %}

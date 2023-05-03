@@ -8,7 +8,7 @@
     <title>climate-news-db</title>
     <meta name="description" content="A database of climate change newspaper articles.">
     <meta name="author" content="Adam Green">
-    <link rel="shortcut icon" href="{{ url_for('static', path='/favicon.ico') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', path='/static/logo/favicon.ico') }}">
 
     <!-- https://stackoverflow.com/questions/63033412/dark-mode-flickers-a-white-background-for-a-millisecond-on-reload -->
     <script>
@@ -37,7 +37,8 @@
         theme: {
           extend: {
             colors: {
-              dracula: '#282A36'
+              dracula: '#282A36',
+              accent: '#399CD0'
             }
           }
         }

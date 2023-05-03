@@ -39,7 +39,9 @@ def find_urls_to_crawl(paper: str, data_home: pathlib.Path) -> list[str]:
 
     urls = set(urls["url"].tolist())
     urls = filter_urls(files.JSONLines(data_home / "articles" / paper), urls)
+    print(f" {len(urls)} urls after filter for article")
     urls = filter_urls(files.JSONLines(data_home / "rejected"), urls)
+    print(f" {len(urls)} urls after filter for rejected")
     return list(urls)
 
 

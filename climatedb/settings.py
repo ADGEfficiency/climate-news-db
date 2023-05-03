@@ -18,7 +18,7 @@ NEWSPIDER_MODULE = "climatedb.spiders"
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-# USER_AGENT = "climatedb (+http://www.yourdomain.com)"
+USER_AGENT = "climatedb (+http://www.climate-news-db.com)"
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
@@ -110,7 +110,7 @@ DB_URI = f"sqlite:///{DATA_HOME}/db.sqlite"
 
 STATS_CLASS = "climatedb.stats.StatCollector"
 
-AWS_REGION="ap-southeast-2"
+AWS_REGION = "ap-southeast-2"
 
 
 def get_project_settings() -> Settings:

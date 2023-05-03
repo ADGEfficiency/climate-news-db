@@ -3,7 +3,7 @@
 setup:
 	pip install pip -Uq
 	pip install poetry==1.3.0 -q
-	poetry install
+	poetry install -q
 
 # CHECK
 .PHONY: check
@@ -33,10 +33,15 @@ crawl:
 crawl-one:
 	scrapy crawl $(PAPER) -L DEBUG -o $(DATA_HOME)/articles/$(PAPER).jsonlines
 
+#  run on ECS
+#  replicate???
+crawl-cloud: pulls3 crawl pushs3
+
 # WEB APP
 
+PORT=8004
 app: setup
-	uvicorn climatedb.app:app --reload --port 8004
+	uvicorn climatedb.app:app --reload --port $(PORT)
 
 # DATABASE
 
@@ -60,8 +65,9 @@ pushs3:
 	aws s3 sync $(DATA_HOME) $(S3_DIR)
 
 #  INFRA
-.PHONY: infra
-infra:
+.PHONY: cdk run-search-lambdas infra
+cdk:
 	cd infra && npx --yes aws-cdk@2.75.0 deploy -vv --all
+run-search-lambdas:
 	python scripts/run-search-lambdas.py
-
+infra: cdk run-search-lambdas

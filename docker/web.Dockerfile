@@ -8,6 +8,5 @@ COPY ./static ./static
 COPY ./templates ./templates
 
 RUN make setup
-RUN make restore-down -o setup
-RUN make replicate -o setup
+
 CMD ["make", "app", "-o", "setup", "PORT=8080"]

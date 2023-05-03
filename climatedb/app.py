@@ -138,16 +138,14 @@ async def read_latest(request: fastapi.Request):
         "latest.html",
         {
             "request": request,
-            "latest": latest_published,
-            "scrape": latest_scraped,
             "pkg": [
-                {
-                    "header": "Latest Scraped",
-                    "articles": latest_scraped,
-                },
                 {
                     "header": "Latest Published",
                     "articles": latest_published,
+                },
+                {
+                    "header": "Latest Scraped",
+                    "articles": latest_scraped,
                 },
             ],
         },

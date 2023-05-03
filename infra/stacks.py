@@ -1,14 +1,22 @@
 import pandas as pd
-from aws_cdk import (CfnOutput, Duration, Stack, aws_events,
-                     aws_events_targets, aws_iam, aws_lambda, aws_s3)
-from aws_cdk.aws_ecr_assets import Platform
+from aws_cdk import CfnOutput, Duration, Stack
+from aws_cdk.aws_ecs import LogDriver, AwsLogDriver, AwsLogDriverProps
+from aws_cdk import aws_ecr_assets as ecr_assets
+from aws_cdk import aws_ecs as ecs
+from aws_cdk import aws_events
+from aws_cdk import aws_events as events
+from aws_cdk import aws_events_targets, aws_iam, aws_lambda, aws_s3
+from aws_cdk.aws_ecr_assets import DockerImageAsset, Platform
+from aws_cdk.aws_ecs import Cluster, ContainerImage, FargateTaskDefinition
+from aws_cdk.aws_events import Rule, Schedule
+from aws_cdk.aws_events_targets import EcsTask
 from constructs import Construct
 
 from climatedb.models import SearchLambdaEvent
 from climatedb.utils import read_newspapers_json
 
 
-class Infra(Stack):
+class Search(Stack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
@@ -97,4 +105,40 @@ class Infra(Stack):
                     ),
                 ],
             )
-        print("stack creation done")
+
+
+class Crawl(Stack):
+    def __init__(self, scope: Construct, id: str, **kwargs) -> None:
+        super().__init__(scope, id, **kwargs)
+
+        cluster = Cluster(self, "EcsCluster")
+
+        docker_image = DockerImageAsset(
+            self,
+            "DockerImage",
+            directory="../",
+            file="docker/search.Dockerfile",
+            build_args={
+                "ENTRYPOINT": "/lambda-entrypoint.sh",
+                "CMD": "climatedb.lambda.search_controller",
+            },
+            exclude=[
+                ".git",
+                ".gitignore",
+                ".vscode",
+                "infra",
+                "__pycache__",
+                "data",
+            ],
+        )
+
+        task_definition = FargateTaskDefinition(self, "TaskDefinition")
+
+        container = task_definition.add_container(
+            "Container",
+            image=ContainerImage.from_docker_image_asset(docker_image),
+            logging=LogDriver.aws_logs(stream_prefix="climate-news-db-scrape")
+        )
+
+        rule = Rule(self, "WeeklyRule", schedule=Schedule.rate(Duration.days(7)))
+        rule.add_target(EcsTask(cluster=cluster, task_definition=task_definition))
