@@ -39,6 +39,7 @@ class SaveHTML:
 class InsertArticle:
     def __init__(self, db_uri: str, data_home: typing.Union[pathlib.Path, str]) -> None:
         self.db_uri = db_uri
+        print(f"InsertArticle db_uri: {db_uri}")
 
         #  shouldnt need really - comes from the integration test
         #  where we pass DATA_HOME as a CLI setting
