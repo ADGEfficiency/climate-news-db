@@ -23,7 +23,7 @@ def test_integration(base_dir: pathlib.Path) -> None:
     db_uri = f"sqlite:///{base_dir}/db.sqlite"
 
     #  seed the newspapers
-    database.seed_newspapers(db_uri=db_uri, data_home=base_dir)
+    database.seed_newspapers(db_uri=db_uri)
 
     #  run the scraping
     result = subprocess.run(
