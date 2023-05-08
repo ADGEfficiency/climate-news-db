@@ -46,9 +46,11 @@ class NYTimesSpider(BaseSpider):
                 ld["datePublished"],
                 "%Y-%m-%dT%H:%M:%S.%fZ",
             )
-        except:
+        except Exception:
             date_published = datetime.datetime.strptime(
-                response.xpath('//meta[@property="article:published_time"]/@content').get(),
+                response.xpath(
+                    '//meta[@property="article:published_time"]/@content'
+                ).get(),
                 "%Y-%m-%dT%H:%M:%S.%fZ",
             )
 

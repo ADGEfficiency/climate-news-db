@@ -1,13 +1,14 @@
+import matplotlib.pyplot as plt
+import pandas as pd
 from scrapy.settings import Settings
 
-from climatedb import charts, database
+from climatedb import database
 
 settings = Settings()
 settings.setmodule("climatedb.settings")
 articles = database.get_all_articles_with_opinions(settings["DB_URI"], n=100000)
 print(len(articles))
 
-import pandas as pd
 
 data = pd.DataFrame(articles)
 data = data[~data["topics"].isnull()]
@@ -27,7 +28,6 @@ grp = data.groupby("newspaper_name").agg(
 grp = grp.sort_values("article_tone_score", ascending=False)
 print(grp)
 
-import matplotlib.pyplot as plt
 
 fig, axes = plt.subplots(nrows=2)
 grp.index.name = "newspaper_name"

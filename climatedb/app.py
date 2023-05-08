@@ -42,7 +42,7 @@ def datetimeformat(value, fmt="%Y-%m-%d"):
     try:
         dt = str(value).replace("Z", "")
         return datetime.fromisoformat(dt).strftime(fmt)
-    except:
+    except Exception:
         return ""
 
 

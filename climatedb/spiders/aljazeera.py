@@ -27,7 +27,7 @@ class AljazeeraSpider(BaseSpider):
                 ld_json["datePublished"], "%Y-%m-%dT%H:%M:%SZ"
             )
 
-        except:
+        except Exception:
             headline = response.xpath('//meta[@property="og:title"]/@content').get()
             date = response.xpath('//span[@class="date"]/text()').get()
             time = response.xpath('//span[@class="time"]/text()').get()

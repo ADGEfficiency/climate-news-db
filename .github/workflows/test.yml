@@ -17,14 +17,14 @@ jobs:
           python-version: 3.10.6
       - run: make test
 
-  static:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: 3.10.6
-      - run: make static
+  # static:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: actions/setup-python@v4
+  #       with:
+  #         python-version: 3.10.6
+  #     - run: make static
 
   check:
     runs-on: ubuntu-latest

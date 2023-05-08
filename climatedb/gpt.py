@@ -5,12 +5,13 @@ import os
 import random
 import typing
 
+import aiohttp
 import pydantic
 import requests
 from rich import print
 from scrapy.settings import Settings
 
-from climatedb import crawl, database, files
+from climatedb import database, files
 from climatedb.crawl import find_newspaper_from_url
 from climatedb.database import read_newspaper
 from climatedb.models import Article, GPTOpinion
@@ -42,9 +43,6 @@ def get_chat_request(article_body: str):
             Message(role="user", content=f"Evaluate this article: {article_body}"),
         ]
     )
-
-
-import aiohttp
 
 
 async def request_gpt_chat_async(article_body: str):
