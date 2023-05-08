@@ -5,10 +5,9 @@
 
   <head>
     <meta charset="utf-8">
-    <title>climate-news-db</title>
     <meta name="description" content="A database of climate change newspaper articles.">
     <meta name="author" content="Adam Green">
-    <link rel="shortcut icon" href="{{ url_for('static', path='/static/logo/favicon.ico') }}">
+    <link rel="shortcut icon" href="/static/favicon.ico">
 
     <!-- chart js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
@@ -33,8 +32,15 @@
       }
     </script>
 
-    <!-- alpine -->
+    <!-- alpine - think I can delete this -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- plausible -->
+    <script defer data-domain="climate-news-db.com" src="https://plausible.io/js/plausible.js"></script>
+
+    <!-- custom css -->
+    <link rel="stylesheet" href="/static/style.css">
+
   </head>
 
   <body>
@@ -47,18 +53,14 @@
     </div>
   </body>
 
-  <script defer src="{{ url_for('static', path='dark-mode.js') }}"></script>
-  <script src="{{ url_for('static', path='chart-home.js') }}"></script>
-  <link rel="stylesheet" href="{{ url_for('static', path='style.css')}}">
+  <script type="text/javascript" defer src="/static/dark-mode.js"></script>
+  <script type="text/javascript" src="/static/chart-home.js"></script>
 
   <script>
-    // Render blocking JS:
-    console.log("hi");
     const icon = document.getElementById('darkModeToggle');
     if (
       localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
     ) {
-      console.log("add dark");
       document.documentElement.classList.add('dark');
       icon.classList.replace('bi-brightness-high', 'bi-moon');
       icon.classList.add('white-icon');
@@ -67,8 +69,6 @@
       icon.classList.replace('bi-moon', 'bi-brightness-high');
     }
   </script>
-
-
 </div>
 
 </html>

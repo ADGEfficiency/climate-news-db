@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import json
 import os
@@ -10,7 +11,12 @@ from rich import print
 from scrapy.settings import Settings
 
 from climatedb import crawl, database, files
-from climatedb.models import GPTOpinion
+from climatedb.crawl import find_newspaper_from_url
+from climatedb.database import read_newspaper
+from climatedb.models import Article, GPTOpinion
+
+settings = Settings()
+settings.setmodule("climatedb.settings")
 
 
 class Message(pydantic.BaseModel):
@@ -18,7 +24,7 @@ class Message(pydantic.BaseModel):
     content: str
 
 
-class CompletionRequest(pydantic.BaseModel):
+class ChatRequest(pydantic.BaseModel):
     messages: list[Message]
     model: typing.Literal["gpt-3.5-turbo"] = "gpt-3.5-turbo"
     temperature: float = 0.0
@@ -26,11 +32,8 @@ class CompletionRequest(pydantic.BaseModel):
     request_time_utc: str = datetime.datetime.now().isoformat()
 
 
-def call_gpt(article_body: str):
-    max_characetrs = 4096 * 4
-    article_body = article_body[: int(max_characetrs)]
-
-    request = CompletionRequest(
+def get_chat_request(article_body: str):
+    return ChatRequest(
         messages=[
             Message(
                 role="system",
@@ -39,6 +42,41 @@ def call_gpt(article_body: str):
             Message(role="user", content=f"Evaluate this article: {article_body}"),
         ]
     )
+
+
+import aiohttp
+
+
+async def request_gpt_chat_async(article_body: str):
+    print(f" [green]request_gpt_chat_async[/], article_body: {article_body[:100]}")
+    max_characetrs = 4096 * 4
+    article_body = article_body[: int(max_characetrs)]
+    request = get_chat_request(article_body)
+
+    await asyncio.sleep(random.random() * 3)
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.post(
+                "https://api.openai.com/v1/chat/completions",
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {os.environ['OPENAI_API_KEY']}",
+                },
+                json=request.dict(exclude={"request_time_utc": True}),
+            ) as response:
+                print(f"Request status: {response.status}")
+                pkg = await response.json()
+                print(pkg, flush=True)
+                return request, response  #     return request, response
+        except Exception as e:
+            print(f"Error in request_gpt_chat_async: {e}")
+
+
+def request_gpt_chat(article_body: str):
+    max_characetrs = 4096 * 4
+    article_body = article_body[: int(max_characetrs)]
+
+    request = get_chat_request(article_body)
     response = requests.post(
         "https://api.openai.com/v1/chat/completions",
         headers={
@@ -48,60 +86,106 @@ def call_gpt(article_body: str):
         json=request.dict(exclude={"request_time_utc": True}),
     )
     print(response.json())
+    assert response.ok
     return request, response
 
 
-if __name__ == "__main__":
-    limit = 1000
-    articles = database.read_all_articles()
-    print(len(articles))
+async def call_open_ai(
+    article: Article,
+    opinion_fi: files.JSONFile,
+    request_fn: typing.Callable = request_gpt_chat,
+):
+    try:
+        request, response = await request_fn(article.body)
+        pkg = await response.json()
+        choices = pkg["choices"]
 
-    random.shuffle(articles)
+        assert len(choices) == 1
+        message = choices[0]["message"]["content"]
+        message = json.loads(message)
 
-    for n, article in enumerate(articles):
-        from climatedb.crawl import find_newspaper_from_url
-        from climatedb.database import read_newspaper
+        gpt_opinion = GPTOpinion(
+            request=request.dict(),
+            response=pkg,
+            message=message,
+            article_id=article.id,
+            scientific_accuracy=message["scientific-accuracy"]["numeric-score"],
+            article_tone=message["article-tone"]["numeric-score"],
+            topics=message["topics"],
+        )
+        opinion_fi.write(gpt_opinion.dict())
+        database.write_opinion(settings["DB_URI"], gpt_opinion)
 
+    except Exception as e:
+        reject_fi = files.JSONLines("./data/rejected-gpt.jsonl")
+        reject_fi.write([{**article.dict()}])
+        print(f"{article.article_url} failed {e}", flush=True)
+
+
+async def regenerate(opinion_fi, article):
+    print(f"regenerating {article.article_name}")
+    existing = opinion_fi.read()
+
+    if "article_id" not in existing:
+        print(f" nothing saved: {existing.keys()}")
+        return
+
+    assert article.id == existing["article_id"]
+    gpt_opinion = GPTOpinion(**existing)
+    settings = Settings()
+    settings.setmodule("climatedb.settings")
+    database.write_opinion(settings["DB_URI"], gpt_opinion)
+
+
+async def process_articles(articles: typing.List[Article]):
+    tasks = []
+    for article in articles:
         paper_meta = find_newspaper_from_url(article.article_url)
         paper = read_newspaper(paper_meta.name)
 
-        #  id won't be stable across different databases
+        #  id won't be stable across different databases#
+        #  does that matter - don't think so?
         opinion = database.read_opinion(article.id)
         opinion_fi = files.JSONFile(
             f"./data/opinions/{paper.name}/{article.article_name}"
         )
-
         if opinion is None:
             print(
-                f" [green]calling[/] openai: article: {article.article_name} id: {article.id}"
+                f" [green]call_open_ai[/], article: {article.article_name}, id: {article.id}"
             )
-            request, response = call_gpt(article.body)
-            assert response.ok
-
-            choices = response.json()["choices"]
-            assert len(choices) == 1
-            message = choices[0]["message"]["content"]
-            message = json.loads(message)
-
-            paper_meta = crawl.find_newspaper_from_url(article.article_url)
-            paper = database.read_newspaper(paper_meta.name)
-
-            gpt_opinion = GPTOpinion(
-                request=request.dict(),
-                response=response.json(),
-                message=message,
-                article_id=article.id,
-                scientific_accuracy=message["scientific-accuracy"]["numeric-score"],
-                article_tone=message["article-tone"]["numeric-score"],
-                topics=message["topics"],
+            tasks.append(
+                call_open_ai(
+                    article=article,
+                    opinion_fi=opinion_fi,
+                    request_fn=request_gpt_chat_async,
+                )
             )
-
-            settings = Settings()
-            settings.setmodule("climatedb.settings")
-            database.write_opinion(settings["DB_URI"], gpt_opinion)
-            opinion_fi.write(gpt_opinion.json())
-
+        elif opinion_fi.exists():
+            print(
+                f" [blue]regenerate[/], article: {article.article_name}, id: {article.id}"
+            )
+            await regenerate(opinion_fi, article)
         else:
-            print(f" not calling openai: {article.article_name}")
-        if n > limit:
-            break
+            print(
+                f" [yellow]skipping[/], article: {article.article_name}, id: {article.id}"
+            )
+
+    await asyncio.gather(*tasks)
+
+
+async def main():
+    limit = 10
+    articles = database.read_all_articles()
+    random.shuffle(articles)
+
+    for chunk in chunks(articles, limit):
+        await process_articles(chunk)
+
+
+def chunks(lst, n):
+    for i in range(0, len(lst), n):
+        yield lst[i : i + n]
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

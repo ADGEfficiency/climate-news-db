@@ -42,7 +42,7 @@ def google_search(
                 start=start,
                 stop=stop,
                 pause=0.5,
-                tbs="qdr:d2",
+                # tbs="qdr:d2",
             )
         )
 

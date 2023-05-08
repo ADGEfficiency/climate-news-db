@@ -4,7 +4,7 @@ from scrapy.http.response.html import HtmlResponse
 
 from climatedb.crawl import create_article_name, find_start_url
 from climatedb.models import ArticleItem
-from climatedb.parse import clean_body
+from climatedb.parse import clean_body, get_ld_json
 from climatedb.spiders.base import BaseSpider
 
 
@@ -40,10 +40,15 @@ class NYTimesSpider(BaseSpider):
         body = " ".join(body)
         body = clean_body(body)
 
-        date_published = datetime.datetime.strptime(
-            response.xpath('//meta[@property="article:published_time"]/@content').get(),
-            "%Y-%m-%dT%H:%M:%S.%fZ",
-        )
+        try:
+            ld = get_ld_json(response)
+            date_published = ld["datePublished"]
+        except:
+            date_published = datetime.datetime.strptime(
+                response.xpath('//meta[@property="article:published_time"]/@content').get(),
+                "%Y-%m-%dT%H:%M:%S.%fZ",
+            )
+
         return ArticleItem(
             body=body,
             html=response.text,

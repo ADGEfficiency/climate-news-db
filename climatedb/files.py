@@ -2,10 +2,10 @@ import datetime
 import json
 import pathlib
 import typing
-import boto3
-from scrapy.settings import Settings
 
+import boto3
 from rich import print
+from scrapy.settings import Settings
 
 
 class JSONEncoder(json.JSONEncoder):
@@ -79,15 +79,19 @@ class JSONFile(File):
         super(JSONFile, self).__init__(path)
 
     def read(self) -> typing.Any:
+        print(f" read JSONFile {self.path}")
         return json.loads(self.path.read_text())
 
     def write(self, data: dict) -> None:
+        print(f" write JSONFile {self.path}")
         self.path.write_text(json.dumps(data, cls=JSONEncoder))
+
+    def exists(self) -> bool:
+        return self.path.is_file()
 
 
 class S3JSONLines:
     def __init__(self, bucket: str, key: str) -> None:
-
         settings = Settings()
         settings.setmodule("climatedb.settings")
 
@@ -117,5 +121,7 @@ class S3JSONLines:
         #  can actually use the jsonlines package here probably...
         print(f" joining {len(data)} urls onto {len(existing)} existing urls")
         #  TODO - messy
-        pkg = "".join([json.dumps(d) + "\n" for d in existing]) + "".join([json.dumps(d) + "\n" for d in data])
+        pkg = "".join([json.dumps(d) + "\n" for d in existing]) + "".join(
+            [json.dumps(d) + "\n" for d in data]
+        )
         self.obj.put(Body=bytes(pkg.encode("UTF-8")))

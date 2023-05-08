@@ -23,7 +23,7 @@ def test_integration(base_dir: pathlib.Path) -> None:
     db_uri = f"sqlite:///{base_dir}/db.sqlite"
 
     #  seed the newspapers
-    database.seed(db_uri=db_uri, data_home=base_dir)
+    database.seed_newspapers(db_uri=db_uri, data_home=base_dir)
 
     #  run the scraping
     result = subprocess.run(
@@ -66,6 +66,8 @@ def test_integration(base_dir: pathlib.Path) -> None:
             articles_fi.path,
             "-s",
             f"DB_URI=sqlite:///{base_dir}/db.sqlite",
+            "-s",
+            f"DATA_HOME={base_dir}",
         ],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -74,5 +76,3 @@ def test_integration(base_dir: pathlib.Path) -> None:
     print(result.stderr.decode())
     articles = database.read_all_articles(db_uri=f"sqlite:///{base_dir}/db.sqlite")
     assert len(articles) == 1
-
-    #  check we can read the

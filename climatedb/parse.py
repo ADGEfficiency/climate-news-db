@@ -41,8 +41,7 @@ def clean_headline(headline: str) -> str:
 def get_ld_json(response: HtmlResponse, idx: int = 0) -> dict:
     ld_json = response.xpath('//script[@type="application/ld+json"]/text()')
     ld_json = ld_json.getall()[idx]
-
     assert ld_json is not None
     ld_json = ld_json.replace("\n", "")
     ld_json = ld_json.replace("\t", "")
-    return dict(json.loads(ld_json))
+    return json.loads(ld_json)

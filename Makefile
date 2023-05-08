@@ -18,10 +18,10 @@ static: setup
 # TEST
 
 test: setup
-	pytest tests -x --lf
+	pytest tests -x --lf -s
 
 test-ci:
-	coverage run -m pytest tests --showlocals --full-trace --tb=short --show-capture=no -v
+	coverage run -m pytest tests --showlocals --full-trace --tb=short --show-capture=no -v -s
 	coverage report -m
 
 # CRAWLING & SCRAPING
@@ -35,13 +35,13 @@ crawl-one:
 
 #  run on ECS
 #  replicate - perhaps put in the docker image entrypoint
-crawl-cloud: pulls3 crawl pushs3
+crawl-cloud: pulls3-urls crawl pushs3
 
 # WEB APP
 
 PORT=8004
 app: setup
-	uvicorn climatedb.app:app --reload --port $(PORT) --host 0.0.0.0
+	uvicorn climatedb.app:app --reload --port $(PORT) --host 0.0.0.0 --proxy-headers
 
 zip:
 	cd $(DATA_HOME); zip -r ./climate-news-db-dataset.zip ./* -x "./html/*"
@@ -49,8 +49,11 @@ zip:
 setup-cron-jobs:
 	# echo "*/5 * * * * root cd /app && make restore-down" > /etc/cron.d/restore-down
 	# chmod 0644 /etc/cron.d/restore-down
-	echo "* * * * * root echo 'ran-cron' > /app/cron-log" >> /etc/cron.d/hello
+	echo "* * * * * root echo 'ran-cron'" > /etc/cron.d/hello
 	chmod 0644 /etc/cron.d/hello
+
+deploy:
+	flyctl deploy
 
 # DATABASE
 

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block body %}
+<title>{{newspaper.fancy_name}}</title>
 <div class="container mx-auto max-w-5xl">
   <div class="m-4">
     <p class="text-accent font-semibold">{{articles|length}} articles from {{newspaper.fancy_name}}.</p>
