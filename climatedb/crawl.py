@@ -1,4 +1,5 @@
 import pathlib
+import typing
 
 import pandas as pd
 from rich import print
@@ -6,6 +7,7 @@ from scrapy.http.response.html import HtmlResponse
 
 from climatedb import files
 from climatedb.models import NewspaperMeta
+from climatedb.utils import read_newspapers_json
 
 
 def filter_urls(exclude_fi: files.JSONLines, urls: set) -> set:
@@ -23,7 +25,9 @@ def find_urls_to_crawl(paper: str, data_home: pathlib.Path) -> list[str]:
     urls = pd.DataFrame(urls_fi.read())
     print(f" {urls.shape} raw urls")
 
-    urls["paper"] = urls["url"].apply(lambda x: find_newspaper_from_url(x).name)
+    papers = read_newspapers_json()
+
+    urls["paper"] = urls["url"].apply(lambda x: find_newspaper_from_url(x, papers).name)
 
     #  drop urls where we couldn't find a newspaper
     urls = urls.dropna(subset="paper", axis=0)
@@ -54,11 +58,11 @@ def create_article_name(url: str, idx: int = -1) -> str:
     return article_id[idx].replace(".html", "")
 
 
-def find_newspaper_from_url(url: str) -> NewspaperMeta:
-    papers = files.JSONFile("./newspapers.json").read()
+def find_newspaper_from_url(url: str, papers: typing.Optional[list]=None) -> NewspaperMeta:
+    if papers is None:
+        papers = read_newspapers_json()
 
-    for pap in papers:
-        paper = NewspaperMeta(**pap)
+    for paper in papers:
         if paper.site in url:
             return paper
 

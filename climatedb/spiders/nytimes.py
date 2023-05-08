@@ -42,7 +42,10 @@ class NYTimesSpider(BaseSpider):
 
         try:
             ld = get_ld_json(response)
-            date_published = ld["datePublished"]
+            date_published = datetime.datetime.strptime(
+                ld["datePublished"],
+                "%Y-%m-%dT%H:%M:%S.%fZ",
+            )
         except:
             date_published = datetime.datetime.strptime(
                 response.xpath('//meta[@property="article:published_time"]/@content').get(),
