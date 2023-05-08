@@ -105,13 +105,11 @@ REQUEST_FINGERPRINTER_IMPLEMENTATION = "2.7"
 TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
 FEED_EXPORT_ENCODING = "utf-8"
 
+# Custom settings
 DATA_HOME = pathlib.Path.cwd() / "data"
 DB_URI = f"sqlite:///{DATA_HOME}/db.sqlite"
-
 STATS_CLASS = "climatedb.stats.StatCollector"
-
 AWS_REGION = "ap-southeast-2"
-
 
 def get_project_settings() -> Settings:
     settings = Settings()

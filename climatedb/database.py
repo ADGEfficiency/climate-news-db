@@ -106,9 +106,11 @@ def write_opinion(db_uri, opinion) -> None:
         session.commit()
 
 
-def seed_newspapers(db_uri: str, data_home: pathlib.Path) -> None:
+def seed_newspapers(db_uri: str) -> None:
     newspapers = files.JSONFile("./newspapers.json").read()
     engine = sqlmodel.create_engine(db_uri)
+
+    print(f"seeding newspapers to {db_uri}")
 
     Newspaper.metadata.create_all(engine)
     for paper in newspapers:
