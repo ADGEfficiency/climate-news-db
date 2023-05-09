@@ -119,11 +119,11 @@ async def call_open_ai(
     except Exception as e:
         reject_fi = files.JSONLines("./data/rejected-gpt.jsonl")
         reject_fi.write([{**article.dict()}])
-        print(f"{article.article_url} failed {e}", flush=True)
+        print(f" {article.article_url} failed {e}", flush=True)
 
 
 async def regenerate(opinion_fi: files.JSONFile, article: Article) -> None:
-    print(f"regenerating {article.article_name}")
+    print(f" [blue]regenerating[/] {article.article_name}")
     existing = opinion_fi.read()
 
     if "article_id" not in existing:
@@ -135,6 +135,7 @@ async def regenerate(opinion_fi: files.JSONFile, article: Article) -> None:
     settings = Settings()
     settings.setmodule("climatedb.settings")
     database.write_opinion(settings["DB_URI"], gpt_opinion)
+    print(f" [blue]regenerated[/] {article.article_name}")
 
 
 async def process_articles(articles: typing.List[Article]) -> None:
@@ -150,7 +151,13 @@ async def process_articles(articles: typing.List[Article]) -> None:
         opinion_fi = files.JSONFile(
             f"./data/opinions/{paper.name}/{article.article_name}"
         )
-        if opinion is None:
+        if opinion_fi.exists():
+            print(
+                f" [blue]regenerate[/], article: {article.article_name}, id: {article.id}"
+            )
+            tasks.append(regenerate(opinion_fi, article))
+
+        elif opinion is None:
             print(
                 f" [green]call_open_ai[/], article: {article.article_name}, id: {article.id}"
             )
@@ -161,11 +168,6 @@ async def process_articles(articles: typing.List[Article]) -> None:
                     request_fn=request_gpt_chat_async,
                 )
             )
-        elif opinion_fi.exists():
-            print(
-                f" [blue]regenerate[/], article: {article.article_name}, id: {article.id}"
-            )
-            await regenerate(opinion_fi, article)
         else:
             print(
                 f" [yellow]skipping[/], article: {article.article_name}, id: {article.id}"

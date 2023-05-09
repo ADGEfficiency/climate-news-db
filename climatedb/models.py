@@ -77,7 +77,9 @@ class Newspaper(sqlmodel.SQLModel, table=True):
 
 
 class Article(sqlmodel.SQLModel, table=True):
-    id: typing.Optional[int] = sqlmodel.Field(default=None, primary_key=True)
+    id: typing.Optional[int] = sqlmodel.Field(
+        default=None, primary_key=True, unique=True
+    )
     headline: str = sqlmodel.Field()
     body: str = sqlmodel.Field(min_length=16)
     date_published: datetime.date = sqlmodel.Field()
@@ -108,7 +110,7 @@ class GPTOpinion(sqlmodel.SQLModel, table=True):
     response: dict = sqlmodel.Field(
         default_factory=dict, sa_column=Column(sqlmodel.JSON)
     )
-    article_id: int = sqlmodel.Field(foreign_key="article.id")
+    article_id: int = sqlmodel.Field(foreign_key="article.id", index=True, unique=True)
 
     scientific_accuracy: str
     article_tone: str

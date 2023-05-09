@@ -79,11 +79,11 @@ class JSONFile(File):
         super(JSONFile, self).__init__(path)
 
     def read(self) -> typing.Any:
-        print(f" read JSONFile {self.path}")
+        print(f" read JSONFile {self.path.name}")
         return json.loads(self.path.read_text())
 
     def write(self, data: dict) -> None:
-        print(f" write JSONFile {self.path}")
+        print(f" write JSONFile {self.path.name}")
         self.path.write_text(json.dumps(data, cls=JSONEncoder))
 
     def exists(self) -> bool:
