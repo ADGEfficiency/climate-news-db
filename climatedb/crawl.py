@@ -6,7 +6,7 @@ from rich import print
 from scrapy.http.response.html import HtmlResponse
 
 from climatedb import files
-from climatedb.models import NewspaperMeta
+from climatedb.models import NewspaperMeta, Newspaper
 from climatedb.utils import read_newspapers_json
 
 
@@ -58,7 +58,7 @@ def create_article_name(url: str, idx: int = -1) -> str:
     return article_id[idx].replace(".html", "")
 
 
-def find_newspaper_from_url(url: str, papers: typing.Optional[list]=None) -> NewspaperMeta:
+def find_newspaper_from_url(url: str, papers: typing.Optional[list]=None) -> Newspaper:
     if papers is None:
         papers = read_newspapers_json()
 

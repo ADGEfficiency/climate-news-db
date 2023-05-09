@@ -37,6 +37,9 @@ crawl-one:
 #  replicate - perhaps put in the docker image entrypoint
 crawl-cloud: pulls3-urls crawl pushs3
 
+gpt:
+	python ./climatedb/gpt.py
+
 # WEB APP
 
 PORT=8004

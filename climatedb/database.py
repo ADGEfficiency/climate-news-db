@@ -42,7 +42,7 @@ def read_all_newspapers(db_uri: str = settings["DB_URI"]) -> list[Newspaper]:
         return session.query(Newspaper).order_by(Newspaper.name).all()
 
 
-def read_article(article_id: int, db_uri: str = settings["DB_URI"]) -> list[Article]:
+def read_article(article_id: int, db_uri: str = settings["DB_URI"]) -> Article:
     engine = sqlmodel.create_engine(db_uri)
     with sqlmodel.Session(engine) as session:
         return session.query(Article).where(Article.id == article_id).one()
@@ -68,6 +68,7 @@ def read_opinion(
     article_id: int, db_uri: str = settings["DB_URI"]
 ) -> typing.Optional[GPTOpinion]:
     engine = sqlmodel.create_engine(db_uri)
+    GPTOpinion.metadata.create_all(engine)
     with sqlmodel.Session(engine) as session:
         return session.exec(
             sqlmodel.select(GPTOpinion).where(GPTOpinion.article_id == article_id)

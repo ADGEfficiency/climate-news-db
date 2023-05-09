@@ -1,5 +1,6 @@
-import numpy as np
 import datetime
+
+import numpy as np
 import sqlmodel
 from scrapy.settings import Settings
 from sqlalchemy import func
@@ -10,7 +11,7 @@ settings = Settings()
 settings.setmodule("climatedb.settings")
 
 
-def get_home_chart(db_uri: str = settings["DB_URI"]):
+def get_home_chart(db_uri: str = settings["DB_URI"]) -> dict:
     engine = sqlmodel.create_engine(db_uri)
 
     now = datetime.datetime.now()
@@ -39,7 +40,7 @@ def get_home_chart(db_uri: str = settings["DB_URI"]):
 
     years = np.arange(min_datetime.year, now.year + 1)
     assert len(years) == 10
-    newspapers = {
+    newspapers_pkg = {
         name: {
             "backgroundColor": color + "80",
             "borderColor": color,
@@ -50,11 +51,11 @@ def get_home_chart(db_uri: str = settings["DB_URI"]):
         for name, color in newspapers
     }
     for year, newspaper, count in rows:
-        newspapers[newspaper]["data"][year - min_datetime.year] = count
+        newspapers_pkg[newspaper]["data"][year - min_datetime.year] = count
 
     return {
         "years": years.tolist(),
-        "datasets": sorted(newspapers.values(), key=lambda x: x["label"]),
+        "datasets": sorted(newspapers_pkg.values(), key=lambda x: x["label"]),
     }
 
 

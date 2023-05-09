@@ -33,7 +33,7 @@ class ChatRequest(pydantic.BaseModel):
     request_time_utc: str = datetime.datetime.now().isoformat()
 
 
-def get_chat_request(article_body: str):
+def get_chat_request(article_body: str) -> ChatRequest:
     return ChatRequest(
         messages=[
             Message(
@@ -45,7 +45,7 @@ def get_chat_request(article_body: str):
     )
 
 
-async def request_gpt_chat_async(article_body: str):
+async def request_gpt_chat_async(article_body: str) -> typing.Optional[tuple]:
     print(f" [green]request_gpt_chat_async[/], article_body: {article_body[:100]}")
     max_characetrs = 4096 * 4
     article_body = article_body[: int(max_characetrs)]
@@ -65,12 +65,14 @@ async def request_gpt_chat_async(article_body: str):
                 print(f"Request status: {response.status}")
                 pkg = await response.json()
                 print(pkg, flush=True)
-                return request, response  #     return request, response
+                return request, response
+
         except Exception as e:
             print(f"Error in request_gpt_chat_async: {e}")
+    return None
 
 
-def request_gpt_chat(article_body: str):
+def request_gpt_chat(article_body: str) -> tuple:
     max_characetrs = 4096 * 4
     article_body = article_body[: int(max_characetrs)]
 
@@ -92,7 +94,7 @@ async def call_open_ai(
     article: Article,
     opinion_fi: files.JSONFile,
     request_fn: typing.Callable = request_gpt_chat,
-):
+) -> None:
     try:
         request, response = await request_fn(article.body)
         pkg = await response.json()
@@ -120,7 +122,7 @@ async def call_open_ai(
         print(f"{article.article_url} failed {e}", flush=True)
 
 
-async def regenerate(opinion_fi, article):
+async def regenerate(opinion_fi: files.JSONFile, article: Article) -> None:
     print(f"regenerating {article.article_name}")
     existing = opinion_fi.read()
 
@@ -135,7 +137,7 @@ async def regenerate(opinion_fi, article):
     database.write_opinion(settings["DB_URI"], gpt_opinion)
 
 
-async def process_articles(articles: typing.List[Article]):
+async def process_articles(articles: typing.List[Article]) -> None:
     tasks = []
     for article in articles:
         paper_meta = find_newspaper_from_url(article.article_url)
@@ -143,6 +145,7 @@ async def process_articles(articles: typing.List[Article]):
 
         #  id won't be stable across different databases#
         #  does that matter - don't think so?
+        assert article.id is not None
         opinion = database.read_opinion(article.id)
         opinion_fi = files.JSONFile(
             f"./data/opinions/{paper.name}/{article.article_name}"
@@ -171,7 +174,7 @@ async def process_articles(articles: typing.List[Article]):
     await asyncio.gather(*tasks)
 
 
-async def main():
+async def main() -> None:
     limit = 10
     articles = database.read_all_articles()
     random.shuffle(articles)
@@ -180,7 +183,7 @@ async def main():
         await process_articles(chunk)
 
 
-def chunks(lst, n):
+def chunks(lst: list, n: int) -> typing.Any:
     for i in range(0, len(lst), n):
         yield lst[i : i + n]
 

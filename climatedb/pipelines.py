@@ -23,6 +23,7 @@ class SaveHTML:
         if isinstance(item.date_published, datetime.datetime):
             date_published = item.date_published.date()
         else:
+            assert item.date_published is not None
             date_published = item.date_published
 
         return ArticleMeta(
