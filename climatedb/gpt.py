@@ -130,8 +130,11 @@ async def regenerate(opinion_fi: files.JSONFile, article: Article) -> None:
         print(f" nothing saved: {existing.keys()}")
         return
 
+    existing['article_id'] = article.id
     assert article.id == existing["article_id"]
+
     gpt_opinion = GPTOpinion(**existing)
+
     settings = Settings()
     settings.setmodule("climatedb.settings")
     database.write_opinion(settings["DB_URI"], gpt_opinion)

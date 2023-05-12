@@ -11,15 +11,16 @@
       {% endwith %}
       {% if article.scientific_accuracy_explanation %}
       <h2 class="mt-6 text-2xl dark:text-gray-300">GPT Opinions</h2>
-      <h2 class="mt-6 text-xl dark:text-gray-300">Scientific Accuracy</h2>
+      <h2 class="mt-6 text-xl dark:text-gray-300">Scientific Accuracy {{ article.scientific_accuracy_score }}</h2>
       <p class="mt-6 dark:text-gray-300">{{ article.scientific_accuracy_explanation}}</p>
-      <h2 class="mt-6 text-xl dark:text-gray-300">Aritcle Tone</h2>
+      <h2 class="mt-6 text-xl dark:text-gray-300">Aritcle Tone {{ article.article_tone_score }}</h2>
       <p class="mt-6 dark:text-gray-300">{{ article.article_tone_explanation}}</p>
-      <h2 class="mt-6 text-xl dark:text-gray-300">Topics</h2>
-      <p class="mt-6 dark:text-gray-300">{{ article.topics}}</p>
+      <h2 class="mt-6 text-xl dark:text-gray-300">Topics
+  {{article.topics | length}}</h2>
+      <p class="mt-6 dark:text-gray-300">{{ article.topics_str}}</p>
       <h2 class="mt-6 text-2xl dark:text-gray-300">Article Body</h2>
       {% endif %}
-      <p class="mt-6 dark:text-gray-300">{{ article.body }}</p>
+      <p class="mt-6 dark:text-gray-300">{{ article.body | safe }}</p>
     </div>
 </div>
 </div>

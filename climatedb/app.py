@@ -93,7 +93,6 @@ def newspaper(request: fastapi.Request, newspaper: str) -> typing.Any:
 def article(request: fastapi.Request, id: int) -> typing.Any:
     article = database.read_article(id, settings["DB_URI"])
     opinion = database.read_opinion(id, settings["DB_URI"])
-
     newspaper = find_newspaper_from_url(article.article_url)
 
     if opinion:
@@ -110,13 +109,24 @@ def article(request: fastapi.Request, id: int) -> typing.Any:
             "explanation"
         ]
 
+        body = article_pkg["body"]
+
+        for topic in opinion.topics:
+            body = body.replace(
+                topic, f"<span class='text-accent text-bold'>{topic}</span>"
+            )
+        article_pkg["body"] = body
+        opinion.topics[0] = opinion.topics[0].capitalize()
         article_pkg["topics"] = opinion.topics
+        article_pkg["topics_str"] = ", ".join(opinion.topics) + "."
+    else:
+        article_pkg = article
 
     return templates.TemplateResponse(
         "article.html",
         {
             "request": request,
-            "article": article,
+            "article": article_pkg,
             "newspaper": newspaper,
         },
     )

@@ -47,7 +47,7 @@ app: setup
 	uvicorn climatedb.app:app --reload --port $(PORT) --host 0.0.0.0 --proxy-headers
 
 zip:
-	cd $(DATA_HOME); zip -r ./climate-news-db-dataset.zip ./* -x "./html/*"
+	cd $(DATA_HOME); zip -r ./climate-news-db-dataset.zip ./* -x "./html/*" -x "./opinions/*"
 
 setup-cron-jobs:
 	# echo "*/5 * * * * root cd /app && make restore-down" > /etc/cron.d/restore-down

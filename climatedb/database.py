@@ -102,7 +102,14 @@ def write_opinion(db_uri, opinion) -> None:
     GPTOpinion.metadata.create_all(engine)
 
     with sqlmodel.Session(engine) as session:
-        session.add(opinion)
+        stmt = (
+            insert(GPTOpinion)
+            .values(**opinion.dict())
+            .on_conflict_do_nothing(
+                index_elements=[GPTOpinion.article_id],
+            )
+        )
+        session.execute(stmt)
         session.commit()
 
 
@@ -204,6 +211,7 @@ def get_all_articles_with_opinions(
 ) -> list:
     engine = sqlmodel.create_engine(db_uri)
     from sqlalchemy import text
+
     with sqlmodel.Session(engine) as session:
         statement = (
             sqlmodel.select(Article, GPTOpinion)

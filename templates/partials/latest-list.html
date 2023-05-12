@@ -5,27 +5,27 @@
   </h1>
   <thead>
     <tr>
+      <th scope="col" class="dark:text-gray-400 text-sm">Headline</th>
       <th scope="col" class="dark:text-gray-400 w-60 text-sm text-center">Newspaper</th>
       <th scope="col" class="dark:text-gray-400 w-40 text-sm text-center">Published</th>
-      <th scope="col" class="dark:text-gray-400 text-sm">Headline</th>
     </tr>
   </thead>
   <tbody class="bg-white dark:bg-dracula">
     {% for article in pk.articles %}
     <tr>
+      <td class="text-ellipsis px-3 py-1 text-sm text-gray-500 dark:bg-dracula dark:text-gray-300 hover:underline">
+        <a href="/article/{{article.article_id}}">
+          {{article.headline}}
+        </a>
+      </td>
       <td
         class="whitespace-nowrap px-3 py-1 text-sm font-medium text-gray-900 dark:bg-dracula dark:text-gray-300 hover:underline">
         <a href="/newspaper/{{article.newspaper}}">
           {{article.fancy_name}}
         </a>
       </td>
-      <td class="text-sm text-gray-500 dark:bg-dracula dark:text-gray-300 text-center">
+      <td class="text-ellipsis text-sm text-gray-500 dark:bg-dracula dark:text-gray-300 text-center">
         {{article.date_published}}
-      </td>
-      <td class="whitespace-nowrap px-3 py-1 text-sm text-gray-500 dark:bg-dracula dark:text-gray-300 hover:underline">
-        <a href="/article/{{article.article_id}}">
-          {{article.headline}}
-        </a>
       </td>
     </tr>
     {% endfor %}
