@@ -1,21 +1,26 @@
+.PHONY: all
+all: app
 
+# SETUP
 .PHONY: setup
+
 setup:
 	pip install pip -Uq
 	pip install poetry==1.3.0 -q
 	poetry install -q
 
 # CHECK
-.PHONY: check
+.PHONY: check static
+
 check: setup
 	ruff check .
 
-.PHONY: static
 static: setup
 	mypy climatedb
 	mypy tests
 
 # TEST
+.PHONY: test test-ci
 
 test: setup
 	pytest tests -x --lf -s
@@ -24,7 +29,8 @@ test-ci:
 	coverage run -m pytest tests --showlocals --full-trace --tb=short --show-capture=no -v -s
 	coverage report -m
 
-# CRAWLING & SCRAPING
+# ARTICLE CRAWLING
+.PHONY: crawl crawl-one crawl-cloud gpt
 
 DATA_HOME = ./data
 crawl:
@@ -33,14 +39,14 @@ crawl:
 crawl-one:
 	scrapy crawl $(PAPER) -L DEBUG -o $(DATA_HOME)/articles/$(PAPER).jsonlines
 
-#  run on ECS
-#  replicate - perhaps put in the docker image entrypoint
 crawl-cloud: pulls3-urls crawl pushs3
 
 gpt:
 	python ./climatedb/gpt.py
 
 # WEB APP
+
+.PHONY: app zip
 
 PORT=8004
 app: setup
@@ -49,16 +55,14 @@ app: setup
 zip:
 	cd $(DATA_HOME); zip -r ./climate-news-db-dataset.zip ./* -x "./html/*" -x "./opinions/*"
 
+# DATABASE
+.PHONY: setup-cron-jobs seed db-regen pulls3 pulls3-urls pushs3
+
 setup-cron-jobs:
 	# echo "*/5 * * * * root cd /app && make restore-down" > /etc/cron.d/restore-down
 	# chmod 0644 /etc/cron.d/restore-down
 	echo "* * * * * root echo 'ran-cron'" > /etc/cron.d/hello
 	chmod 0644 /etc/cron.d/hello
-
-deploy:
-	flyctl deploy
-
-# DATABASE
 
 seed:
 	mkdir -p $(DATA_HOME)
@@ -71,7 +75,6 @@ S3_BUCKET=$(shell aws cloudformation describe-stacks --stack-name ClimateNewsDB 
 S3_DIR=s3://$(S3_BUCKET)
 DATA_HOME=./data
 
-.PHONY: pulls3 pulls3-urls pushs3
 pulls3:
 	aws --region ap-southeast-2 s3 sync $(S3_DIR) $(DATA_HOME) --exclude 'html/*'
 pulls3-urls:
@@ -80,9 +83,13 @@ pushs3:
 	aws s3 sync $(DATA_HOME) $(S3_DIR)
 
 #  INFRA
-.PHONY: cdk run-search-lambdas infra
+.PHONY: cdk run-search-lambdas aws-infra deploy
+
 cdk:
 	cd infra && npx --yes aws-cdk@2.75.0 deploy -vv --all
 run-search-lambdas:
 	python scripts/run-search-lambdas.py
-infra: cdk run-search-lambdas
+aws-infra: cdk run-search-lambdas
+
+deploy:
+	flyctl deploy

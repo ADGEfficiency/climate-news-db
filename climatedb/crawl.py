@@ -6,7 +6,7 @@ from rich import print
 from scrapy.http.response.html import HtmlResponse
 
 from climatedb import files
-from climatedb.models import NewspaperMeta, Newspaper
+from climatedb.models import Newspaper
 from climatedb.utils import read_newspapers_json
 
 
