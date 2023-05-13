@@ -47,8 +47,10 @@ def get_chat_request(article_body: str) -> ChatRequest:
 
 async def request_gpt_chat_async(article_body: str) -> typing.Optional[tuple]:
     print(f" [green]request_gpt_chat_async[/], article_body: {article_body[:100]}")
-    max_characetrs = 4096 * 4
-    article_body = article_body[: int(max_characetrs)]
+
+    #  not 100% sure this is implemented correctly...
+    max_characters = 4096 * 4
+    article_body = article_body[: int(max_characters)]
     request = get_chat_request(article_body)
 
     await asyncio.sleep(random.random() * 3)
@@ -130,8 +132,9 @@ async def regenerate(opinion_fi: files.JSONFile, article: Article) -> None:
         print(f" nothing saved: {existing.keys()}")
         return
 
-    existing['article_id'] = article.id
+    existing["article_id"] = article.id
     assert article.id == existing["article_id"]
+    assert article.article_url == existing["article_url"]
 
     gpt_opinion = GPTOpinion(**existing)
 
@@ -142,29 +145,28 @@ async def regenerate(opinion_fi: files.JSONFile, article: Article) -> None:
 
 
 async def process_articles(articles: typing.List[Article]) -> None:
-    tasks = []
+    async_tasks = []
     for article in articles:
         paper_meta = find_newspaper_from_url(article.article_url)
         paper = read_newspaper(paper_meta.name)
 
-        #  id won't be stable across different databases#
-        #  does that matter - don't think so?
         assert article.id is not None
         opinion = database.read_opinion(article.id)
         opinion_fi = files.JSONFile(
             f"./data/opinions/{paper.name}/{article.article_name}"
         )
-        if opinion_fi.exists():
+
+        if opinion_fi.exists() and opinion is None:
             print(
                 f" [blue]regenerate[/], article: {article.article_name}, id: {article.id}"
             )
-            tasks.append(regenerate(opinion_fi, article))
+            async_tasks.append(regenerate(opinion_fi, article))
 
         elif opinion is None:
             print(
                 f" [green]call_open_ai[/], article: {article.article_name}, id: {article.id}"
             )
-            tasks.append(
+            async_tasks.append(
                 call_open_ai(
                     article=article,
                     opinion_fi=opinion_fi,
@@ -176,19 +178,17 @@ async def process_articles(articles: typing.List[Article]) -> None:
                 f" [yellow]skipping[/], article: {article.article_name}, id: {article.id}"
             )
 
-    await asyncio.gather(*tasks)
+    await asyncio.gather(*async_tasks)
 
 
 async def main() -> None:
-    limit = 10
     articles = database.read_all_articles()
-    random.shuffle(articles)
-
-    for chunk in chunks(articles, limit):
+    for chunk in chunks(articles):
         await process_articles(chunk)
 
 
-def chunks(lst: list, n: int) -> typing.Any:
+def chunks(lst: list, n: int = 10) -> typing.Any:
+    random.shuffle(lst)
     for i in range(0, len(lst), n):
         yield lst[i : i + n]
 
