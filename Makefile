@@ -39,7 +39,7 @@ setup-cron-jobs:
 	# chmod 0644 /etc/cron.d/restore-down
 	# echo "* * * * * root echo 'ran-cron'" > /etc/cron.d/hello
 	# chmod 0644 /etc/cron.d/hello
-	echo "TODO"
+	echo "TODO - will setup litestream replication on webapp server here"
 
 seed:
 	mkdir -p $(DATA_HOME)
@@ -72,7 +72,7 @@ cdk:
 run-search-lambdas:
 	python scripts/run-search-lambdas.py
 
-aws-infra: cdk run-search-lambdas
+aws-infra: cdk
 
 deploy:
 	flyctl deploy
@@ -80,13 +80,13 @@ deploy:
 # ARTICLE CRAWLING
 .PHONY: crawl crawl-one crawl-cloud
 
-crawl:
+crawl: pulls3-urls
 	cat newspapers.json | jq '.[].name' | xargs -n 1 -I {} scrapy crawl {} -o $(DATA_HOME)/articles/{}.jsonl -L DEBUG
 
 crawl-one:
 	scrapy crawl $(PAPER) -L DEBUG -o $(DATA_HOME)/articles/$(PAPER).jsonlines
 
-crawl-cloud: pulls3-urls crawl pushs3
+crawl-cloud: crawl pushs3
 
 # WEB APP
 .PHONY: app zip
