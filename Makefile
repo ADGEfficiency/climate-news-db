@@ -6,10 +6,12 @@ DATA_HOME = ./data
 # SETUP
 .PHONY: setup
 
+QUIET := -q
+
 setup:
 	pip install pip -Uq
-	pip install poetry==1.3.0 -q
-	poetry install -q
+	pip install poetry==1.3.0 $(QUIET)
+	poetry install $(QUIET)
 
 # CHECK
 .PHONY: check static
@@ -58,7 +60,9 @@ pulls3:
 	aws --region ap-southeast-2 s3 sync $(S3_DIR) $(DATA_HOME) --exclude 'html/*'
 
 pulls3-urls:
+	echo "$(shell wc -l $(DATA_HOME)/urls.jsonl) urls"
 	aws --region ap-southeast-2 s3 cp $(S3_DIR)/urls.jsonl $(DATA_HOME)/urls.jsonl
+	echo "$(shell wc -l $(DATA_HOME)/urls.jsonl) urls"
 
 pushs3:
 	aws s3 sync $(DATA_HOME) $(S3_DIR)
@@ -74,8 +78,8 @@ run-search-lambdas:
 
 aws-infra: cdk
 
-deploy:
-	flyctl deploy
+deploy: crawl-cloud
+	flyctl deploy --wait-timeout 120
 
 # ARTICLE CRAWLING
 .PHONY: crawl crawl-one crawl-cloud
@@ -86,7 +90,7 @@ crawl: pulls3-urls
 crawl-one:
 	scrapy crawl $(PAPER) -L DEBUG -o $(DATA_HOME)/articles/$(PAPER).jsonlines
 
-crawl-cloud: crawl pushs3
+crawl-cloud: seed db-regen crawl pushs3
 
 # WEB APP
 .PHONY: app zip

@@ -27,7 +27,9 @@ def find_urls_to_crawl(paper: str, data_home: pathlib.Path) -> list[str]:
 
     papers = read_newspapers_json()
 
-    urls["paper"] = urls["url"].apply(lambda x: find_newspaper_from_url(x, papers).name)
+    urls["paper"] = urls["url"].apply(
+        lambda x: find_newspaper_from_url(x, papers, return_name=True)
+    )
 
     #  drop urls where we couldn't find a newspaper
     urls = urls.dropna(subset="paper", axis=0)
@@ -42,8 +44,12 @@ def find_urls_to_crawl(paper: str, data_home: pathlib.Path) -> list[str]:
     print(f" {urls.shape} urls after filter for newspaper")
 
     urls = set(urls["url"].tolist())
+
+    #  remove articles that already exist in the articles json
     urls = filter_urls(files.JSONLines(data_home / "articles" / paper), urls)
     print(f" {len(urls)} urls after filter for article")
+
+    #  remove articles that have already been rejected
     urls = filter_urls(files.JSONLines(data_home / "rejected"), urls)
     print(f" {len(urls)} urls after filter for rejected")
     return list(urls)
@@ -58,15 +64,20 @@ def create_article_name(url: str, idx: int = -1) -> str:
     return article_id[idx].replace(".html", "")
 
 
-def find_newspaper_from_url(url: str, papers: typing.Optional[list]=None) -> Newspaper:
+def find_newspaper_from_url(
+    url: str, papers: typing.Optional[list] = None, return_name: bool = False
+) -> Newspaper | str | None:
     if papers is None:
         papers = read_newspapers_json()
 
     for paper in papers:
         if paper.site in url:
-            return paper
+            if return_name:
+                return paper.name
+            else:
+                return paper
 
-    raise ValueError(f"No paper found for {url}")
+    print(f"No paper found for {url}")
 
 
 def find_start_url(response: HtmlResponse) -> str:

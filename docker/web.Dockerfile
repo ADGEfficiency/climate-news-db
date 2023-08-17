@@ -13,5 +13,5 @@ COPY ./data/db.sqlite ./data/db.sqlite
 COPY ./data/climate-news-db-dataset.zip ./data/climate-news-db-dataset.zip
 COPY ./newspapers.json ./newspapers.json
 
-RUN make setup && chmod +x ./entrypoint.sh && make setup-cron-jobs
+RUN make setup QUIET= && chmod +x ./entrypoint.sh && make setup-cron-jobs
 ENTRYPOINT ["./entrypoint.sh"]

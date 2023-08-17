@@ -10,6 +10,9 @@ from climatedb.spiders.base import BaseSpider
 
 class YomiuriSpider(BaseSpider):
     name = "yomiuri"
+    avoid_urls = set([
+        "https://japannews.yomiuri.co.jp/society/"
+    ])
 
     def parse(self, response: HtmlResponse) -> ArticleItem:
         """
@@ -17,6 +20,9 @@ class YomiuriSpider(BaseSpider):
         @returns items 1
         @scrapes headline date_published body article_name article_url
         """
+        if response.url in self.avoid_urls:
+            raise ValueError(f"{response.url} should be avoided")
+
         headline = response.xpath('//meta[@property="og:title"]/@content').get()
         body = get_body(response)
         unwanted = [
