@@ -90,7 +90,7 @@ crawl: pulls3-urls
 crawl-one:
 	scrapy crawl $(PAPER) -L DEBUG -o $(DATA_HOME)/articles/$(PAPER).jsonlines
 
-crawl-cloud: seed db-regen crawl pushs3
+crawl-cloud: setup seed db-regen crawl pushs3
 
 # WEB APP
 .PHONY: app zip
