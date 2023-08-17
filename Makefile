@@ -2,11 +2,10 @@
 all: app
 
 DATA_HOME = ./data
+QUIET := -q
 
 # SETUP
 .PHONY: setup
-
-QUIET := -q
 
 setup:
 	pip install pip -Uq
@@ -48,6 +47,7 @@ seed:
 	python scripts/seed.py
 
 db-regen: seed
+	mkdir -p $(DATA_HOME)/articles
 	python scripts/regen_database.py
 
 gpt:
