@@ -1,13 +1,9 @@
-FROM python:3.10.11
-
+FROM --platform=linux/amd64 python:3.11.4-alpine
+RUN apk update
+RUN apk add make automake gcc g++ subversion
 WORKDIR /app
-
-COPY ./poetry.lock ./pyproject.toml ./poetry.toml ./Makefile ./
-COPY ./climatedb ./climatedb
-COPY ./static ./static
-COPY ./templates ./templates
-
-RUN make setup
-RUN make restore-down -o setup
-RUN make replicate -o setup
-CMD ["make", "app", "-o", "setup", "PORT=8080"]
+COPY Makefile pyproject.toml poetry.lock ./
+RUN make setup QUIET=
+COPY docker/crawl-entrypoint.sh ./entrypoint.sh
+RUN chmod +x ./entrypoint.sh
+CMD ["./entrypoint.sh"]

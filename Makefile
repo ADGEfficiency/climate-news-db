@@ -1,57 +1,66 @@
-.PHONY: all
-all: app
-
 DATA_HOME = ./data
-QUIET := -q
 
-# SETUP
+# --------------------------------------
+#               WORKFLOWS
+# --------------------------------------
+.PHONY: crawl deploy
+
+crawl: setup seed regen pushs3
+
+deploy: crawl deploy-flyio
+
+# --------------------------------------
+#               SETUP
+# --------------------------------------
 .PHONY: setup
+
+QUIET := -q
 
 setup:
 	pip install pip -Uq
 	pip install poetry==1.3.0 $(QUIET)
 	poetry install $(QUIET)
 
-# CHECK
-.PHONY: check static
+# --------------------------------------
+#           ARTICLE CRAWLING
+# --------------------------------------
+.PHONY: crawl
 
-check: setup
-	ruff check .
+crawl:
+	cat newspapers.json | jq '.[].name' | xargs -n 1 -I {} scrapy crawl {} -o $(DATA_HOME)/articles/{}.jsonl -L DEBUG
 
-static: setup
-	mypy climatedb
-	mypy tests
+# --------------------------------------
+#             WEB APP
+# --------------------------------------
+.PHONY: app zip
 
-# TEST
-.PHONY: test test-ci
+PORT=8004
 
-test: setup
-	pytest tests -x --lf -s
+app: setup
+	uvicorn climatedb.app:app --reload --port $(PORT) --host 0.0.0.0 --proxy-headers
 
-test-ci:
-	coverage run -m pytest tests --showlocals --full-trace --tb=short --show-capture=no -v -s
-	coverage report -m
+zip:
+	cd $(DATA_HOME); zip -r ./climate-news-db-dataset.zip ./* -x "./html/*" -x "./opinions/*"
 
-# DATABASE
-.PHONY: setup-cron-jobs seed db-regen gpt pulls3 pulls3-urls pushs3
+deploy-flyio:
+	flyctl deploy --wait-timeout 120
 
-setup-cron-jobs:
-	# echo "*/5 * * * * root cd /app && make restore-down" > /etc/cron.d/restore-down
-	# chmod 0644 /etc/cron.d/restore-down
-	# echo "* * * * * root echo 'ran-cron'" > /etc/cron.d/hello
-	# chmod 0644 /etc/cron.d/hello
-	echo "TODO - will setup litestream replication on webapp server here"
+# --------------------------------------
+#             DATABASE
+# --------------------------------------
+.PHONY: seed regen
 
 seed:
-	mkdir -p $(DATA_HOME)
+	mkdir -p $(DATA_HOME)/articles
 	python scripts/seed.py
 
-db-regen: seed
-	mkdir -p $(DATA_HOME)/articles
+regen: seed
 	python scripts/regen_database.py
 
-gpt:
-	python ./climatedb/gpt.py
+# --------------------------------------
+#                S3
+# --------------------------------------
+.PHONY: pulls3 pulls3-urls pushs3
 
 S3_BUCKET=$(shell aws cloudformation describe-stacks --stack-name ClimateNewsDB --region ap-southeast-2 --query 'Stacks[0].Outputs[?OutputKey==`BucketNameOutput`].OutputValue' --output text)
 S3_DIR=s3://$(S3_BUCKET)
@@ -67,38 +76,49 @@ pulls3-urls:
 pushs3:
 	aws s3 sync $(DATA_HOME) $(S3_DIR)
 
-#  INFRA
-.PHONY: cdk run-search-lambdas aws-infra deploy
+# --------------------------------------
+#             AWS INFRA
+# --------------------------------------
 
-cdk:
+.PHONY: run-search-lambdas aws-infra
+
+infra:
 	cd infra && npx --yes aws-cdk@2.75.0 deploy -vv --all
+
+# --------------------------------------
+#               CHECK
+# --------------------------------------
+.PHONY: check static
+
+check: setup
+	ruff check .
+
+static: setup
+	mypy climatedb
+	mypy tests
+
+# --------------------------------------
+#               TEST
+# --------------------------------------
+.PHONY: test test-ci
+
+test: setup
+	pytest tests -x --lf -s
+
+test-ci: setup
+	coverage run -m pytest tests --showlocals --full-trace --tb=short --show-capture=no -v -s
+	coverage report -m
+
+# --------------------------------------
+#               DEV
+# --------------------------------------
+
+gpt:
+	python ./climatedb/gpt.py
 
 run-search-lambdas:
 	python scripts/run-search-lambdas.py
 
-aws-infra: cdk
-
-deploy: crawl-cloud
-	flyctl deploy --wait-timeout 120
-
-# ARTICLE CRAWLING
-.PHONY: crawl crawl-one crawl-cloud
-
-crawl: pulls3-urls
-	cat newspapers.json | jq '.[].name' | xargs -n 1 -I {} scrapy crawl {} -o $(DATA_HOME)/articles/{}.jsonl -L DEBUG
-
 crawl-one:
 	scrapy crawl $(PAPER) -L DEBUG -o $(DATA_HOME)/articles/$(PAPER).jsonlines
-
-crawl-cloud: setup seed db-regen crawl pushs3
-
-# WEB APP
-.PHONY: app zip
-
-PORT=8004
-app: setup
-	uvicorn climatedb.app:app --reload --port $(PORT) --host 0.0.0.0 --proxy-headers
-
-zip:
-	cd $(DATA_HOME); zip -r ./climate-news-db-dataset.zip ./* -x "./html/*" -x "./opinions/*"
 
