@@ -1,9 +1,16 @@
 import pandas as pd
-from aws_cdk import (CfnOutput, Duration, Stack, aws_events,
-                     aws_events_targets, aws_iam, aws_lambda, aws_s3)
+from aws_cdk import (
+    CfnOutput,
+    Duration,
+    Stack,
+    aws_events,
+    aws_events_targets,
+    aws_iam,
+    aws_lambda,
+    aws_s3,
+)
 from aws_cdk.aws_ecr_assets import DockerImageAsset, Platform
-from aws_cdk.aws_ecs import (Cluster, ContainerImage, FargateTaskDefinition,
-                             LogDriver)
+from aws_cdk.aws_ecs import Cluster, ContainerImage, FargateTaskDefinition, LogDriver
 from aws_cdk.aws_events import Rule, Schedule
 from aws_cdk.aws_events_targets import EcsTask
 from constructs import Construct
@@ -88,6 +95,8 @@ class Search(Stack):
                 schedule=aws_events.Schedule.cron(
                     minute=str(start_time.minute),
                     hour=str(start_time.hour),
+                    month="*",
+                    week_day="1",
                 ),
                 targets=[
                     aws_events_targets.LambdaFunction(
@@ -137,4 +146,4 @@ class Crawl(Stack):
         )
 
         rule = Rule(self, "WeeklyRule", schedule=Schedule.rate(Duration.days(7)))
-        rule.add_target(EcsTask(cluster=cluster, task_definition=task_definition))
+        # rule.add_target(EcsTask(cluster=cluster, task_definition=task_definition))
