@@ -10,16 +10,15 @@ Search(
     app,
     "ClimateNewsDB",
     env=cdk.Environment(
-        account=os.getenv("CDK_DEFAULT_ACCOUNT"),
-        region=os.getenv("CDK_DEFAULT_REGION")
+        account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
     ),
 )
-Crawl(
-    app,
-    "ClimateNewsDBCrawl",
-    env=cdk.Environment(
-        account=os.getenv("CDK_DEFAULT_ACCOUNT"),
-        region=os.getenv("CDK_DEFAULT_REGION")
-    ),
-)
+# Crawl(
+#     app,
+#     "ClimateNewsDBCrawl",
+#     env=cdk.Environment(
+#         account=os.getenv("CDK_DEFAULT_ACCOUNT"),
+#         region=os.getenv("CDK_DEFAULT_REGION")
+#     ),
+# )
 app.synth()

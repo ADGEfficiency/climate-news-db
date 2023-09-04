@@ -83,7 +83,7 @@ pushs3:
 .PHONY: run-search-lambdas infra
 
 infra:
-	cd infra && npx --yes aws-cdk@2.75.0 deploy -vv --all
+	cd infra && npx --yes aws-cdk@2.92.0 deploy -vv --all
 
 # --------------------------------------
 #               CHECK
