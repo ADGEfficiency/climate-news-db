@@ -1,44 +1,46 @@
-from datetime import datetime
+import datetime
 
-from climatedb import get_urls_for_paper, parsing_utils
-from climatedb.parsing_utils import get_app_json, get_body
-from climatedb.spiders.base import ClimateDBSpider
+from scrapy.http.response.html import HtmlResponse
+
+from climatedb import parse
+from climatedb.crawl import create_article_name, find_start_url
+from climatedb.models import ArticleItem
+from climatedb.spiders.base import BaseSpider
 
 
-class AljazeeraSpider(ClimateDBSpider):
+class AljazeeraSpider(BaseSpider):
     name = "aljazeera"
-    start_urls = get_urls_for_paper(name)
 
-    def parse(self, response):
-        article_name = parsing_utils.form_article_id(response.url, -1)
-
-        body = get_body(response)
+    def parse(self, response: HtmlResponse) -> ArticleItem:
+        """
+        @url https://www.aljazeera.com/news/2021/10/4/ukraine-accuses-russia-of-escalating-conflict-in-east
+        @returns items 1
+        @scrapes headline date_published body article_name article_url
+        """
+        body = parse.get_body(response)
         body = body.replace("Follow Al Jazeera English:", "")
 
-        subtitle = response.xpath("//p/em//text()").get()
-
         try:
-            app_json = get_app_json(response)
-            date = app_json["datePublished"]
-            headline = app_json["headline"]
-        except TypeError:
-            #  maybe always do this ??? idk
+            ld_json = parse.get_ld_json(response)
+            headline = ld_json["headline"]
+            date_published = datetime.datetime.strptime(
+                ld_json["datePublished"], "%Y-%m-%dT%H:%M:%SZ"
+            )
+
+        except Exception:
             headline = response.xpath('//meta[@property="og:title"]/@content').get()
             date = response.xpath('//span[@class="date"]/text()').get()
+            time = response.xpath('//span[@class="time"]/text()').get()
+            dt = date + " " + time
+            dt = dt.replace(" ET", "")
+            date_published = datetime.datetime.strptime(dt, "%B %d, %Y %I:%M%p")
 
-            # <span class="date">September 6, 2013</span>
-            date = datetime.strptime(date, "%B %d, %Y")
-            date = date.isoformat()
-
-        #  one jsonline - saved by scrapy for us
-        meta = {
-            "headline": headline,
-            "subtitle": subtitle,
-            "body": body,
-            "article_url": response.url,
-            "date_published": date,
-            "article_name": article_name,
-        }
-        #  shouldnt need this!
-        assert len(meta["article_name"]) > 4
-        return self.tail(response, meta)
+        return ArticleItem(
+            body=body,
+            html=response.text,
+            headline=headline,
+            date_published=date_published,
+            article_url=response.url,
+            article_name=create_article_name(response.url, -1),
+            article_start_url=find_start_url(response),
+        )

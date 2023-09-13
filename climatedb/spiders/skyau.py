@@ -1,37 +1,40 @@
-import unicodedata
+import datetime
 
-from climatedb import get_urls_for_paper
-from climatedb.parsing_utils import form_article_id, get_body
-from climatedb.spiders.base import ClimateDBSpider
+from scrapy.http.response.html import HtmlResponse
+
+from climatedb import parse
+from climatedb.crawl import create_article_name, find_start_url
+from climatedb.models import ArticleItem
+from climatedb.spiders.base import BaseSpider
 
 
-class SkyAUSpider(ClimateDBSpider):
+class SkyAUSpider(BaseSpider):
     name = "skyau"
-    start_urls = get_urls_for_paper(name)
 
-    def parse(self, response):
-        article_name = form_article_id(response.url, -1)
-        body = get_body(response)
-        body = body.split("Read More")[0]
-        body = body.split("Image:")[0]
+    def parse(self, response: HtmlResponse) -> ArticleItem:
+        """
+        @url https://www.skynews.com.au/details/_6216840001
+        @returns items 1
+        @scrapes headline date_published body article_name article_url
+        """
+        ld_json = parse.get_ld_json(response)
 
-        headline = response.xpath('//meta[@property="og:title"]/@content').get()
-        headline = unicodedata.normalize("NFKD", headline)
-        headline = headline.replace("&#8216;", "")
-        headline = headline.replace("&#8217;", "")
+        headline = ld_json["name"]
+        headline = parse.clean_headline(headline)
 
-        subtitle = response.xpath('//meta[@property="og:description"]/@content').get()
-        subtitle = subtitle.split("Image:")[0]
-        subtitle = unicodedata.normalize("NFKD", subtitle)
+        body = parse.get_body(response)
 
-        date = response.xpath('//meta[@name="article:publicationdate"]/@content').get()
+        date_published = ld_json["datePublished"]
+        date_published = datetime.datetime.strptime(
+            date_published, "%Y-%m-%dT%H:%M:%S.%fZ"
+        )
 
-        meta = {
-            "headline": headline,
-            "subtitle": subtitle,
-            "body": body,
-            "article_url": response.url,
-            "date_published": date,
-            "article_name": article_name,
-        }
-        return self.tail(response, meta)
+        return ArticleItem(
+            body=body,
+            html=response.text,
+            headline=headline,
+            date_published=date_published,
+            article_url=response.url,
+            article_name=create_article_name(response.url, -1),
+            article_start_url=find_start_url(response),
+        )

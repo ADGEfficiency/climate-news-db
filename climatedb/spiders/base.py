@@ -1,29 +1,13 @@
-import datetime
-from pathlib import Path
+import pathlib
 
 import scrapy
-from rich import print
 
-from climatedb.config import data_home as home
-from climatedb.databases import Article, find_newspaper_from_url, find_start_url
-from climatedb.files import HTMLFile
+from climatedb.crawl import find_urls_to_crawl
 
 
-class ClimateDBSpider(scrapy.Spider):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        print(
-            f"[green]starting[/] [bold blue]{self.name}[/] [green]spider[/] - {len(self.start_urls)} urls"
-        )
-
-    def tail(self, response, meta: dict) -> dict:
-        meta = Article(**meta).dict(exclude_unset=True)
-        #  maybe a TODO here to bring these arguments into the Article type?
-        meta["article_length"] = len(meta["body"])
-        meta["date_uploaded"] = datetime.datetime.now().isoformat()
-        meta["article_start_url"] = find_start_url(response)
-
-        paper = find_newspaper_from_url({"url": meta["article_url"]})
-        fi = HTMLFile(Path(home) / "html" / paper["name"] / meta["article_name"])
-        fi.write(response.text)
-        return meta
+class BaseSpider(scrapy.Spider):
+    def start_requests(self) -> scrapy.Request:
+        data_home = pathlib.Path(self.settings["DATA_HOME"])
+        urls = find_urls_to_crawl(self.name, data_home=data_home)
+        for url in urls:
+            yield scrapy.Request(url=url, callback=self.parse)

@@ -1,48 +1,109 @@
+import datetime
 import json
-from pathlib import Path
+import pathlib
+import typing
 
 import boto3
+from rich import print
+from scrapy.settings import Settings
 
-from climatedb import types
-from climatedb.config import region
+
+class JSONEncoder(json.JSONEncoder):
+    """seralize non-JSON compatabile data to JSON - numpy + timestamps"""
+
+    def default(self, obj: typing.Any) -> typing.Any:
+        if isinstance(obj, datetime.datetime):
+            return obj.isoformat()
+        elif isinstance(obj, datetime.date):
+            return obj.isoformat()
+        else:
+            return super(JSONEncoder, self).default(obj)
 
 
-class JSONLines:
-    def __init__(self, path):
-        self.path = Path(path)
+class File:
+    suffix = ""
 
-    def read(self):
+    def __init__(self, path: typing.Union[str, pathlib.Path]) -> None:
+        self.path = pathlib.Path(path).with_suffix(self.suffix)
+        self.path.parent.mkdir(exist_ok=True, parents=True)
+
+    def read(self) -> typing.Union[list, str, dict]:
+        raise NotImplementedError()
+
+    def write(self, data: typing.Union[dict, list, str]) -> None:
+        raise NotImplementedError()
+
+    def exists(self) -> bool:
+        raise NotImplementedError()
+
+
+class JSONLines(File):
+    suffix = ".jsonl"
+
+    def __init__(self, path: typing.Union[str, pathlib.Path]) -> None:
+        super(JSONLines, self).__init__(path)
+
+    def read(self) -> list:
         print(f" reading JSONLines from: {self.path}")
         data = self.path.read_text().split("\n")[:-1]
         return [json.loads(a) for a in data]
 
-    def write(self, data: types.List[dict], mode="w"):
+    def write(self, data: list, mode: str = "w") -> None:  # type: ignore[override]
         print(f" writing JSONLines to: {self.path}")
-        #  write data into a list of strings
-        #  separated by new lines
-        data = [json.dumps(d) + "\n" for d in data]
 
         if self.path.is_file():
             mode = "a"
 
         with open(self.path, mode) as fp:
-            fp.writelines(data)
+            fp.writelines([json.dumps(d, cls=JSONEncoder) + "\n" for d in data])
 
-    def exists(self):
+    def exists(self) -> bool:
+        return self.path.is_file()
+
+
+class HTMLFile(File):
+    suffix = ".html"
+
+    def __init__(self, path: typing.Union[str, pathlib.Path]) -> None:
+        super(HTMLFile, self).__init__(path)
+
+    def write(self, data: str) -> None:  # type: ignore[override]
+        print(f" writing HTMLFile {self.path}")
+        self.path.write_text(data)
+
+
+class JSONFile(File):
+    suffix = ".json"
+
+    def __init__(self, path: typing.Union[str, pathlib.Path]) -> None:
+        super(JSONFile, self).__init__(path)
+
+    def read(self) -> typing.Any:
+        print(f" read JSONFile {self.path.name}")
+        return json.loads(self.path.read_text())
+
+    def write(self, data: dict) -> None:
+        print(f" write JSONFile {self.path.name}")
+        self.path.write_text(json.dumps(data, cls=JSONEncoder))
+
+    def exists(self) -> bool:
         return self.path.is_file()
 
 
 class S3JSONLines:
-    def __init__(self, bucket, key):
+    def __init__(self, bucket: str, key: str) -> None:
+        settings = Settings()
+        settings.setmodule("climatedb.settings")
+
         self.bucket = bucket
         self.key = key
 
-        self.session = boto3.Session(region_name=region)
+        self.session = boto3.Session(region_name=settings["AWS_REGION"])
         self.resource = self.session.resource("s3")
         self.client = self.session.client("s3")
         self.obj = self.resource.Object(self.bucket, self.key)
 
-    def read(self) -> types.List[dict]:
+    def read(self) -> list[dict]:
         print(f" reading JSONLines from s3: {self.bucket, self.key}")
         obj = self.client.get_object(Bucket=self.bucket, Key=self.key)
         #  this will be a big string
@@ -51,7 +112,7 @@ class S3JSONLines:
         #  last one is empty string
         return [json.loads(d) for d in data]
 
-    def write(self, data: types.List[dict], mode="w"):
+    def write(self, data: list, mode: str = "w") -> None:
         print(f" writing JSONLines to s3: {self.bucket, self.key}")
         #  write data into a list of strings
         #  separated by new lines
@@ -59,25 +120,8 @@ class S3JSONLines:
 
         #  can actually use the jsonlines package here probably...
         print(f" joining {len(data)} urls onto {len(existing)} existing urls")
-        existing = "".join([json.dumps(d) + "\n" for d in existing])
-        data = "".join([json.dumps(d) + "\n" for d in data])
-        pkg = existing + data
+        #  TODO - messy
+        pkg = "".join([json.dumps(d) + "\n" for d in existing]) + "".join(
+            [json.dumps(d) + "\n" for d in data]
+        )
         self.obj.put(Body=bytes(pkg.encode("UTF-8")))
-
-
-class JSONFile:
-    def __init__(self, path):
-        self.path = Path(path)
-
-    def read(self):
-        return json.loads(self.path.read_text())
-
-
-class HTMLFile:
-    def __init__(self, path):
-        self.path = Path(path).with_suffix(".html")
-        self.path.parent.mkdir(exist_ok=True, parents=True)
-
-    def write(self, html: str) -> None:
-        print(f" writing to {self.path}")
-        self.path.write_text(html)

@@ -1,43 +1,39 @@
-import unicodedata
-from datetime import datetime
+import datetime
 
 from scrapy.http.response.html import HtmlResponse
 
-from climatedb import get_urls_for_paper, parsing_utils
-from climatedb.spiders.base import ClimateDBSpider
+from climatedb import parse
+from climatedb.crawl import create_article_name, find_start_url
+from climatedb.models import ArticleItem
+from climatedb.spiders.base import BaseSpider
 
 
-class DailyPostSpider(ClimateDBSpider):
+class DailyPostSpider(BaseSpider):
     name = "daily_post"
-    start_urls = get_urls_for_paper(name)
 
-    def parse(self, response: HtmlResponse) -> dict:
-        article_name = parsing_utils.form_article_id(response.url, -1)
-
-        headline = response.xpath('//meta[@property="og:title"]/@content').get()
-        subtitle = response.xpath('//meta[@property="og:description"]/@content').get()
-
-        date = response.xpath(
-            '//meta[@property="article:published_time"]/@content'
-        ).get()
-        date = datetime.fromisoformat(date)
-
+    def parse(self, response: HtmlResponse) -> ArticleItem:
         """
-        find all p tags below
-        <div id="mvp-content-main" class="left relative">
+        @url https://www.dailypost.co.uk/news/north-wales-news/anglesey-wind-farm-plans-could-19906408
+        @returns items 1
+        @scrapes headline date_published body article_name article_url
         """
-        div = response.xpath('//div[@id="mvp-content-main"]')
-        p_tags = div.xpath(".//p/text()").getall()
-        body = " ".join(p_tags)
+        ld_json = parse.get_ld_json(response)[0]
 
-        body = unicodedata.normalize("NFKD", body).encode("ASCII", "ignore").decode()
+        body = ld_json["articleBody"]
+        body = parse.clean_body(body)
 
-        meta = {
-            "headline": headline,
-            "subtitle": subtitle,
-            "body": body,
-            "article_url": response.url,
-            "date_published": date,
-            "article_name": article_name,
-        }
-        return self.tail(response, meta)
+        headline = ld_json["headline"]
+        date_published = ld_json["datePublished"]
+        date_published = datetime.datetime.strptime(
+            date_published, "%Y-%m-%dT%H:%M:%S%z"
+        )
+
+        return ArticleItem(
+            body=body,
+            html=response.text,
+            headline=headline,
+            date_published=date_published,
+            article_url=response.url,
+            article_name=create_article_name(response.url),
+            article_start_url=find_start_url(response),
+        )

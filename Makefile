@@ -1,100 +1,123 @@
-include .env
--include .env.secret
-export
+DATA_HOME = ./data
 
-all: app
-scrape: setup pulls3 create_urls scrapy db zip pushs3 docker-push
+# --------------------------------------
+#               WORKFLOWS
+# --------------------------------------
+.PHONY: crawl deploy
 
-#  S3
+crawl: setup seed regen pushs3
 
-#  these come from .env
-S3_DIR = s3://$(S3_BUCKET)/$(DATA_DIR)
+deploy: crawl zip deploy-flyio
 
-pulls3:
-	aws --no-sign-request --region ap-southeast-2 s3 sync $(S3_DIR) $(DATA_HOME) --exclude 'raw/*' --exclude 'temp/*' --exclude 'article_body/*'
+# --------------------------------------
+#               SETUP
+# --------------------------------------
+.PHONY: setup
 
-pulls3-urls:
-	aws --no-sign-request --region ap-southeast-2 s3 cp $(S3_DIR)/urls.jsonl $(DATA_HOME)/urls.jsonl --exclude 'raw/*' --exclude 'temp/*' --exclude 'article_body/*'
-
-pushs3:
-	aws s3 sync $(DATA_HOME) $(S3_DIR) --exclude 'logs/*' --exclude 'temp/*' --exclude 'article_body/*'
-
-#  SCRAPE
+QUIET := -q
 
 setup:
-	pip install poetry -q
-	poetry config virtualenvs.create false --local
-	poetry install -q
+	pip install pip -Uq
+	pip install poetry==1.3.0 $(QUIET)
+	poetry install $(QUIET)
 
-create_urls:
-	python3 scripts/create_urls_csv.py
+# --------------------------------------
+#           ARTICLE CRAWLING
+# --------------------------------------
+.PHONY: crawl
 
-LOG := INFO
-scrapy: create_urls
-	cat ./data-neu/newspapers.json | jq 'keys[]' | xargs -n 1 -I {} scrapy crawl {} -o $(DATA_HOME)/articles/{}.jsonlines -L $(LOG)
+crawl: setup pulls3-urls
+	cat newspapers.json | jq '.[].name' | xargs -n 1 -I {} scrapy crawl {} -o $(DATA_HOME)/articles/{}.jsonl -L DEBUG
 
-db: scrapy
-	rm -rf $(DB_FI)
-	python3 scripts/create_sqlite_papers.py
-	cat ./data-neu/newspapers.json | jq 'keys[]' | xargs -n 1 -I {} python ./scripts/create_sqlite_one.py {}
-	python3 scripts/create_sqlite_app.py
+# --------------------------------------
+#             WEB APP
+# --------------------------------------
+.PHONY: app zip
 
-#  SCRAPE INFRA
-
-STAGE ?= dev
-
-ACCOUNTNUM=$(shell aws sts get-caller-identity --query "Account" --output text)
-AWSPROFILE=default
-IMAGENAME=climatedb-$(STAGE)
-
-./node_modules/serverless/README.md:
-	npm install serverless
-sls-setup: ./node_modules/serverless/README.md
-
-infra: docker-aws infra-aws
-
-docker-aws:
-	sh build-docker-image.sh $(ACCOUNTNUM) climatedb-dev lambda.Dockerfile $(AWSPROFILE)
-
-infra-aws: sls-setup
-	npx serverless deploy -s $(STAGE) --param account=$(ACCOUNTNUM) --verbose
-
-#  WEBAPP
+PORT=8004
 
 app: setup
-	uvicorn app:app --reload
-
-#  WEBAPP INFRA
-
-docker-setup:
-	sudo snap install docker
-	sudo snap install --classic heroku
-
-docker-push:
-	sudo heroku auth:token | sudo docker login --username=_ registry.heroku.com --password-stdin
-	sudo heroku container:login
-	sudo heroku container:push web -a climate-news-db --recursive
-	sudo heroku container:release web -a climate-news-db
-
-#  UTILS
-
-clean:
-	rm -rf $(DATA_HOME)/articles/* $(DATA_HOME)/db.sqlite $(DATA_HOME)/urls.csv
-
-datasette:
-	datasette $(DB_FI)
-
-scrape-one:
-	scrapy crawl $(PAPER) -L DEBUG -o $(DATA_HOME)/articles/$(PAPER).jsonlines
+	uvicorn climatedb.app:app --reload --port $(PORT) --host 0.0.0.0 --proxy-headers
 
 zip:
-	cd $(DATA_HOME); zip -r ./climate-news-db-dataset.zip ./* -x "./html/*"
+	cd $(DATA_HOME); zip -r ./climate-news-db-dataset.zip ./* -x "./html/*" -x "./opinions/*"
 
-check:
-	ruff check .
-	djlint . --extension=html --check --profile jinja
+deploy-flyio:
+	flyctl deploy --wait-timeout 360
 
-format:
-	isort . --profile black
-	black .
-	ruff check . --fix-only
+# --------------------------------------
+#             DATABASE
+# --------------------------------------
+.PHONY: seed regen
+
+seed:
+	mkdir -p $(DATA_HOME)/articles
+	python scripts/seed.py
+
+regen: seed
+	python scripts/regen_database.py
+
+# --------------------------------------
+#                S3
+# --------------------------------------
+.PHONY: pulls3 pulls3-urls pushs3
+
+S3_BUCKET=$(shell aws cloudformation describe-stacks --stack-name ClimateNewsDB --region ap-southeast-2 --query 'Stacks[0].Outputs[?OutputKey==`BucketNameOutput`].OutputValue' --output text)
+S3_DIR=s3://$(S3_BUCKET)
+
+pulls3:
+	aws --region ap-southeast-2 s3 sync $(S3_DIR) $(DATA_HOME) --exclude 'html/*'
+
+pulls3-urls:
+	echo "$(shell wc -l $(DATA_HOME)/urls.jsonl) urls"
+	aws --region ap-southeast-2 s3 cp $(S3_DIR)/urls.jsonl $(DATA_HOME)/urls.jsonl
+	echo "$(shell wc -l $(DATA_HOME)/urls.jsonl) urls"
+
+pushs3:
+	aws s3 sync $(DATA_HOME) $(S3_DIR)
+
+# --------------------------------------
+#             AWS INFRA
+# --------------------------------------
+
+.PHONY: run-search-lambdas infra
+
+infra: setup
+	cd infra && npx --yes aws-cdk@2.92.0 deploy -vv --all
+
+# --------------------------------------
+#               CHECK
+# --------------------------------------
+.PHONY: check static
+
+check: setup
+	ruff check climatedb infra scripts tests
+
+static: setup
+	mypy climatedb
+	mypy tests
+
+# --------------------------------------
+#               TEST
+# --------------------------------------
+.PHONY: test test-ci
+
+test: setup
+	pytest tests -x --lf -s
+
+test-ci: setup
+	coverage run -m pytest tests --showlocals --full-trace --tb=short --show-capture=no -v -s
+	coverage report -m
+
+# --------------------------------------
+#               DEV
+# --------------------------------------
+
+gpt:
+	python ./climatedb/gpt.py
+
+run-search-lambdas:
+	python scripts/run-search-lambdas.py
+
+crawl-one:
+	scrapy crawl $(PAPER) -L DEBUG -o $(DATA_HOME)/articles/$(PAPER).jsonlines

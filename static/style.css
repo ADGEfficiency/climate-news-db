@@ -1,0 +1,10 @@
+.dark .white-icon {
+  color: white;
+}
+
+@media (prefers-color-scheme: dark) {
+  /* Styles for dark mode */
+  body {
+    background-color: #282A36
+  }
+}

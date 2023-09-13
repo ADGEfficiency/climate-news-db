@@ -1,24 +1,27 @@
-{% extends "layout.html" %}
+{% extends "base.html" %}
 {% block body %}
-  <div>
-      <p class="lead">{{article.headline}}</p>
-      <table class="table">
-        <thead>
-          <th>Newspaper</th>
-          <th>Published</th>
-          <th>Source</th>
-        </thead>
-        <tbody>
-          <tr>
-            <td><a href="/newspaper/{{article.newspaper_id}}">{{article.fancy_name}}</a></td>
-            <td>{{article.date_published|datetimeformat()}}</td>
-            <td>
-              <a href="{{article.article_url}}">Link</a>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <p> 
-    {{article.body}}</p>
-  </div>
+<title>{{article.headline}}</title>
+<div class="bg-white dark:bg-dracula px-6 lg:px-8">
+  <div class="mx-auto max-w-5xl text-base leading-7 text-gray-700">
+    <p class="text-base font-semibold leading-7 text-accent hover:underline"><a href="/newspaper/{{newspaper.name}}">{{newspaper.fancy_name}}</a></p>
+    <h1 class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-gray-300">{{ article.headline }}</h1>
+    <div class="mt-6">
+      {% with newspaper_fancy_name=newspaper.fancy_name %}
+        {% include "article-meta.html" %}
+      {% endwith %}
+      {% if article.scientific_accuracy_explanation %}
+      <h2 class="mt-6 text-2xl dark:text-gray-300">GPT Opinions</h2>
+      <h2 class="mt-6 text-xl dark:text-gray-300">Scientific Accuracy {{ article.scientific_accuracy_score }}</h2>
+      <p class="mt-6 dark:text-gray-300">{{ article.scientific_accuracy_explanation}}</p>
+      <h2 class="mt-6 text-xl dark:text-gray-300">Aritcle Tone {{ article.article_tone_score }}</h2>
+      <p class="mt-6 dark:text-gray-300">{{ article.article_tone_explanation}}</p>
+      <h2 class="mt-6 text-xl dark:text-gray-300">
+  {{article.topics | length}} Topics</h2>
+      <p class="mt-6 dark:text-gray-300">{{ article.topics_str}}</p>
+      <h2 class="mt-6 text-2xl dark:text-gray-300">Article Body</h2>
+      {% endif %}
+      <p class="mt-6 dark:text-gray-300">{{ article.body | safe }}</p>
+    </div>
+</div>
+</div>
 {% endblock %}

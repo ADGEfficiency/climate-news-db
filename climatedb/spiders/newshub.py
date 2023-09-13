@@ -1,33 +1,44 @@
-from climatedb import Article, get_urls_for_paper
-from climatedb.parsing_utils import form_article_id, get_body
-from climatedb.spiders.base import ClimateDBSpider
+import datetime
+
+from scrapy.http.response.html import HtmlResponse
+
+from climatedb.crawl import create_article_name, find_start_url
+from climatedb.models import ArticleItem
+from climatedb.spiders.base import BaseSpider
 
 
-class NewsHubSpider(ClimateDBSpider):
+class NewsHubSpider(BaseSpider):
     name = "newshub"
-    start_urls = get_urls_for_paper(name)
 
-    def parse(self, response):
-        article_name = form_article_id(response.url, -1)
-        body = get_body(response)
+    def parse(self, response: HtmlResponse) -> ArticleItem:
+        """
+        @url https://www.newshub.co.nz/home/new-zealand/2021/09/climate-change-activists-blockade-auckland-skytower.html
+        @returns items 1
+        @scrapes headline date_published body article_name article_url
+        """
+        body = response.xpath("//article//p//text()").getall()
 
         noise = [
             "This article is republished from The Conversation under a Creative Commons license. Read the original article here. ",
         ]
         for n in noise:
-            body = body.replace(n, "")
+            body = [b.replace(n, "") for b in body]
+        body = " ".join(body)
 
         headline = response.xpath('//meta[@property="og:title"]/@content').get()
-        subtitle = response.xpath('//meta[@property="og:description"]/@content').get()
-        date = response.xpath('//meta[@itemprop="datePublished"]/@content').get()
+        date_published = datetime.datetime.strptime(
+            response.xpath('//meta[@itemprop="datePublished"]/@content')
+            .get()
+            .split("+")[0],
+            "%Y-%m-%dT%H:%M:%S",
+        )
 
-        meta = {
-            "headline": headline,
-            "subtitle": subtitle,
-            "body": body,
-            "article_url": response.url,
-            "date_published": date,
-            "article_name": article_name,
-        }
-        meta = Article(**meta).dict()
-        return self.tail(response, meta)
+        return ArticleItem(
+            body=body,
+            html=response.text,
+            headline=headline,
+            date_published=date_published,
+            article_url=response.url,
+            article_name=create_article_name(response.url, -1),
+            article_start_url=find_start_url(response),
+        )

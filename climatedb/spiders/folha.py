@@ -1,36 +1,43 @@
+import datetime
+
 from scrapy.http.response.html import HtmlResponse
 
-from climatedb import get_urls_for_paper, parsing_utils
-from climatedb.parsing_utils import clean_body, get_body
-from climatedb.spiders.base import ClimateDBSpider
+from climatedb import parse
+from climatedb.crawl import create_article_name, find_start_url
+from climatedb.models import ArticleItem
+from climatedb.spiders.base import BaseSpider
 
 
-class FolhaSpider(ClimateDBSpider):
+class FolhaSpider(BaseSpider):
     name = "folha"
-    start_urls = get_urls_for_paper(name)
 
-    def parse(self, response: HtmlResponse) -> dict:
-        article_name = parsing_utils.form_article_id(response.url, -1)
-
-        headline = response.xpath('//meta[@property="og:title"]/@content').get()
-        subtitle = response.xpath('//meta[@property="og:description"]/@content').get()
-
-        date = response.xpath(
-            '//meta[@property="article:published_time"]/@content'
-        ).get()
-        body = get_body(response)
-
-        body = clean_body(body)
-
+    def parse(self, response: HtmlResponse) -> ArticleItem:
+        """
+        @url https://www1.folha.uol.com.br/internacional/en/business/2021/01/tax-crisis-and-conflict-between-cutting-down-and-spending-are-challenges-in-2021.shtml
+        @returns items 1
+        @scrapes headline date_published body article_name article_url
+        """
+        date_published = datetime.datetime.strptime(
+            response.xpath("//time/@datetime").get(), "%Y-%m-%d %H:%M:%S"
+        )
+        headline = response.xpath("//title/text()").get()
         if "Folha de S.Paulo - Internacional - En" in headline:
             raise ValueError("not an article")
 
-        meta = {
-            "headline": headline,
-            "subtitle": subtitle,
-            "body": body,
-            "article_url": response.url,
-            "date_published": date,
-            "article_name": article_name,
-        }
-        return self.tail(response, meta)
+        headline = headline.split("-")[0]
+        headline = headline.strip(" ")
+        assert headline is not None
+
+        body = response.xpath('//div[@class="c-news__body"]/p/text()')
+        body = " ".join(body.getall())
+        body = parse.clean_body(body)
+
+        return ArticleItem(
+            body=body,
+            html=response.text,
+            headline=headline,
+            date_published=date_published,
+            article_url=response.url,
+            article_name=create_article_name(response.url, -1),
+            article_start_url=find_start_url(response),
+        )

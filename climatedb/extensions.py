@@ -2,27 +2,33 @@ from datetime import datetime
 
 from rich import print
 from scrapy import signals
+from scrapy.crawler import Crawler
+from scrapy.http.response.html import HtmlResponse
+from scrapy.settings import Settings
+from scrapy.spiders import Spider
+from twisted.python.failure import Failure
 
 from climatedb import files
-from climatedb.config import data_home
-from climatedb.databases import find_start_url
+from climatedb.crawl import find_start_url
+
+settings = Settings()
+settings.setmodule("climatedb.settings")
 
 
 class RejectRegister(object):
     @classmethod
-    def from_crawler(cls, crawler):
+    def from_crawler(cls, crawler: Crawler) -> "RejectRegister":
         ext = cls()
         crawler.signals.connect(ext.spider_error, signal=signals.spider_error)
         return ext
 
-    def spider_error(self, failure, response, spider):
-        """
-        Append failed URL to a `rejected.jsonlines` file so we don't try to parse again
-        """
-        db = files.JSONLines(f"{data_home}/rejected.jsonlines")
-        url = find_start_url(response)
+    def spider_error(
+        self, failure: Failure, response: HtmlResponse, spider: Spider
+    ) -> None:
+        db = files.JSONLines(settings["DATA_HOME"] / "rejected.jsonl")
         pkg = {
-            "url": url,
+            "article_url": response.url,
+            "article_start_url": find_start_url(response),
             "error": str(failure.value),
             "search_time_utc": datetime.utcnow().isoformat(),
         }

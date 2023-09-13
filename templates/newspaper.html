@@ -1,22 +1,27 @@
-{% extends "layout.html" %}
+{% extends "base.html" %}
 {% block body %}
-  <div>
-		<p>{{articles|length}} articles from {{newspaper.fancy_name}}.</p>
-    <table class="table table-condensed table-striped">
-      <thead>
-        <th>Published</th>
-        <th>Headline</th>
-        <th>Body</th>
-      </thead>
-      <tbody>
-        {% for article in articles %}
-        <tr>
-          <td>{{article.date_published|datetimeformat()}}</td>
-          <td><a href=/article/{{article.article_id}}>{{article.headline}}</a></td>
-          <td>{{article.body[:80]+'...'}}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+<title>{{newspaper.fancy_name}}</title>
+<div class="container mx-auto max-w-5xl">
+  <div class="m-4">
+    <p class="text-accent font-semibold">{{articles|length}} articles from {{newspaper.fancy_name}}.</p>
+    {% for article in articles %}
+      <div class="row mt-5">
+        <div class="col">
+          <h3 class="dark:text-gray-300 text-base font-medium hover:underline">
+            <a href="/article/{{article.id}}">{{article.headline}}</a>
+          </h3>
+        </div>
+      </div>
+      <div class="row mt-2">
+        <div class="col">
+          {% include "article-meta.html" %}
+        </div>
+      </div>
+      <div class="row mt-3 mb-6">
+        <div class="col">
+          <p class="dark:text-gray-400">{{article.body[:280]+'...' }}</p>
+        </div>
+      </div>
+    {% endfor %}
+</div>
 {% endblock %}

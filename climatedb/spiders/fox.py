@@ -1,27 +1,32 @@
-from datetime import datetime
+import datetime
 
-from climatedb import get_urls_for_paper
-from climatedb.parsing_utils import form_article_id, get_body
-from climatedb.spiders.base import ClimateDBSpider
+import scrapy
+
+from climatedb import parse
+from climatedb.crawl import create_article_name, find_start_url
+from climatedb.models import ArticleItem
+from climatedb.spiders.base import BaseSpider
 
 
-class FoxSpider(ClimateDBSpider):
+class FoxSpider(BaseSpider):
     name = "fox"
-    start_urls = get_urls_for_paper(name)
 
-    def parse(self, response):
-        article_name = form_article_id(response.url, -1)
-        body = get_body(response)
-
-        body = response.xpath(
-            '//div[@class="article-body"]/descendant-or-self::p/text()'
-        ).getall()
-        body = "".join(body)
+    def parse(self, response: scrapy.http.Response) -> ArticleItem:
+        """
+        @url https://www.foxnews.com/media/aoc-choked-up-climate-change-motherhood
+        @returns items 1
+        @scrapes headline date_published body article_name article_url
+        """
+        ld_json = parse.get_ld_json(response)
+        headline = ld_json["headline"]
+        body = ld_json["articleBody"]
+        body = parse.clean_body(body)
 
         unwanted = [
             "Fox News Flash top headlines are here.",
             "Check out what's clicking on Foxnews.com.",
             "Fox News Flash top entertainment and celebrity headlines are here. Check out what's clicking today in entertainment.",
+            "CLICK HERE TO GET THE FOX NEWS APP",
         ]
         for unw in unwanted:
             body = body.replace(
@@ -29,25 +34,16 @@ class FoxSpider(ClimateDBSpider):
                 "",
             )
 
-        headline = response.xpath('//meta[@property="og:title"]/@content').get()
-        subtitle = response.xpath('//meta[@property="og:description"]/@content').get()
+        date_published = datetime.datetime.strptime(
+            ld_json["datePublished"], "%Y-%m-%dT%H:%M:%S%z"
+        )
 
-        date = response.xpath('//meta[@itemprop="datePublished"]/@content').get()
-
-        if date is None:
-            date = response.xpath('//div[@class="article-date"]/time/text()').get()
-            date = date.strip(" ")
-
-            date = date.split(" ")[:3]
-            date = " ".join(date)
-            date = datetime.strptime(date, "%B %d, %Y")
-
-        meta = {
-            "headline": headline,
-            "subtitle": subtitle,
-            "body": body,
-            "article_url": response.url,
-            "date_published": date,
-            "article_name": article_name,
-        }
-        return self.tail(response, meta)
+        return ArticleItem(
+            body=body,
+            html=response.text,
+            headline=headline,
+            date_published=date_published,
+            article_url=response.url,
+            article_name=create_article_name(response.url, -1),
+            article_start_url=find_start_url(response),
+        )
