@@ -7,7 +7,7 @@ DATA_HOME = ./data
 
 crawl: setup seed regen pushs3
 
-deploy: crawl deploy-flyio
+deploy: crawl zip deploy-flyio
 
 # --------------------------------------
 #               SETUP
@@ -26,7 +26,7 @@ setup:
 # --------------------------------------
 .PHONY: crawl
 
-crawl:
+crawl: setup pulls3-urls
 	cat newspapers.json | jq '.[].name' | xargs -n 1 -I {} scrapy crawl {} -o $(DATA_HOME)/articles/{}.jsonl -L DEBUG
 
 # --------------------------------------
@@ -43,7 +43,7 @@ zip:
 	cd $(DATA_HOME); zip -r ./climate-news-db-dataset.zip ./* -x "./html/*" -x "./opinions/*"
 
 deploy-flyio:
-	flyctl deploy --wait-timeout 120
+	flyctl deploy --wait-timeout 360
 
 # --------------------------------------
 #             DATABASE
