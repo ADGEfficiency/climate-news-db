@@ -3,7 +3,7 @@
 import os
 
 import aws_cdk as cdk
-from stacks import Crawl, Search
+from stacks import Search
 
 app = cdk.App()
 Search(
@@ -13,12 +13,4 @@ Search(
         account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
     ),
 )
-# Crawl(
-#     app,
-#     "ClimateNewsDBCrawl",
-#     env=cdk.Environment(
-#         account=os.getenv("CDK_DEFAULT_ACCOUNT"),
-#         region=os.getenv("CDK_DEFAULT_REGION")
-#     ),
-# )
 app.synth()
