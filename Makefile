@@ -91,7 +91,7 @@ infra:
 .PHONY: check static
 
 check: setup
-	ruff check climatedb infra scripts
+	ruff check climatedb infra scripts tests
 
 static: setup
 	mypy climatedb
@@ -121,4 +121,3 @@ run-search-lambdas:
 
 crawl-one:
 	scrapy crawl $(PAPER) -L DEBUG -o $(DATA_HOME)/articles/$(PAPER).jsonlines
-
