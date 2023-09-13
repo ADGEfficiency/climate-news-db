@@ -91,7 +91,7 @@ infra:
 .PHONY: check static
 
 check: setup
-	ruff check .
+	ruff check climatedb infra scripts
 
 static: setup
 	mypy climatedb
