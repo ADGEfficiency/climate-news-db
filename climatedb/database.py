@@ -224,23 +224,24 @@ def get_all_articles_with_opinions(
 
         results = []
         for article, opinion in data:
-            results.append(
-                {
-                    "id": article.id,
-                    "headline": article.headline,
-                    "body": article.body,
-                    "date_published": article.date_published,
-                    "article_name": article.article_name,
-                    "article_url": article.article_url,
-                    "datetime_crawled_utc": article.datetime_crawled_utc,
-                    "article_length": article.article_length,
-                    "newspaper_name": article.newspaper.name,
-                    "fancy_newspaper_name": article.newspaper.fancy_name,
-                    "scientific_accuracy_score": opinion.scientific_accuracy,
-                    "article_tone_score": opinion.article_tone,
-                    "topics": opinion.topics,
-                }
-            )
+            if len(opinion.topics) > 1:
+                results.append(
+                    {
+                        "id": article.id,
+                        "headline": article.headline,
+                        "body": article.body,
+                        "date_published": article.date_published,
+                        "article_name": article.article_name,
+                        "article_url": article.article_url,
+                        "datetime_crawled_utc": article.datetime_crawled_utc,
+                        "article_length": article.article_length,
+                        "newspaper_name": article.newspaper.name,
+                        "fancy_newspaper_name": article.newspaper.fancy_name,
+                        "scientific_accuracy_score": opinion.scientific_accuracy,
+                        "article_tone_score": opinion.article_tone,
+                        "topics": opinion.topics,
+                    }
+                )
 
         return results
 

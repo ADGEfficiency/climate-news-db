@@ -182,7 +182,7 @@ async def process_articles(articles: typing.List[Article]) -> None:
 
 
 async def main() -> None:
-    articles = database.read_all_articles()
+    articles = database.read_all_articles()[:32]
     for chunk in chunks(articles):
         await process_articles(chunk)
 

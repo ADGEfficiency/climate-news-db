@@ -3,11 +3,9 @@ DATA_HOME = ./data
 # --------------------------------------
 #               WORKFLOWS
 # --------------------------------------
-.PHONY: crawl deploy
+.PHONY: deploy
 
-crawl: setup seed regen pushs3
-
-deploy: crawl zip deploy-flyio
+deploy: setup seed regen pushs3 zip deploy-flyio
 
 # --------------------------------------
 #               SETUP
@@ -120,4 +118,4 @@ run-search-lambdas:
 	python scripts/run-search-lambdas.py
 
 crawl-one:
-	scrapy crawl $(PAPER) -L DEBUG -o $(DATA_HOME)/articles/$(PAPER).jsonlines
+	scrapy crawl $(PAPER) -L DEBUG -o $(DATA_HOME)/articles/$(PAPER).jsonl
