@@ -1,4 +1,5 @@
 import json
+import random
 import typing
 
 import boto3
@@ -28,13 +29,12 @@ def get_exported_bucket_name(export_name: str) -> typing.Optional[str]:
 
 
 if __name__ == "__main__":
-    bucket_name = get_exported_bucket_name("BucketName")
+    bucket_name = get_exported_bucket_name("VersionedBucket")
     function_name = get_lambda_function_name("SearchLambda")
 
     assert bucket_name is not None
     assert function_name is not None
     newspapers = read_newspapers_json()
-    import random
     random.shuffle(newspapers)
 
     print(
@@ -48,7 +48,7 @@ if __name__ == "__main__":
             FunctionName=function_name,
             InvocationType="RequestResponse",
             Payload=SearchLambdaEvent(
-                s3_bucket=bucket_name, newspaper_name=newspaper.name, num=5
+                s3_bucket=bucket_name, newspaper_name=newspaper.name, num=50
             ).json(),
         )
         response_payload = json.loads(response["Payload"].read())

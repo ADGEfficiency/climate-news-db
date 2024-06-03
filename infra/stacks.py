@@ -1,14 +1,6 @@
 import pandas as pd
-from aws_cdk import (
-    CfnOutput,
-    Duration,
-    Stack,
-    aws_events,
-    aws_events_targets,
-    aws_iam,
-    aws_lambda,
-    aws_s3,
-)
+from aws_cdk import (CfnOutput, Duration, Stack, aws_events,
+                     aws_events_targets, aws_iam, aws_lambda, aws_s3)
 from aws_cdk.aws_ecr_assets import Platform
 from constructs import Construct
 
@@ -17,8 +9,19 @@ from climatedb.utils import read_newspapers_json
 
 
 class Search(Stack):
-    def __init__(self, scope: Construct, id: str, **kwargs) -> None:
+    def __init__(self, scope: Construct, id: str, **kwargs: dict) -> None:
         super().__init__(scope, id, **kwargs)
+
+        unversioned_bucket = aws_s3.Bucket(self, "Unversioned")
+        CfnOutput(self, "UnversionedBucket", value=unversioned_bucket.bucket_name, export_name="UnversionedBucket")
+
+        versioned_bucket = aws_s3.Bucket(
+            self,
+            "Versioned",
+            versioned=True,
+            lifecycle_rules=[aws_s3.LifecycleRule(noncurrent_version_expiration=Duration.days(30))]
+        )
+        CfnOutput(self, "VersionedBucket", value=versioned_bucket.bucket_name, export_name="VersionedBucket")
 
         lambda_role = aws_iam.Role(
             self,
@@ -40,11 +43,6 @@ class Search(Stack):
                     ]
                 ),
             },
-        )
-
-        bucket = aws_s3.Bucket(self, "BucketName")
-        CfnOutput(
-            self, "BucketNameOutput", value=bucket.bucket_name, export_name="BucketName"
         )
 
         search_function = aws_lambda.Function(
@@ -79,11 +77,9 @@ class Search(Stack):
         lambda_start_times = pd.date_range(
             "2021-01-01T00:00:00", freq=f"{timeout}T", periods=len(newspapers)
         )
-
         max_newspapers_per_day = 24 * 60 / timeout
         assert len(newspapers) < max_newspapers_per_day
         print(f"scheduling newspapers until {lambda_start_times[-1]}")
-
         for start_time, newspaper in zip(lambda_start_times, newspapers):
             print(f"scheduling {start_time} {newspaper.name}")
             aws_events.Rule(
@@ -100,7 +96,7 @@ class Search(Stack):
                         search_function,
                         event=aws_events.RuleTargetInput.from_object(
                             SearchLambdaEvent(
-                                s3_bucket=bucket.bucket_name,
+                                s3_bucket=versioned_bucket.bucket_name,
                                 newspaper_name=newspaper.name,
                             ).dict()
                         ),

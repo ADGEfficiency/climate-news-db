@@ -5,7 +5,7 @@ DATA_HOME = ./data
 # --------------------------------------
 .PHONY: deploy
 
-deploy: setup seed regen pushs3 zip deploy-flyio
+deploy: setup pulls3 pulls3-urls seed regen crawl pushs3 zip deploy-flyio
 
 # --------------------------------------
 #               SETUP
@@ -24,7 +24,7 @@ setup:
 # --------------------------------------
 .PHONY: crawl
 
-crawl: setup pulls3-urls
+crawl:
 	cat newspapers.json | jq '.[].name' | xargs -n 1 -I {} scrapy crawl {} -o $(DATA_HOME)/articles/{}.jsonl -L DEBUG
 
 # --------------------------------------
@@ -60,16 +60,19 @@ regen: seed
 # --------------------------------------
 .PHONY: pulls3 pulls3-urls pushs3
 
-S3_BUCKET=$(shell aws cloudformation describe-stacks --stack-name ClimateNewsDB --region ap-southeast-2 --query 'Stacks[0].Outputs[?OutputKey==`BucketNameOutput`].OutputValue' --output text)
+S3_BUCKET=$(shell aws cloudformation describe-stacks --stack-name ClimateNewsDB --region ap-southeast-2 --query 'Stacks[0].Outputs[?OutputKey==`UnversionedBucket`].OutputValue' --output text)
 S3_DIR=s3://$(S3_BUCKET)
+
+VERISONED_S3_BUCKET=$(shell aws cloudformation describe-stacks --stack-name ClimateNewsDB --region ap-southeast-2 --query 'Stacks[0].Outputs[?OutputKey==`VersionedBucket`].OutputValue' --output text)
+VERISONED_S3_DIR=s3://$(VERISONED_S3_BUCKET)
 
 pulls3:
 	aws --region ap-southeast-2 s3 sync $(S3_DIR) $(DATA_HOME) --exclude 'html/*'
 
 pulls3-urls:
 	echo "$(shell wc -l $(DATA_HOME)/urls.jsonl) urls"
-	aws --region ap-southeast-2 s3 cp $(S3_DIR)/urls.jsonl $(DATA_HOME)/urls.jsonl
-	echo "$(shell wc -l $(DATA_HOME)/urls.jsonl) urls"
+	aws --region ap-southeast-2 s3 cp $(VERISONED_S3_DIR)/urls.jsonl $(DATA_HOME)/urls.jsonl
+	echo "$$(wc -l $(DATA_HOME)/urls.jsonl) urls"
 
 pushs3:
 	aws s3 sync $(DATA_HOME) $(S3_DIR)
