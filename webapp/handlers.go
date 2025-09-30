@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -67,4 +68,16 @@ func (h *Handlers) Latest(c *gin.Context) {
 		"title":           "Latest Articles",
 		"latestPublished": latestPublished,
 	})
+}
+
+func (h *Handlers) Random(c *gin.Context) {
+	id, err := h.db.GetRandomArticleID()
+	if err != nil {
+		c.HTML(http.StatusInternalServerError, "error.html", gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.Redirect(http.StatusFound, fmt.Sprintf("/article/%d", id))
 }

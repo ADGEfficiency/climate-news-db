@@ -11,10 +11,11 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center space-x-8">
-                    <a href="/" class="text-xl font-semibold text-gray-900 hover:text-gray-700">Climate News Dashboard</a>
+                    <a href="/" class="text-xl font-semibold text-gray-900 hover:text-gray-700">Climate News DB</a>
                     <nav class="flex space-x-4">
-                        <a href="/" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
-                        <a href="/latest" class="bg-gray-100 text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Latest</a>
+                        <a href="/" class="bg-gray-100 text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Latest</a>
+                        <a href="/newspapers" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">Newspapers</a>
+                        <a href="/random" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">Random Article</a>
                     </nav>
                 </div>
             </div>
@@ -23,21 +24,15 @@
 
     <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div class="px-4 py-6 sm:px-0">
-            <!-- Page Header -->
-            <div class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-900">Latest Articles</h1>
-                <p class="mt-2 text-gray-600">Browse the most recently published climate news articles</p>
-            </div>
-
             <!-- Latest Published Articles -->
             <div class="bg-white shadow rounded-lg">
                 <div class="px-6 py-4 border-b border-gray-200">
-                    <h2 class="text-lg font-medium text-gray-900 flex items-center">
-                        <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <h1 class="text-2xl font-bold text-gray-900 flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        Latest Published Articles
-                    </h2>
+                        Latest Articles
+                    </h1>
                     <p class="mt-1 text-sm text-gray-500">Articles sorted by publication date</p>
                 </div>
                 <div class="divide-y divide-gray-200">
@@ -66,5 +61,7 @@
             </div>
         </div>
     </main>
+
+    {{template "footer"}}
 </body>
 </html>

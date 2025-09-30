@@ -35,9 +35,10 @@ func main() {
 	r.LoadHTMLGlob("templates/*")
 
 	// Routes
-	r.GET("/", handlers.Dashboard)
+	r.GET("/", handlers.Latest)
+	r.GET("/newspapers", handlers.Dashboard)
 	r.GET("/article/:id", handlers.Article)
-	r.GET("/latest", handlers.Latest)
+	r.GET("/random", handlers.Random)
 
 	// Start server
 	log.Println("Starting server on :8080")

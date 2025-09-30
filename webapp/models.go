@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"math/rand"
 )
 
 type NewspaperStats struct {
@@ -176,6 +177,18 @@ func (d *Database) GetLatestScrapedArticles(limit int) ([]Article, error) {
 	}
 
 	return articles, nil
+}
+
+func (d *Database) GetRandomArticleID() (int, error) {
+	query := `SELECT MIN(id), MAX(id) FROM article`
+
+	var minID, maxID int
+	err := d.db.QueryRow(query).Scan(&minID, &maxID)
+	if err != nil {
+		return 0, err
+	}
+
+	return rand.Intn(maxID-minID+1) + minID, nil
 }
 
 func (d *Database) Close() error {
