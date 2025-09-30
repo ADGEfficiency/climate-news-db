@@ -1,0 +1,67 @@
+
+<title>climate-news-db</title>
+<div class="sm:px-6 lg:px-8">
+  <div class="sm:flex sm:items-center">
+    <div class="sm:flex-auto">
+      <h1
+        class="text-base font-semibold leading-6 text-gray-900 dark:text-gray-300"
+      >
+        <p class="text-accent">
+          {{commaNumber .Data.n_articles}} articles from {{.Data.n_papers}}
+          newspapers.
+        </p>
+      </h1>
+    </div>
+  </div>
+  <div class="flow-root">
+    <div class="overflow-x-auto sm:-mx-6 lg:-mx-8">
+      <div class="inline-block min-w-full py-2 align-middle">
+        <table class="min-w-full dark:bg-dracula">
+          <thead>
+            <tr>
+              <th
+                scope="col"
+                class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-gray-400 sm:pl-6 lg:pl-8"
+              >
+                Newspaper
+              </th>
+              <th
+                scope="col"
+                class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-400"
+              >
+                Article Count
+              </th>
+              <th
+                scope="col"
+                class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-400"
+              >
+                Average Word Count
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white dark:bg-dracula">
+            {{range .Papers}}
+            <tr class="dark:bg-dracula">
+              <td
+                class="hover:underline whitespace-nowrap py-1 pl-4 pr-3 text-sm font-medium text-gray-900 dark:text-gray-300 sm:pl-6 lg:pl-8"
+              >
+                <a href="/newspaper/{{.Name}}">{{.FancyName}}</a>
+              </td>
+              <td
+                class="whitespace-nowrap px-3 py-1 text-sm text-gray-500 dark:text-gray-300"
+              >
+                {{printf "%4.0f" .ArticleCount}}
+              </td>
+              <td
+                class="whitespace-nowrap px-3 py-1 text-sm text-gray-500 dark:text-gray-300"
+              >
+                {{printf "%4.1f" .AverageArticleLength}}
+              </td>
+            </tr>
+            {{end}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
