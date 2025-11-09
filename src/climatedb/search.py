@@ -9,7 +9,7 @@ from rich import print
 from scrapy.settings import Settings
 
 from climatedb import files
-from climatedb.files import JSONLines
+from climatedb.files import JSONLines, S3JSONLines
 from climatedb.models import Newspaper
 from climatedb.utils import get_one_newspaper
 
@@ -38,7 +38,7 @@ def search_for_articles(
         raise e
 
 
-def search(paper: str, query: str, num: int, db: JSONLines) -> list[dict[str, str]]:
+def search(paper: str, query: str, num: int, db: JSONLines | S3JSONLines) -> list[dict[str, str]]:
     newspaper = get_one_newspaper(paper)
     print(f"[green]search[/]:\n paper: {newspaper.name} n: {num} query: {query}")
     results = search_for_articles(newspaper.site, query, num_results=num)
@@ -53,7 +53,7 @@ def cli(paper: str, query: str, num: int) -> None:
     settings = Settings()
     settings.setmodule("climatedb.settings")
     db = JSONLines(settings["DATA_HOME"] / "urls.jsonl")
-    return search(paper, query, num, db)
+    search(paper, query, num, db)
 
 
 if __name__ == "__main__":

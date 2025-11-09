@@ -6,7 +6,7 @@ from rich import print
 
 from climatedb import files
 from climatedb.models import Newspaper, SearchLambdaEvent
-from climatedb.search import get_timestamp, search_for_articles
+from climatedb.search import search
 
 
 def search_controller(
