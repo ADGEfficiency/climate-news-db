@@ -1,6 +1,14 @@
 import pandas as pd
-from aws_cdk import (CfnOutput, Duration, Stack, aws_events,
-                     aws_events_targets, aws_iam, aws_lambda, aws_s3)
+from aws_cdk import (
+    CfnOutput,
+    Duration,
+    Stack,
+    aws_events,
+    aws_events_targets,
+    aws_iam,
+    aws_lambda,
+    aws_s3,
+)
 from aws_cdk.aws_ecr_assets import Platform
 from constructs import Construct
 
@@ -13,15 +21,27 @@ class Search(Stack):
         super().__init__(scope, id, **kwargs)
 
         unversioned_bucket = aws_s3.Bucket(self, "Unversioned")
-        CfnOutput(self, "UnversionedBucket", value=unversioned_bucket.bucket_name, export_name="UnversionedBucket")
+        CfnOutput(
+            self,
+            "UnversionedBucket",
+            value=unversioned_bucket.bucket_name,
+            export_name="UnversionedBucket",
+        )
 
         versioned_bucket = aws_s3.Bucket(
             self,
             "Versioned",
             versioned=True,
-            lifecycle_rules=[aws_s3.LifecycleRule(noncurrent_version_expiration=Duration.days(30))]
+            lifecycle_rules=[
+                aws_s3.LifecycleRule(noncurrent_version_expiration=Duration.days(30))
+            ],
         )
-        CfnOutput(self, "VersionedBucket", value=versioned_bucket.bucket_name, export_name="VersionedBucket")
+        CfnOutput(
+            self,
+            "VersionedBucket",
+            value=versioned_bucket.bucket_name,
+            export_name="VersionedBucket",
+        )
 
         lambda_role = aws_iam.Role(
             self,

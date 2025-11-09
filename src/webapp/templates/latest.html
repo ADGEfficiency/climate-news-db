@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{.title}}</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico" />
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-50 min-h-screen">
+    <nav class="bg-white shadow-sm border-b">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+          <div class="flex items-center space-x-8">
+            <a
+              href="/"
+              class="text-xl font-semibold text-gray-900 hover:text-gray-700"
+              >{{.title}}</a
+            >
+            <nav class="flex space-x-4">
+              <a
+                href="/"
+                class="bg-gray-100 text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                >Latest</a
+              >
+              <a
+                href="/newspapers"
+                class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium"
+                >Newspapers</a
+              >
+              <a
+                href="/random"
+                class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium"
+                >Random Article</a
+              >
+            </nav>
+          </div>
+          <div class="flex items-center">
+            <a
+              href="https://github.com/ADGEfficiency/climate-news-db"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-gray-500 hover:text-gray-700 p-2"
+              aria-label="GitHub Repository"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"
+                ></path>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+      <div class="px-4 py-6 sm:px-0">
+        <!-- Latest Published Articles -->
+        <div class="bg-white shadow rounded-lg">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <h1 class="text-2xl font-bold text-gray-900 flex items-center">
+              <svg
+                class="w-6 h-6 mr-2 text-blue-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
+              </svg>
+              Latest Articles
+            </h1>
+          </div>
+          <div class="divide-y divide-gray-200">
+            {{ range .latestPublished }}
+            <div class="px-6 py-4 hover:bg-gray-50">
+              <div class="flex items-start justify-between">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center mb-2">
+                    <div
+                      class="w-2 h-2 rounded-full mr-2"
+                      style="background-color: {{.NewspaperColor}}"
+                    ></div>
+                    <a
+                      href="/newspaper/{{.NewspaperName}}"
+                      class="text-xs font-medium text-gray-500 hover:text-blue-600"
+                      >{{.NewspaperFancy}}</a
+                    >
+                    <span class="mx-2 text-gray-300">•</span>
+                    <span class="text-xs text-gray-500"
+                      >{{ formatDate .DatePublished }}</span
+                    >
+                  </div>
+                  <h3 class="text-sm font-medium text-gray-900 mb-2">
+                    <a href="/article/{{.ID}}" class="hover:text-blue-600"
+                      >{{.Headline}}</a
+                    >
+                  </h3>
+                  <div
+                    class="flex items-center text-xs text-gray-500 space-x-4"
+                  >
+                    <span>{{.ArticleLength}} words</span>
+                    <a
+                      href="{{.ArticleURL}}"
+                      target="_blank"
+                      class="text-blue-600 hover:text-blue-800"
+                      >Read Original</a
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+            {{ end }}
+          </div>
+        </div>
+      </div>
+    </main>
+    {{ template "footer" }}
+  </body>
+</html>

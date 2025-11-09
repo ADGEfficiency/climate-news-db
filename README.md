@@ -31,25 +31,31 @@ The project consists of two main components:
 ### Data Collection
 
 **Crawl articles from newspaper URLs:**
+
 ```bash
 make crawl
 ```
+
 Pulls `urls.jsonl` from S3 and crawls articles into `articles/{newspaper}.jsonl` and database.
 
 **Regenerate database from existing articles:**
+
 ```bash
 make regen-db
 ```
+
 Rebuilds the SQLite database from local `articles/{newspaper}.jsonl` files without re-scraping.
 
 ### Web Dashboard
 
 **Run the Go web dashboard:**
+
 ```bash
 cd webapp
 go mod tidy
 go run .
 ```
+
 Visit `http://localhost:8080` to view the interactive dashboard.
 
 **Features:**

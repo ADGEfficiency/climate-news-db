@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{.title}}</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico" />
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body class="bg-gray-50 min-h-screen">
@@ -14,7 +15,7 @@
             <a
               href="/"
               class="text-xl font-semibold text-gray-900 hover:text-gray-700"
-              >Climate News DB</a
+              >{{.title}}</a
             >
             <nav class="flex space-x-4">
               <a
@@ -34,33 +35,36 @@
               >
             </nav>
           </div>
+          <div class="flex items-center">
+            <a
+              href="https://github.com/ADGEfficiency/climate-news-db"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-gray-500 hover:text-gray-700 p-2"
+              aria-label="GitHub Repository"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"
+                ></path>
+              </svg>
+            </a>
+          </div>
         </div>
       </div>
     </nav>
     <main class="max-w-4xl mx-auto py-6 sm:px-6 lg:px-8">
       <div class="px-4 py-6 sm:px-0">
-        <!-- Back to Latest -->
-        <div class="mb-6">
-          <a
-            href="/"
-            class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700"
-          >
-            <svg
-              class="w-4 h-4 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M15 19l-7-7 7-7"
-              ></path>
-            </svg>
-            Back to Latest
-          </a>
-        </div>
         <!-- Article Header -->
         <div class="bg-white shadow rounded-lg mb-6">
           <div class="px-6 py-4 border-b border-gray-200">
@@ -77,8 +81,10 @@
               {{.article.Headline}}
             </h1>
             <div class="flex flex-wrap gap-4 text-sm text-gray-500">
-              <span>Published: {{.article.DatePublished}}</span>
-              <span>Crawled: {{.article.DatetimeCrawled}}</span>
+              <span>Published: {{ formatDate .article.DatePublished }}</span>
+              <span
+                >Crawled: {{ formatDateTime .article.DatetimeCrawled }}</span
+              >
               <span>Length: {{.article.ArticleLength}} words</span>
             </div>
           </div>
@@ -223,13 +229,13 @@
                   Date Published
                 </dt>
                 <dd class="mt-1 text-sm text-gray-900">
-                  {{.article.DatePublished}}
+                  {{ formatDate .article.DatePublished }}
                 </dd>
               </div>
               <div>
                 <dt class="text-sm font-medium text-gray-500">Date Crawled</dt>
                 <dd class="mt-1 text-sm text-gray-900">
-                  {{.article.DatetimeCrawled}}
+                  {{ formatDateTime .article.DatetimeCrawled }}
                 </dd>
               </div>
               <div>
