@@ -1,30 +1,9 @@
 # Climate News Database
 
-A comprehensive system for collecting, storing, and visualizing climate change news articles from major international newspapers.
+The climate-news-db has two goals:
 
-1. create a dataset of climate change newspaper articles for NLP researchers,
-2. provide a web application for users to view climate change news.
-
-## Overview
-
-The climate-news-db serves two primary purposes:
-
-1. **Research Dataset**: Create a curated dataset of climate change newspaper articles for NLP researchers and data scientists
-2. **Web Visualization**: Provide interactive web applications to explore and analyze climate news coverage patterns
-
-## Architecture
-
-The project consists of two main components:
-
-### Python Data Pipeline
-- **Web scraping** using Scrapy framework
-- **Data processing** and storage in SQLite database
-- **Article analysis** using GPT for scientific accuracy and tone assessment
-
-### Go Web Dashboard
-- **Modern web interface** built with Go + Gin framework
-- **Responsive design** using Tailwind CSS
-- **Real-time statistics** and newspaper comparison
+1. Create a dataset of climate change newspaper articles for NLP researchers,
+2. Provide a web application for users to view climate change news.
 
 ## Quick Start
 
@@ -48,30 +27,15 @@ Rebuilds the SQLite database from local `articles/{newspaper}.jsonl` files witho
 
 ### Web Dashboard
 
-**Run the Go web dashboard:**
+**Run the Go webapp**:
 
 ```bash
-cd webapp
+cd src/webapp
 go mod tidy
 go run .
 ```
 
-Visit `http://localhost:8080` to view the interactive dashboard.
-
-**Features:**
-- 📊 **Statistics Overview**: Total newspapers (22), articles (16,532), and average lengths
-- 📰 **Newspaper Directory**: Alphabetically sorted list with article counts and website links
-- 🎨 **Clean Interface**: Responsive design optimized for desktop and mobile
-- 🔍 **Easy Navigation**: Color-coded newspapers with direct website access
-
-### Interactive URL Search
-
-**Search for articles interactively** (requires Go + Gum):
-```bash
-./scripts/search-cli.sh
-```
-
-## Data Flow
+## Data Lineage
 
 ```mermaid
 graph LR
@@ -81,9 +45,10 @@ graph LR
     C --> E[Python Analysis]
 ```
 
-## Data Formats
+## Data
 
 ### URLs (`urls.jsonl`)
+
 ```jsonl
 {"url": "https://www.chinadaily.com.cn/a/202302/21/WS63f4aea4a31057c47ebb004e.html", "search_time_utc": "2023-03-20T00:05:02.998560"}
 {"url": "https://www.chinadaily.com.cn/a/202301/19/WS63c8a4a8a31057c47ebaa8e4.html", "search_time_utc": "2023-03-20T00:05:02.998560"}
@@ -91,7 +56,7 @@ graph LR
 
 Append only storage of raw newspaper urls.  Created by a daily Google search for each newspaper with the keywords `climate change` and `climate crisis`.  This file contains many duplicates.
 
-## articles.jsonl
+### articles.jsonl
 
 Stored per newspaper in `articles/{newspaper}.jsonl`
 
@@ -107,7 +72,9 @@ Stored per newspaper in `articles/{newspaper}.jsonl`
 }
 ```
 
-### Database Schema
+### SQLite Database
+
+Serves the webapp.
 
 **Newspapers Table:**
 - 22 major international news sources
@@ -119,104 +86,12 @@ Stored per newspaper in `articles/{newspaper}.jsonl`
 - Full text content and metadata
 - Publication dates from 2008-2025
 
-**GPT Opinions Table:**
-- AI analysis of article scientific accuracy
-- Tone assessment and topic categorization
-- 30+ analyzed articles with detailed insights
+## Automation & Cloud
 
-## Newspaper Sources
+S3 buckets
 
-The database includes articles from major international newspapers:
+Scheduled lambdas
 
-- **English**: The Guardian, BBC, CNN, Fox News, New York Times, Washington Post
-- **International**: Al Jazeera, Deutsche Welle, China Daily
-- **Regional**: Sky News Australia, NewsHub.co.nz, Stuff.co.nz
-- **Specialized**: The Atlantic, The Economist, The Independent
-- **And 8 more** major news sources
+Scheduled scrape
 
-## Technology Stack
-
-### Backend
-- **Python**: Scrapy for web scraping, SQLModel for database ORM
-- **Go**: Gin web framework for the dashboard API
-- **SQLite**: Lightweight database for development and research
-
-### Frontend
-- **Tailwind CSS**: Utility-first CSS framework
-- **Vanilla JavaScript**: Minimal client-side requirements
-- **Responsive Design**: Mobile-first approach
-
-### Infrastructure
-- **Fly.io**: Web application deployment
-- **AWS CDK**: Infrastructure as code
-- **S3**: URL storage and backups
-
-## Development
-
-### Local Setup
-
-**Python Environment:**
-```bash
-poetry install
-poetry shell
-```
-
-**Go Dashboard:**
-```bash
-cd webapp
-go mod tidy
-go run .
-```
-
-**Database Access:**
-```bash
-sqlite3 data/db.sqlite
-```
-
-### Testing
-
-**Test Go webapp with Playwright:**
-```bash
-cd webapp
-npm install playwright
-npx playwright install
-node test-webapp.js
-```
-
-## Deployment
-
-### Web Application
-```bash
-make deploy
-```
-
-### AWS Infrastructure
-```bash
-make aws-infra
-```
-
-## Documentation
-
-- **Go Webapp Details**: See `docs/go-rebuild.md` for technical implementation
-- **Database Schema**: View with `sqlite3 data/db.sqlite .schema`
-- **API Endpoints**: Main dashboard at `/` with newspaper statistics
-
-## Contributing
-
-1. **Data Quality**: Help improve article extraction and deduplication
-2. **Analysis**: Contribute GPT-based article analysis and insights
-3. **Visualization**: Enhance the web dashboard with new features
-4. **Sources**: Suggest additional newspaper sources for broader coverage
-
-## Research Applications
-
-This dataset supports research in:
-- **Climate Communication**: How different outlets frame climate issues
-- **Temporal Analysis**: Evolution of climate news coverage over time
-- **Geographic Patterns**: Regional differences in climate reporting
-- **NLP Studies**: Text analysis, sentiment analysis, topic modeling
-- **Media Bias**: Comparative analysis of reporting approaches
-
-## License & Usage
-
-This project aggregates publicly available news articles for research purposes. Please respect newspaper copyrights and terms of service when using this data.
+Webapp

@@ -1,11 +1,12 @@
 """Functions for AWS Lambda."""
+
 import typing
 
 from rich import print
 
 from climatedb import files
 from climatedb.models import Newspaper, SearchLambdaEvent
-from climatedb.search import get_timestamp, google_search
+from climatedb.search import get_timestamp, search_for_articles
 
 
 def search_controller(
@@ -30,7 +31,7 @@ def search_controller(
     pkg = []
     for query in ["climate change", "climate crisis"]:
         print(f"[green]search[/]: paper: {paper.name} n: {num} query: {query}")
-        urls = google_search(paper.site, query, stop=num)
+        urls = search_for_articles(paper.site, query, stop=num)
         print(f"found {len(urls)} urls")
         print(urls)
         pkg.extend(urls)

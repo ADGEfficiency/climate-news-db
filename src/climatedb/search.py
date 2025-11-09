@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from urllib.error import HTTPError
 
 import typer
-from googlesearch import search as googlesearch
+from ddgs import DDGS
 from rich import print
 from scrapy.settings import Settings
 
@@ -25,31 +25,17 @@ def get_timestamp() -> str:
     return format_timestamp(stamp)
 
 
-def google_search(
-    site: str, query: str, start: int = 0, stop: int = 10, backoff: int = 1
+def search_for_articles(
+    site: str, query: str, num_results: int = 10, backoff: int = 1
 ) -> list:
     """helper for search"""
-    assert stop > 0
-
     qry = f"{query} site:{site}"
     time.sleep((2**backoff) + random.random())
-
     try:
-        return list(
-            googlesearch(
-                qry,
-                num=stop,
-                start=start,
-                stop=stop,
-                pause=0.5,
-                # tbs="qdr:d2",
-            )
-        )
+        return list(DDGS().text(qry, max_resurlts=num_results))
 
     except HTTPError as e:
         raise e
-        # print(f"{qry}, {e}, backoff {backoff}")
-        # return google_search(site, query, start=stop, backoff=backoff + 1)
 
 
 @app.command()
@@ -61,7 +47,9 @@ def cli(paper: str, query: str, num: int) -> None:
     ]
     newspaper = Newspaper(**newspapers[0])
     print(f"[green]search[/]:\n paper: {newspaper.name} n: {num} query: {query}")
-    urls = google_search(newspaper.site, query, stop=num)
+    results = search_for_articles(newspaper.site, query, num_results=num)
+    urls = [r["href"] for r in results]
+    print(f"found {len(urls)} results")
     urls = [{"url": u, "timestamp": get_timestamp()} for u in urls]
     db = JSONLines(settings["DATA_HOME"] / "urls.jsonl")
     db.write(urls)

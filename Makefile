@@ -15,9 +15,8 @@ deploy: setup pulls3 pulls3-urls seed regen crawl pushs3 zip deploy-flyio
 QUIET := -q
 
 setup:
-	pip install pip -Uq
-	pip install poetry==1.3.0 $(QUIET)
-	poetry install $(QUIET)
+	pip install uv
+	uv pip install -e .
 
 # --------------------------------------
 #           ARTICLE CRAWLING
@@ -25,7 +24,7 @@ setup:
 .PHONY: crawl
 
 crawl:
-	cat newspapers.json | jq '.[].name' | xargs -n 1 -I {} scrapy crawl {} -o $(DATA_HOME)/articles/{}.jsonl -L DEBUG
+	cat newspapers.json | jq '.[].name' | xargs -n 1 -I {} scrapy crawl {} -o "$(DATA_HOME)"/articles/{}.jsonl -L DEBUG
 
 # --------------------------------------
 #             WEB APP
@@ -35,10 +34,10 @@ crawl:
 PORT=8004
 
 app: setup
-	uvicorn climatedb.app:app --reload --port $(PORT) --host 0.0.0.0 --proxy-headers
+	uvicorn climatedb.app:app --reload --port "$(PORT)" --host 0.0.0.0 --proxy-headers
 
 zip:
-	cd $(DATA_HOME); zip -r ./climate-news-db-dataset.zip ./* -x "./html/*" -x "./opinions/*"
+	cd "$(DATA_HOME)"; zip -r ./climate-news-db-dataset.zip ./* -x "./html/*" -x "./opinions/*"
 
 deploy-flyio:
 	flyctl deploy --wait-timeout 360
@@ -49,7 +48,7 @@ deploy-flyio:
 .PHONY: seed regen
 
 seed:
-	mkdir -p $(DATA_HOME)/articles
+	mkdir -p "$(DATA_HOME)"/articles
 	python scripts/seed.py
 
 regen: seed
@@ -67,15 +66,15 @@ VERISONED_S3_BUCKET=$(shell aws cloudformation describe-stacks --stack-name Clim
 VERISONED_S3_DIR=s3://$(VERISONED_S3_BUCKET)
 
 pulls3:
-	aws --region ap-southeast-2 s3 sync $(S3_DIR) $(DATA_HOME) --exclude 'html/*'
+	aws --region ap-southeast-2 s3 sync "$(S3_DIR)" "$(DATA_HOME)" --exclude 'html/*'
 
 pulls3-urls:
-	echo "$(shell wc -l $(DATA_HOME)/urls.jsonl) urls"
-	aws --region ap-southeast-2 s3 cp $(VERISONED_S3_DIR)/urls.jsonl $(DATA_HOME)/urls.jsonl
+	echo "$(shell wc -l "$(DATA_HOME)"/urls.jsonl) urls"
+	aws --region ap-southeast-2 s3 cp "$(VERISONED_S3_DIR)"/urls.jsonl "$(DATA_HOME)"/urls.jsonl
 	echo "$$(wc -l $(DATA_HOME)/urls.jsonl) urls"
 
 pushs3:
-	aws s3 sync $(DATA_HOME) $(S3_DIR)
+	aws s3 sync "$(DATA_HOME)"$(S3_DIR)
 
 # --------------------------------------
 #             AWS INFRA
@@ -84,7 +83,7 @@ pushs3:
 .PHONY: run-search-lambdas infra
 
 infra: setup
-	cd infra && npx --yes aws-cdk@2.92.0 deploy -vv --all
+	cd infra && npx --yes aws-cdk@2.160.0 deploy --all
 
 # --------------------------------------
 #               CHECK
@@ -121,4 +120,4 @@ run-search-lambdas:
 	python scripts/run-search-lambdas.py
 
 crawl-one:
-	scrapy crawl $(PAPER) -L DEBUG -o $(DATA_HOME)/articles/$(PAPER).jsonl
+	scrapy crawl "$(PAPER)" -L DEBUG -o "$(DATA_HOME)/articles/$(PAPER)".jsonl

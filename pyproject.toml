@@ -6,8 +6,7 @@ authors = [{ name = "Adam Green", email = "adam.green@adgefficiency.com" }]
 requires-python = "~=3.10"
 license = "MIT"
 dependencies = [
-    "google>=3.0.0,<4",
-    "aws-cdk-lib>=2.75.0,<3",
+    "aws-cdk-lib==2.160.0",
     "constructs>=10.2.0,<11",
     "boto3>=1.26.115,<2",
     "fastapi>=0.101.1,<0.102",
@@ -28,6 +27,7 @@ dependencies = [
     "aiohttp>=3.8.5,<4",
     "ruff>=0.0.284,<0.0.285",
     "black>=23.7.0,<24",
+    "ddgs>=9.8.0",
 ]
 
 [dependency-groups]
