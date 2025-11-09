@@ -12,31 +12,10 @@ from climatedb.search import get_timestamp, search_for_articles
 def search_controller(
     event: dict, context: typing.Union[dict, None] = None
 ) -> list[dict[str, str]]:
-    """Search newspapers for articles about climate change.
-
-    Appends to `urls.jsonl` on S3.  Run on a daily schedule.
-    """
+    """Search newspaper sites for articles and write to JSON file on S3"""
     event = SearchLambdaEvent(**event).dict()
-
-    #  duplication of logic in /Users/adam/climate-news-db/climatedb/search.py
-    #  TODO refactor out
-    num = event["num"]
-    paper = event["newspaper_name"]
-
-    newspapers = [
-        p for p in files.JSONFile("./newspapers.json").read() if paper in p["name"]
-    ]
-    paper = Newspaper(**newspapers[0])
-
     pkg = []
     for query in ["climate change", "climate crisis"]:
-        print(f"[green]search[/]: paper: {paper.name} n: {num} query: {query}")
-        urls = search_for_articles(paper.site, query, stop=num)
-        print(f"found {len(urls)} urls")
-        print(urls)
-        pkg.extend(urls)
-        urls = [{"url": u, "timestamp": get_timestamp()} for u in urls]
         db = files.S3JSONLines(event["s3_bucket"], event["s3_key"])
-        db.write(urls)
-
+        pkg.extend(search(event["newspaper_name"], query, event["num"], db))
     return pkg

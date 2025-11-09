@@ -11,6 +11,7 @@ from scrapy.settings import Settings
 from climatedb import files
 from climatedb.files import JSONLines
 from climatedb.models import Newspaper
+from climatedb.utils import get_one_newspaper
 
 app = typer.Typer()
 
@@ -29,30 +30,30 @@ def search_for_articles(
     site: str, query: str, num_results: int = 10, backoff: int = 1
 ) -> list:
     """helper for search"""
-    qry = f"{query} site:{site}"
     time.sleep((2**backoff) + random.random())
     try:
-        return list(DDGS().text(qry, max_resurlts=num_results))
+        return list(DDGS().text(f'"{query}" site:{site}', max_resurlts=num_results))
 
     except HTTPError as e:
         raise e
+
+
+def search(paper: str, query: str, num: int, db: JSONLines) -> list[dict[str, str]]:
+    newspaper = get_one_newspaper(paper)
+    print(f"[green]search[/]:\n paper: {newspaper.name} n: {num} query: {query}")
+    results = search_for_articles(newspaper.site, query, num_results=num)
+    print(f"found {len(results)} results")
+    urls = [{"url": r["href"], "timestamp": get_timestamp()} for r in results]
+    db.write(urls)
+    return urls
 
 
 @app.command()
 def cli(paper: str, query: str, num: int) -> None:
     settings = Settings()
     settings.setmodule("climatedb.settings")
-    newspapers = [
-        p for p in files.JSONFile("./newspapers.json").read() if paper in p["name"]
-    ]
-    newspaper = Newspaper(**newspapers[0])
-    print(f"[green]search[/]:\n paper: {newspaper.name} n: {num} query: {query}")
-    results = search_for_articles(newspaper.site, query, num_results=num)
-    urls = [r["href"] for r in results]
-    print(f"found {len(urls)} results")
-    urls = [{"url": u, "timestamp": get_timestamp()} for u in urls]
     db = JSONLines(settings["DATA_HOME"] / "urls.jsonl")
-    db.write(urls)
+    return search(paper, query, num, db)
 
 
 if __name__ == "__main__":
