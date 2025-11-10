@@ -120,3 +120,8 @@ func (h *Handlers) Newspaper(c *gin.Context) {
 		"articleCount":   len(articles),
 	})
 }
+
+func (h *Handlers) Download(c *gin.Context) {
+	zipPath := "data/climate-news-db-dataset.zip"
+	c.FileAttachment(zipPath, "climate-news-db-dataset.zip")
+}

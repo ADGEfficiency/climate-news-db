@@ -29,15 +29,18 @@ crawl:
 # --------------------------------------
 #             WEB APP
 # --------------------------------------
-.PHONY: app zip
-
-PORT=8004
-
-app: setup
-	uvicorn climatedb.app:app --reload --port "$(PORT)" --host 0.0.0.0 --proxy-headers
+.PHONY: zip webapp-build webapp-run webapp deploy-flyio
 
 zip:
 	cd "$(DATA_HOME)"; zip -r ./climate-news-db-dataset.zip ./* -x "./html/*" -x "./opinions/*"
+
+webapp-build:
+	docker build -t climate-news-webapp -f docker/webapp.Dockerfile .
+
+webapp-run: webapp-build
+	docker run -p 8080:8080 climate-news-webapp
+
+webapp: webapp-run
 
 deploy-flyio:
 	flyctl deploy --wait-timeout 360
@@ -112,7 +115,6 @@ test-ci: setup
 # --------------------------------------
 #               DEV
 # --------------------------------------
-
 gpt:
 	python ./climatedb/gpt.py
 

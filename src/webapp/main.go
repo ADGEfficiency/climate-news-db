@@ -14,7 +14,7 @@ const AppTitle = "climate-news-db"
 
 func main() {
 	// Initialize database
-	dbPath := "../data/db.sqlite"
+	dbPath := "data/db.sqlite"
 	db, err := NewDatabase(dbPath)
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
@@ -100,10 +100,10 @@ func main() {
 
 	// Load templates with custom functions
 	r.SetFuncMap(funcMap)
-	r.LoadHTMLGlob("templates/*")
+	r.LoadHTMLGlob("src/webapp/templates/*")
 
 	// Serve static files
-	r.Static("/static", "../static")
+	r.Static("/static", "static")
 
 	// Routes
 	r.GET("/", handlers.Latest)
@@ -111,6 +111,7 @@ func main() {
 	r.GET("/newspaper/:newspaper", handlers.Newspaper)
 	r.GET("/article/:id", handlers.Article)
 	r.GET("/random", handlers.Random)
+	r.GET("/download", handlers.Download)
 
 	// Start server
 	log.Println("Starting server on :8080")
