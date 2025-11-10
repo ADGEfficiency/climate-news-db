@@ -12,6 +12,7 @@ type NewspaperStats struct {
 	Color                string  `json:"color"`
 	ArticleCount         int     `json:"article_count"`
 	AverageArticleLength float64 `json:"average_article_length"`
+	MaxDatetimeCrawled   string  `json:"max_datetime_crawled"`
 }
 
 type Article struct {
@@ -55,7 +56,8 @@ func (d *Database) GetNewspaperStats() ([]NewspaperStats, error) {
 			n.site,
 			n.color,
 			COUNT(a.id) as article_count,
-			COALESCE(AVG(a.article_length), 0) as average_article_length
+			COALESCE(AVG(a.article_length), 0) as average_article_length,
+			COALESCE(MAX(a.datetime_crawled_utc), '') as max_datetime_crawled
 		FROM newspaper n
 		LEFT JOIN article a ON n.id = a.newspaper_id
 		GROUP BY n.id, n.name, n.fancy_name, n.site, n.color
@@ -71,7 +73,7 @@ func (d *Database) GetNewspaperStats() ([]NewspaperStats, error) {
 	var stats []NewspaperStats
 	for rows.Next() {
 		var stat NewspaperStats
-		err := rows.Scan(&stat.Name, &stat.FancyName, &stat.Site, &stat.Color, &stat.ArticleCount, &stat.AverageArticleLength)
+		err := rows.Scan(&stat.Name, &stat.FancyName, &stat.Site, &stat.Color, &stat.ArticleCount, &stat.AverageArticleLength, &stat.MaxDatetimeCrawled)
 		if err != nil {
 			return nil, err
 		}
