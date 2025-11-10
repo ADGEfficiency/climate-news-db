@@ -16,7 +16,7 @@ func NewHandlers(db *Database) *Handlers {
 	return &Handlers{db: db}
 }
 
-func (h *Handlers) Dashboard(c *gin.Context) {
+func (h *Handlers) Newspapers(c *gin.Context) {
 	stats, err := h.db.GetNewspaperStats()
 	if err != nil {
 		c.HTML(http.StatusInternalServerError, "error.html", gin.H{

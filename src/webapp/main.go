@@ -183,8 +183,8 @@ func main() {
 	r.Static("/static", "static")
 
 	// Routes
-	r.GET("/", handlers.Latest)
-	r.GET("/newspapers", handlers.Dashboard)
+	r.GET("/", handlers.Newspapers)
+	r.GET("/latest", handlers.Latest)
 	r.GET("/newspaper/:newspaper", handlers.Newspaper)
 	r.GET("/article/:id", handlers.Article)
 	r.GET("/random", handlers.Random)

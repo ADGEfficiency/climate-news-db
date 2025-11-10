@@ -7,7 +7,7 @@ from scrapy.http.response.html import HtmlResponse
 
 from climatedb import files
 from climatedb.models import Newspaper
-from climatedb.utils import read_newspapers_json
+from climatedb.utils import get_one_newspaper, read_newspapers_json
 
 
 def filter_urls(exclude_fi: files.JSONLines, urls: set) -> set:
@@ -24,9 +24,7 @@ def find_urls_to_crawl(paper: str, data_home: pathlib.Path) -> list[str]:
     urls_fi = files.JSONLines(data_home / "urls.jsonl")
     urls = pd.DataFrame(urls_fi.read())
     print(f" {urls.shape} raw urls")
-
     papers = read_newspapers_json()
-
     urls["paper"] = urls["url"].apply(
         lambda x: find_newspaper_from_url(x, papers, return_name=True)
     )
@@ -43,6 +41,7 @@ def find_urls_to_crawl(paper: str, data_home: pathlib.Path) -> list[str]:
     urls = urls[urls["paper"] == paper]
     print(f" {urls.shape} urls after filter for newspaper")
 
+    # de-dupe
     urls = set(urls["url"].tolist())
 
     #  remove articles that already exist in the articles json
@@ -87,3 +86,32 @@ def find_start_url(response: HtmlResponse) -> str:
         return str(response.url)
     else:
         return str(url.decode("utf-8"))
+
+
+if __name__ == "__main__":
+    newspaper = get_one_newspaper("economist")
+    print(newspaper)
+    urls_fi = files.JSONLines(pathlib.Path("./data") / "urls.jsonl")
+    urls = urls_fi.read()
+    urls = [u for u in urls if newspaper.site in u["url"]]
+
+    import requests
+
+    from climatedb.spiders.economist import EconomistSpider
+
+    spider = EconomistSpider()
+    for url in urls:
+        url = url["url"]
+        # Fetch the HTML content of the URL
+        response = requests.get(url)
+        html_content = response.text
+
+        # Create an HtmlResponse object
+        fake_response = HtmlResponse(url=url, body=html_content, encoding="utf-8")
+
+        # Call the spider's parse method
+        result = spider.parse(fake_response)
+
+        # Process the result (e.g., print or store the parsed data)
+        for item in result:
+            print(item)

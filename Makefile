@@ -77,7 +77,7 @@ pulls3-urls:
 	echo "$$(wc -l $(DATA_HOME)/urls.jsonl) urls"
 
 pushs3:
-	aws s3 sync "$(DATA_HOME)"$(S3_DIR)
+	aws s3 sync "$(DATA_HOME)" "$(S3_DIR)"
 
 # --------------------------------------
 #             AWS INFRA

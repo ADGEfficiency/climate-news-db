@@ -59,12 +59,19 @@ ROBOTSTXT_OBEY = True
 # }
 
 #  from https://github.com/alecxe/scrapy-fake-useragent
+#  Note: Disabled RetryUserAgentMiddleware due to bug with missing EXCEPTIONS_TO_RETRY attribute
 DOWNLOADER_MIDDLEWARES = {
     "scrapy.downloadermiddlewares.useragent.UserAgentMiddleware": None,
-    "scrapy.downloadermiddlewares.retry.RetryMiddleware": None,
     "scrapy_fake_useragent.middleware.RandomUserAgentMiddleware": 400,
-    "scrapy_fake_useragent.middleware.RetryUserAgentMiddleware": 401,
 }
+
+# Fake User Agent settings
+FAKEUSERAGENT_PROVIDERS = [
+    "scrapy_fake_useragent.providers.FakeUserAgentProvider",  # this is the first provider we'll try
+    "scrapy_fake_useragent.providers.FakerProvider",  # if FakeUserAgentProvider fails, we'll use faker to generate a user-agent string for us
+    "scrapy_fake_useragent.providers.FixedUserAgentProvider",  # fall back to USER_AGENT value
+]
+FAKEUSERAGENT_FALLBACK = USER_AGENT
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
