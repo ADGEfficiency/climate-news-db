@@ -110,14 +110,21 @@ func (h *Handlers) Newspaper(c *gin.Context) {
 	// Get newspaper info from first article
 	newspaper := articles[0]
 
+	// Get latest article date (articles are sorted by date_published DESC)
+	latestArticleDate := ""
+	if len(articles) > 0 {
+		latestArticleDate = articles[0].DatePublished
+	}
+
 	c.HTML(http.StatusOK, "newspaper.html", gin.H{
-		"title":          AppTitle,
-		"newspaperName":  newspaper.NewspaperName,
-		"newspaperFancy": newspaper.NewspaperFancy,
-		"newspaperSite":  newspaper.NewspaperSite,
-		"newspaperColor": newspaper.NewspaperColor,
-		"articles":       articles,
-		"articleCount":   len(articles),
+		"title":             AppTitle,
+		"newspaperName":     newspaper.NewspaperName,
+		"newspaperFancy":    newspaper.NewspaperFancy,
+		"newspaperSite":     newspaper.NewspaperSite,
+		"newspaperColor":    newspaper.NewspaperColor,
+		"articles":          articles,
+		"articleCount":      len(articles),
+		"latestArticleDate": latestArticleDate,
 	})
 }
 

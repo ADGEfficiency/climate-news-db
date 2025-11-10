@@ -22,8 +22,7 @@ def format_timestamp(dt: datetime) -> str:
 
 def get_timestamp() -> str:
     """Create standardized UTC timestamp."""
-    stamp = datetime.now(timezone.utc)
-    return format_timestamp(stamp)
+    return format_timestamp(datetime.now(timezone.utc))
 
 
 def search_for_articles(
@@ -33,7 +32,6 @@ def search_for_articles(
     time.sleep((2**backoff) + random.random())
     try:
         return list(DDGS().text(f'"{query}" site:{site}', max_resurlts=num_results))
-
     except HTTPError as e:
         raise e
 
@@ -52,8 +50,7 @@ def search(paper: str, query: str, num: int, db: JSONLines | S3JSONLines) -> lis
 def cli(paper: str, query: str, num: int) -> None:
     settings = Settings()
     settings.setmodule("climatedb.settings")
-    db = JSONLines(settings["DATA_HOME"] / "urls.jsonl")
-    search(paper, query, num, db)
+    search(paper, query, num, JSONLines(settings["DATA_HOME"] / "urls.jsonl"))
 
 
 if __name__ == "__main__":

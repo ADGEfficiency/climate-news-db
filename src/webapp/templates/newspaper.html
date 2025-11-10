@@ -101,7 +101,7 @@
                 </div>
 
                 <!-- Statistics -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 px-6 py-6 bg-gray-50">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-6 py-6 bg-gray-50">
                     <div class="text-center">
                         <div class="text-2xl font-bold text-gray-900">{{.articleCount}}</div>
                         <div class="text-sm text-gray-500">Total Articles</div>
@@ -129,6 +129,16 @@
                             {{end}}
                         </div>
                         <div class="text-sm text-gray-500">Latest Article</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-sm font-medium {{freshnessClass .latestArticleDate}}">
+                            {{if .latestArticleDate}}
+                                Last Updated: {{timeAgo .latestArticleDate}} ago on {{extractDate .latestArticleDate}}
+                            {{else}}
+                                -
+                            {{end}}
+                        </div>
+                        <div class="text-sm text-gray-500">Freshness</div>
                     </div>
                 </div>
             </div>

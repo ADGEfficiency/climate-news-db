@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"log"
 	"strings"
@@ -95,6 +96,82 @@ func main() {
 
 			// Format as readable date and time
 			return t.Format("Jan 2, 2006 at 3:04 PM")
+		},
+		"timeAgo": func(dateStr string) string {
+			if dateStr == "" {
+				return "-"
+			}
+
+			// Remove UTC suffix if present
+			dateStr = strings.TrimSuffix(strings.TrimSpace(dateStr), "UTC")
+
+			// Parse format: 2021-01-01T01:16:17.000000
+			t, err := time.Parse("2006-01-02T15:04:05.999999", dateStr)
+			if err != nil {
+				return "unknown"
+			}
+
+			duration := time.Since(t)
+			days := int(duration.Hours() / 24)
+
+			if days > 365 {
+				years := days / 365
+				if years == 1 {
+					return "1 year"
+				}
+				return fmt.Sprintf("%d years", years)
+			} else if days > 30 {
+				months := days / 30
+				if months == 1 {
+					return "1 month"
+				}
+				return fmt.Sprintf("%d months", months)
+			} else if days > 0 {
+				if days == 1 {
+					return "1 day"
+				}
+				return fmt.Sprintf("%d days", days)
+			}
+			return "0 days"
+		},
+		"extractDate": func(dateStr string) string {
+			if dateStr == "" {
+				return "-"
+			}
+
+			// Simply extract the date part (YYYY-MM-DD) from the beginning
+			if len(dateStr) >= 10 {
+				return dateStr[:10]
+			}
+			return dateStr
+		},
+		"freshnessClass": func(dateStr string) string {
+			if dateStr == "" {
+				return "text-gray-500"
+			}
+
+			// Remove UTC suffix if present
+			dateStr = strings.TrimSuffix(strings.TrimSpace(dateStr), "UTC")
+
+			// Parse format: 2021-01-01T01:16:17.000000
+			t, err := time.Parse("2006-01-02T15:04:05.999999", dateStr)
+			if err != nil {
+				return "text-gray-500"
+			}
+
+			duration := time.Since(t)
+			days := int(duration.Hours() / 24)
+
+			// Green: < 1 day (fresh)
+			if days < 1 {
+				return "text-green-600"
+			}
+			// Yellow/Orange: 1-7 days (stale)
+			if days < 7 {
+				return "text-yellow-600"
+			}
+			// Red: > 7 days (very old)
+			return "text-red-600"
 		},
 	}
 
