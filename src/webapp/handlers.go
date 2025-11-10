@@ -26,7 +26,7 @@ func (h *Handlers) Newspapers(c *gin.Context) {
 		return
 	}
 
-	c.HTML(http.StatusOK, "dashboard.html", gin.H{
+	c.HTML(http.StatusOK, "newspapers.html", gin.H{
 		"title":      AppTitle,
 		"newspapers": stats,
 	})

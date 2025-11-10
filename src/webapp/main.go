@@ -184,6 +184,7 @@ func main() {
 
 	// Routes
 	r.GET("/", handlers.Newspapers)
+	r.GET("/newspapers", handlers.Newspapers)
 	r.GET("/latest", handlers.Latest)
 	r.GET("/newspaper/:newspaper", handlers.Newspaper)
 	r.GET("/article/:id", handlers.Article)
