@@ -8,9 +8,7 @@ from ddgs import DDGS
 from rich import print
 from scrapy.settings import Settings
 
-from climatedb import files
 from climatedb.files import JSONLines, S3JSONLines
-from climatedb.models import Newspaper
 from climatedb.utils import get_one_newspaper
 
 app = typer.Typer()

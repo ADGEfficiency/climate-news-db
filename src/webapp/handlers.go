@@ -20,8 +20,9 @@ func (h *Handlers) Newspapers(c *gin.Context) {
 	stats, err := h.db.GetNewspaperStats()
 	if err != nil {
 		c.HTML(http.StatusInternalServerError, "error.html", gin.H{
-			"title": AppTitle,
-			"error": err.Error(),
+			"title":      AppTitle,
+			"error":      err.Error(),
+			"activePage": "",
 		})
 		return
 	}
@@ -29,6 +30,7 @@ func (h *Handlers) Newspapers(c *gin.Context) {
 	c.HTML(http.StatusOK, "newspapers.html", gin.H{
 		"title":      AppTitle,
 		"newspapers": stats,
+		"activePage": "newspapers",
 	})
 }
 
@@ -37,8 +39,9 @@ func (h *Handlers) Article(c *gin.Context) {
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		c.HTML(http.StatusBadRequest, "error.html", gin.H{
-			"title": AppTitle,
-			"error": "Invalid article ID",
+			"title":      AppTitle,
+			"error":      "Invalid article ID",
+			"activePage": "",
 		})
 		return
 	}
@@ -46,15 +49,17 @@ func (h *Handlers) Article(c *gin.Context) {
 	article, err := h.db.GetArticleByID(id)
 	if err != nil {
 		c.HTML(http.StatusNotFound, "error.html", gin.H{
-			"title": AppTitle,
-			"error": "Article not found",
+			"title":      AppTitle,
+			"error":      "Article not found",
+			"activePage": "",
 		})
 		return
 	}
 
 	c.HTML(http.StatusOK, "article.html", gin.H{
-		"title":   AppTitle,
-		"article": article,
+		"title":      AppTitle,
+		"article":    article,
+		"activePage": "",
 	})
 }
 
@@ -62,8 +67,9 @@ func (h *Handlers) Latest(c *gin.Context) {
 	latestPublished, err := h.db.GetLatestPublishedArticles(20)
 	if err != nil {
 		c.HTML(http.StatusInternalServerError, "error.html", gin.H{
-			"title": AppTitle,
-			"error": err.Error(),
+			"title":      AppTitle,
+			"error":      err.Error(),
+			"activePage": "",
 		})
 		return
 	}
@@ -71,6 +77,7 @@ func (h *Handlers) Latest(c *gin.Context) {
 	c.HTML(http.StatusOK, "latest.html", gin.H{
 		"title":           AppTitle,
 		"latestPublished": latestPublished,
+		"activePage":      "latest",
 	})
 }
 
@@ -78,8 +85,9 @@ func (h *Handlers) Random(c *gin.Context) {
 	id, err := h.db.GetRandomArticleID()
 	if err != nil {
 		c.HTML(http.StatusInternalServerError, "error.html", gin.H{
-			"title": AppTitle,
-			"error": err.Error(),
+			"title":      AppTitle,
+			"error":      err.Error(),
+			"activePage": "",
 		})
 		return
 	}
@@ -93,16 +101,18 @@ func (h *Handlers) Newspaper(c *gin.Context) {
 	articles, err := h.db.GetArticlesByNewspaper(newspaperName)
 	if err != nil {
 		c.HTML(http.StatusInternalServerError, "error.html", gin.H{
-			"title": AppTitle,
-			"error": err.Error(),
+			"title":      AppTitle,
+			"error":      err.Error(),
+			"activePage": "",
 		})
 		return
 	}
 
 	if len(articles) == 0 {
 		c.HTML(http.StatusNotFound, "error.html", gin.H{
-			"title": AppTitle,
-			"error": "Newspaper not found",
+			"title":      AppTitle,
+			"error":      "Newspaper not found",
+			"activePage": "",
 		})
 		return
 	}
@@ -125,6 +135,7 @@ func (h *Handlers) Newspaper(c *gin.Context) {
 		"articles":          articles,
 		"articleCount":      len(articles),
 		"latestArticleDate": latestArticleDate,
+		"activePage":        "",
 	})
 }
 

@@ -2,10 +2,9 @@
 
 import typing
 
-from rich import print
 
 from climatedb import files
-from climatedb.models import Newspaper, SearchLambdaEvent
+from climatedb.models import SearchLambdaEvent
 from climatedb.search import search
 
 
