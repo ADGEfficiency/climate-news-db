@@ -12,7 +12,7 @@ kill_timeout = "5s"
   auto_rollback = true
 
 [build]
-  dockerfile = "./docker/web.Dockerfile"
+  dockerfile = "./docker/webapp.Dockerfile"
 
 [[services]]
   protocol = "tcp"

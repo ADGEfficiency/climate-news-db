@@ -1,13 +1,13 @@
 #!/bin/sh
 
 hi () {
-echo ':wave: Hello from the climate-news-db'  | gum format -t emoji
+  echo ':wave: Hello from the climate-news-db'  | gum format -t emoji
 }
 
 hi
 PAPERS=$(cat newspapers.json | jq '.[].name' -r | tac)
 gum style "select a paper:" --foreground 2
-PAPER=$(gum choose $PAPERS)
+PAPER=$(gum choose "$PAPERS")
 clear
 
 hi
@@ -19,5 +19,5 @@ clear
 
 hi
 for QUERY in "climate change" "climate crisis"; do
-  python ./climatedb/search.py "$PAPER" "$QUERY" "$NUM"
+  python ./src/climatedb/search.py "$PAPER" "$QUERY" "$NUM"
 done

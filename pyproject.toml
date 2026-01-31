@@ -1,42 +1,45 @@
-[tool.poetry]
+[project]
 name = "climatedb"
 version = "0.4.0"
 description = "A dataset of climate change newspaper articles."
-authors = ["Adam Green <adam.green@adgefficiency.com>"]
+authors = [{ name = "Adam Green", email = "adam.green@adgefficiency.com" }]
+requires-python = "~=3.10"
 license = "MIT"
+dependencies = [
+    "aws-cdk-lib==2.160.0",
+    "constructs>=10.2.0,<11",
+    "boto3>=1.26.115,<2",
+    "fastapi>=0.101.1,<0.102",
+    "sqlmodel>=0.0.8,<0.0.9",
+    "rich>=13.5.2,<14",
+    "scrapy>=2.10.0,<3",
+    "mypy>=1.5.1,<2",
+    "pytest>=7.4.0,<8",
+    "isort>=5.12.0,<6",
+    "awscli>=1.29.28,<2",
+    "coverage>=7.3.0,<8",
+    "pandas>=2.0.3,<3",
+    "uvicorn>=0.23.2,<0.24",
+    "jinja2>=3.1.2,<4",
+    "datasette>=0.64.3,<0.65",
+    "scrapy-fake-useragent>=1.4.4,<2",
+    "typer>=0.9.0,<0.10",
+    "aiohttp>=3.8.5,<4",
+    "ddgs>=9.8.0",
+]
 
-[tool.poetry.dependencies]
-python = "^3.10"
-google = "^3.0.0"
-aws-cdk-lib = "^2.75.0"
-constructs = "^10.2.0"
-boto3 = "^1.26.115"
-fastapi = "^0.101.1"
-sqlmodel = "^0.0.8"
-rich = "^13.5.2"
-scrapy = "^2.10.0"
-mypy = "^1.5.1"
-pytest = "^7.4.0"
-isort = "^5.12.0"
-awscli = "^1.29.28"
-coverage = "^7.3.0"
-pandas = "^2.0.3"
-uvicorn = "^0.23.2"
-jinja2 = "^3.1.2"
-datasette = "^0.64.3"
-scrapy-fake-useragent = "^1.4.4"
-typer = "^0.9.0"
-aiohttp = "^3.8.5"
-ruff = "^0.0.284"
-black = "^23.7.0"
+[dependency-groups]
+develop = [
+    "ipython>=8.11.0,<9",
+    "matplotlib>=3.7.1,<4",
+]
 
-[tool.poetry.group.develop.dependencies]
-ipython = "^8.11.0"
-matplotlib = "^3.7.1"
+[tool.uv]
+default-groups = ["develop"]
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.mypy]
 strict = true
@@ -51,6 +54,3 @@ warn_redundant_casts = true
 warn_unused_ignores = true
 #  allows doing list rather than list[str]
 disallow_any_generics = false
-
-[tool.ruff]
-ignore = ["E501"]

@@ -38,7 +38,9 @@ class ArticleMeta:
     datetime_crawled_utc: datetime.datetime = datetime.datetime.now()
 
     def __repr__(self) -> str:
-        return f"ArticleMeta(headline={self.headline}, article_name: {self.article_name}, date_published: {self.date_published})"
+        return (
+            f"ArticleMeta(headline={self.headline}, article_name: {self.article_name}, date_published: {self.date_published})"
+        )
 
 
 @dataclasses.dataclass(kw_only=True)
@@ -46,7 +48,9 @@ class ArticleItem(ArticleMeta):
     html: str
 
     def __repr__(self) -> str:
-        return f"ArticleItem(headline={self.headline}, article_name: {self.article_name}, date_published: {self.date_published})"
+        return (
+            f"ArticleItem(headline={self.headline}, article_name: {self.article_name}, date_published: {self.date_published})"
+        )
 
 
 @dataclasses.dataclass

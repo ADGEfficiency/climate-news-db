@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+{{template "head" .}}
+<body class="bg-gray-50 min-h-screen">
+    {{template "navbar" .}}
+
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div class="px-4 py-6 sm:px-0">
+            <!-- Back to Newspapers -->
+            <div class="mb-6">
+                <a href="/newspapers" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    Back to Newspapers
+                </a>
+            </div>
+
+            <!-- Newspaper Header -->
+            <div class="bg-white shadow rounded-lg mb-6">
+                <div class="px-6 py-6 border-b border-gray-200">
+                    <div class="flex items-center mb-4">
+                        <div class="w-6 h-6 rounded-full mr-4" style="background-color: {{.newspaperColor}}"></div>
+                        <h1 class="text-3xl font-bold text-gray-900">{{.newspaperFancy}}</h1>
+                    </div>
+                    <div class="flex items-center space-x-4 text-sm">
+                        <a href="https://{{.newspaperSite}}" target="_blank" class="text-blue-600 hover:text-blue-900 flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                            </svg>
+                            {{.newspaperSite}}
+                        </a>
+                        <span class="text-gray-300">•</span>
+                        <span class="text-gray-500">{{.articleCount}} articles</span>
+                    </div>
+                </div>
+
+                <!-- Statistics -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-6 py-6 bg-gray-50">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-gray-900">{{.articleCount}}</div>
+                        <div class="text-sm text-gray-500">Total Articles</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-gray-900">
+                            {{if gt .articleCount 0}}
+                                {{$total := 0}}
+                                {{range .articles}}
+                                    {{$total = add $total .ArticleLength}}
+                                {{end}}
+                                {{printf "%.0f" (div (float64 $total) (float64 .articleCount))}} words
+                            {{else}}
+                                0
+                            {{end}}
+                        </div>
+                        <div class="text-sm text-gray-500">Avg Words/Article</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-gray-900">
+                            {{if gt (len .articles) 0}}
+                                {{formatDate (index .articles 0).DatePublished}}
+                            {{else}}
+                                -
+                            {{end}}
+                        </div>
+                        <div class="text-sm text-gray-500">Latest Article</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-sm font-medium {{freshnessClass .latestArticleDate}}">
+                            {{if .latestArticleDate}}
+                                Last Updated: {{timeAgo .latestArticleDate}} ago on {{extractDate .latestArticleDate}}
+                            {{else}}
+                                -
+                            {{end}}
+                        </div>
+                        <div class="text-sm text-gray-500">Freshness</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Articles List -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-xl font-bold text-gray-900">All Articles</h2>
+                </div>
+                <div class="divide-y divide-gray-200">
+                    {{range .articles}}
+                    <div class="px-6 py-4 hover:bg-gray-50">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center mb-2">
+                                    <span class="text-xs text-gray-500">{{formatDate .DatePublished}}</span>
+                                    <span class="mx-2 text-gray-300">•</span>
+                                    <span class="text-xs text-gray-500">{{.ArticleLength}} words</span>
+                                </div>
+                                <h3 class="text-sm font-medium text-gray-900 mb-2">
+                                    <a href="/article/{{.ID}}" class="hover:text-blue-600">{{.Headline}}</a>
+                                </h3>
+                                <div class="flex items-center text-xs text-gray-500 space-x-4">
+                                    <a href="{{.ArticleURL}}" target="_blank" class="text-blue-600 hover:text-blue-800">Read Original</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+    </main>
+
+    {{template "footer"}}
+</body>
+</html>

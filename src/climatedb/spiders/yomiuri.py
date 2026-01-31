@@ -10,9 +10,7 @@ from climatedb.spiders.base import BaseSpider
 
 class YomiuriSpider(BaseSpider):
     name = "yomiuri"
-    avoid_urls = set([
-        "https://japannews.yomiuri.co.jp/society/"
-    ])
+    avoid_urls = set(["https://japannews.yomiuri.co.jp/society/"])
 
     def parse(self, response: HtmlResponse) -> ArticleItem:
         """
